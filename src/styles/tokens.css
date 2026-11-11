@@ -1,0 +1,32 @@
+/* Direcția „machetă arhitecturală”: hârtie caldă, cerneală, un singur accent pe sală. */
+:root {
+  --paper: #f2f0eb; /* aceeași valoare ca PAPER din src/three/Scene.tsx */
+  --paper-2: #e8e5dd;
+  --surface: #fbfaf7;
+  --ink: #17191d;
+  --ink-2: #41454c;
+  --muted: #5e6269;
+  --line: #d4d0c6;
+  --line-strong: #b9b4a8;
+  --accent: #c8452b;
+
+  --font-display: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-text: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --size-h1: clamp(2.3rem, 1.05rem + 4.1vw, 4.4rem);
+  --size-h2: clamp(1.75rem, 1.3rem + 1.5vw, 2.5rem);
+  --size-lead: clamp(1.05rem, 0.98rem + 0.3vw, 1.2rem);
+  --size-text: 1rem;
+  --size-small: 0.875rem;
+  --size-label: 0.8125rem;
+
+  --edge: clamp(16px, 4.2vw, 64px);
+  --bar: 64px;
+  --radius: 10px;
+  --radius-small: 6px;
+  --panel: 400px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 18px 40px -24px rgb(23 25 29 / 0.35);
+}
