@@ -21,6 +21,8 @@ export const live = {
   pointerX: 0,
   pointerY: 0,
   reducedMotion: false,
+  /** Pagina a fost deschisă cu `?debug`: fără legănare, ca două capturi la fel să iasă identice. */
+  debug: false,
   /** Cadre desenate de la pornire; scripturile de test așteaptă după el. */
   frames: 0,
 }

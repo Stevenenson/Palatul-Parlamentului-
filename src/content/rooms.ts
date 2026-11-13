@@ -5,6 +5,10 @@
  *
  * Coordonatele sunt în metri. Fațada principală a palatului privește spre +Z,
  * iar pozițiile sălilor în clădire sunt aproximative (schematice).
+ *
+ * Cifrele despre săli vin din articolul „Palatul Parlamentului” de pe ro.wikipedia.org
+ * (secțiunile „Galeria de Onoare și holul Intrării Oficiale”, „Sala Unirii”,
+ * „Sala Drepturilor Omului” și „Sala A.I. Cuza”).
  */
 
 export type Vec3 = [number, number, number]
@@ -32,7 +36,8 @@ export type RoomSpec = {
   /** Folosit și ca ancoră în pagină (`#sala-unirii`). */
   id: string
   name: string
-  place: string
+  /** Un rând scurt sub titlu: ce are sala deosebit. */
+  note: string
   text: string
   facts: { value: string; label: string }[]
   accent: string
@@ -73,16 +78,16 @@ export const ROOMS: RoomSpec[] = [
   {
     id: 'galeria-de-onoare',
     name: 'Galeria de Onoare',
-    place: 'Latura de est, spre Piața Constituției',
-    text: 'Un culoar lung de 150 m și lat de 18 m, cu 34 de coloane octogonale și 67 de candelabre de cristal. De aici pornesc cele două scări monumentale.',
+    note: 'Latura de est a palatului',
+    text: 'Un culoar lung de 150 m și lat de 18 m, cu 34 de coloane octogonale și 67 de lustre de cristal. Aici se află cele două scări monumentale care urcă la etajul 1.',
     facts: [
       { value: '150 m', label: 'lungime' },
       { value: '18 m', label: 'lățime' },
       { value: '34', label: 'coloane octogonale' },
-      { value: '67', label: 'candelabre de cristal' },
+      { value: '67', label: 'lustre de cristal' },
     ],
     accent: '#c8452b',
-    floor: [0, 8, 99],
+    floor: [0, 2, 100],
     size: [150, 11, 18],
     style: 'gallery',
     camera: { eye: [-13, 3.4, 1.4], look: [0, 3.1, 0], fov: 46 },
@@ -97,18 +102,19 @@ export const ROOMS: RoomSpec[] = [
   {
     id: 'sala-unirii',
     name: 'Sala Unirii',
-    place: 'Zona centrală a palatului',
-    text: 'Una dintre cele mai mari săli ale clădirii, luminată de sus printr-un tavan de sticlă. Aici se țin recepții și evenimente oficiale.',
+    note: 'Cu ieșire directă spre parc',
+    text: 'Gândită pentru marile recepții, sala are o navă centrală de 18 × 54 m sub un tavan de sticlă. Astăzi găzduiește mai ales târguri și expoziții.',
     facts: [
-      { value: '16 m', label: 'înălțime aproximativă' },
-      { value: '1.100 m²', label: 'covorul sălii' },
+      { value: '18 × 54 m', label: 'nava centrală' },
+      { value: '15 m', label: 'înălțimea medie a navei' },
+      { value: '1.100 m²', label: 'covorul, de circa 3 tone' },
     ],
     accent: '#1f5fbf',
-    floor: [0, 22, 30],
-    size: [54, 16, 42],
+    floor: [0, 6, 20],
+    size: [54, 15, 30],
     style: 'hall',
-    camera: { eye: [0, 4.6, 3], look: [0, 5.4, -20], fov: 46 },
-    hologram: { kind: 'wall', at: [0, 2, -20.4], yaw: 0, width: 12 },
+    camera: { eye: [6, 4.6, 0], look: [-26, 5.4, 0], fov: 46 },
+    hologram: { kind: 'wall', at: [-26.4, 2, 0], yaw: Math.PI / 2, width: 12 },
     recordings: testRecordings('unirii', [
       'Aici intră prima filmare: o părere despre dimensiunile sălii.',
       'Aici intră a doua filmare: povestea covorului și a tavanului de sticlă.',
@@ -119,15 +125,15 @@ export const ROOMS: RoomSpec[] = [
   {
     id: 'sala-drepturilor-omului',
     name: 'Sala Drepturilor Omului',
-    place: 'Sală de 625 m², lambrisată în stejar',
-    text: 'În mijloc stă o masă rotundă din stejar cu 60 de scaune. Deasupra ei atârnă un candelabru de cristal de Mediaș de aproximativ 2 tone, al doilea ca mărime din clădire.',
+    note: 'Lambrisată complet în stejar',
+    text: 'În mijloc stă o masă rotundă din stejar cu 60 de scaune. Deasupra ei atârnă un candelabru din cristal de Mediaș de circa 2 tone, al doilea ca mărime din clădire.',
     facts: [
       { value: '625 m²', label: 'suprafață' },
       { value: '60', label: 'scaune la masa rotundă' },
       { value: '2 t', label: 'candelabrul, aproximativ' },
     ],
     accent: '#0f8a74',
-    floor: [-82, 22, 34],
+    floor: [-110, 12, 30],
     size: [25, 10, 25],
     style: 'round',
     camera: { eye: [0, 4.4, 11.2], look: [0, 2.7, 0], fov: 50 },
@@ -142,27 +148,29 @@ export const ROOMS: RoomSpec[] = [
   {
     id: 'sala-alexandru-ioan-cuza',
     name: 'Sala Alexandru Ioan Cuza',
-    place: 'Etajul 1, spre Piața Constituției',
-    text: 'Cea mai înaltă dintre sălile din tur, la etajul 1. Din loggia ei se văd Piața Constituției și Bulevardul Unirii.',
+    note: 'Etajul 1, în axul palatului',
+    text: 'Sala cu cea mai mare înălțime din palat și a doua ca suprafață. Se deschide printr-o logie amplă spre Piața Constituției și Bulevardul Unirii.',
     facts: [
-      { value: '20 m', label: 'înălțime aproximativă' },
-      { value: '2.040 m²', label: 'suprafață aproximativă' },
+      { value: '20 m', label: 'înălțime, aproximativ' },
+      { value: '2.040 m²', label: 'suprafață' },
+      { value: '7', label: 'luminatoare în plafon' },
     ],
     accent: '#b7791a',
-    floor: [0, 24, 97],
+    floor: [0, 26, 81],
     size: [60, 20, 34],
     style: 'plenary',
-    camera: { eye: [-3, 5.2, 0], look: [-29, 6.8, 0], fov: 46 },
-    hologram: { kind: 'wall', at: [-29.4, 2.4, 0], yaw: Math.PI / 2, width: 13 },
+    camera: { eye: [0, 5.2, 6], look: [0, 6.8, -16.4], fov: 46 },
+    hologram: { kind: 'wall', at: [0, 2.4, -16.4], yaw: 0, width: 13 },
     recordings: testRecordings('cuza', [
-      'Aici intră prima filmare: cum se vede orașul din loggie.',
-      'Aici intră a doua filmare: istoria sălii și a balconului.',
-      'Aici intră a treia filmare: ce se întâmplă în sală în zilele de ședință.',
+      'Aici intră prima filmare: cum se vede orașul din logie.',
+      'Aici intră a doua filmare: istoria sălii și a balconului pentru orchestră.',
+      'Aici intră a treia filmare: ce se întâmplă în sală la evenimente.',
     ]),
     photos: [],
   },
 ]
 
+/** Din introducerea aceluiași articol; unde articolul dă două valori, e folosită cea din introducere. */
 export const PALACE_FACTS = [
   { value: '270 × 240 m', label: 'amprenta la sol' },
   { value: '84 m', label: 'înălțime deasupra solului' },

@@ -89,18 +89,86 @@ try {
     expect((await currentStop(page)) === 2, 'nu a ajuns în Sala Unirii')
   })
 
-  await check('macheta se rotește cu drag pe exterior', async () => {
+  await check('macheta se rotește cu drag și cu săgețile pe exterior', async () => {
     await page.evaluate(() => window.scrollTo(0, 0))
     await waitForCamera(page)
-    const before = await page.evaluate(() => window.__tour.live.dragging)
+    const cameraX = () => page.evaluate(() => window.__tour.cameraX())
+    const start = await cameraX()
     await page.mouse.move(900, 450)
     await page.mouse.down()
     await page.mouse.move(700, 450, { steps: 6 })
     const during = await page.evaluate(() => window.__tour.live.dragging)
     await page.mouse.up()
-    expect(!before && during, 'drag-ul nu a fost preluat de scenă')
+    expect(during, 'drag-ul nu a fost preluat de scenă')
+    const afterDrag = await cameraX()
+    expect(Math.abs(afterDrag - start) > 20, `camera s-a mutat doar ${Math.abs(afterDrag - start).toFixed(1)} m`)
+    await page.keyboard.press('ArrowRight')
+    await page.waitForTimeout(120)
+    expect(Math.abs((await cameraX()) - afterDrag) > 10, 'săgeata dreapta nu a rotit macheta')
     const hidden = await page.evaluate(() => document.querySelector('.hint')?.hasAttribute('data-done'))
     expect(hidden, 'indiciul de rotire a rămas pe ecran')
+  })
+
+  await check('o singură crestătură de rotiță trece la sala următoare', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await wheelAndSettle(page, 100)
+    expect((await currentStop(page)) === 1, `s-a așezat pe oprirea ${await currentStop(page)}`)
+  })
+
+  await check('la scroll în sus, pagina se așază pe oprirea de dinainte', async () => {
+    await wheelAndSettle(page, -100)
+    expect((await currentStop(page)) === 0, `s-a așezat pe oprirea ${await currentStop(page)}`)
+  })
+
+  await check('săgețile sus/jos trec din oprire în oprire', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await page.keyboard.press('ArrowDown')
+    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[1], { timeout: 8000 })
+    await page.keyboard.press('ArrowDown')
+    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[2], { timeout: 8000 })
+    await page.keyboard.press('ArrowUp')
+    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[1], { timeout: 8000 })
+  })
+
+  await check('Tab duce turul pe secțiunea elementului focusat', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await page.focus('.hero .btn:last-of-type')
+    await page.keyboard.press('Tab')
+    const focused = await page.evaluate(() => document.activeElement?.closest('main > section')?.id)
+    expect(focused === 'galeria-de-onoare', `focusul e în ${focused}`)
+    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[1], { timeout: 8000 })
+    const visible = await page.evaluate(() => {
+      const rect = document.activeElement.getBoundingClientRect()
+      return rect.top >= 0 && rect.bottom <= window.innerHeight
+    })
+    expect(visible, 'linkul focusat nu e în fereastră')
+  })
+
+  await check('după Enter pe „Hartă”, Tab continuă din secțiunea hărții', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await page.focus('.topbar__nav a[href="#harta"]')
+    await page.keyboard.press('Enter')
+    await page.waitForFunction(() => window.__tour.live.flightTo === null, null, { timeout: 15000 })
+    await waitForCamera(page)
+    await page.keyboard.press('Tab')
+    const focused = await page.evaluate(() => document.activeElement?.closest('main > section')?.id)
+    expect(focused === 'harta', `focusul a ajuns în ${focused}`)
+    expect((await currentStop(page)) === last, 'pagina a plecat de pe hartă')
+  })
+
+  await check('butonul Înapoi revine la oprirea de dinainte', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await page.click('.topbar__nav a[href="#harta"]')
+    await page.waitForFunction(() => window.__tour.live.flightTo === null, null, { timeout: 15000 })
+    await page.goBack()
+    await page.waitForFunction(() => window.__tour.live.flightTo === null && window.scrollY < 2, null, {
+      timeout: 15000,
+    })
   })
 
   await check('rotița derulează pagina și peste machetă', async () => {
@@ -116,6 +184,52 @@ try {
 
   await context.close()
 
+  const direct = await openTour(browser, site.url, { width: 1280, height: 800, hash: '#sala-unirii' })
+  await check('un link direct către o sală pornește în sala aceea', async () => {
+    await waitForCamera(direct.page)
+    const state = await direct.page.evaluate(() => ({
+      t: window.__tour.live.t,
+      y: window.scrollY,
+      anchor: window.__tour.anchors()[2],
+      hash: location.hash,
+    }))
+    expect(Math.abs(state.t - 2) < 0.01, `turul e la t=${state.t}`)
+    expect(Math.abs(state.y - state.anchor) < 2, `scroll la ${state.y}, ancora la ${state.anchor}`)
+    expect(state.hash === '#sala-unirii', `ancora din adresă e „${state.hash}”`)
+  })
+  await direct.context.close()
+
+  const low = await openTour(browser, site.url, { width: 1100, height: 520 })
+  await check('o secțiune mai înaltă decât fereastra se poate citi până jos', async () => {
+    const info = await low.page.evaluate(() => {
+      const section = document.getElementById('galeria-de-onoare')
+      return { top: window.__tour.anchors()[1], extra: section.offsetHeight - window.innerHeight }
+    })
+    expect(info.extra > 20, `secțiunea încape în fereastră (diferență ${info.extra} px); testul nu verifică nimic`)
+    const target = info.top + info.extra - 4
+    await low.page.evaluate((y) => window.scrollTo(0, y), target)
+    await low.page.waitForTimeout(700)
+    const state = await low.page.evaluate(() => ({ y: window.scrollY, t: window.__tour.live.tTarget }))
+    expect(Math.abs(state.y - target) < 3, `pagina a fost mutată la ${state.y}`)
+    expect(Math.abs(state.t - 1) < 0.01, `turul a plecat din sală (t=${state.t})`)
+  })
+  await low.context.close()
+
+  const phone = await openTour(browser, site.url, { width: 390, height: 844, scale: 2, mobile: true })
+  await check('pe telefon, un swipe în sus trece la sala următoare', async () => {
+    const tops = await phone.page.evaluate(() => window.__tour.anchors())
+    const session = await phone.context.newCDPSession(phone.page)
+    await session.send('Input.synthesizeScrollGesture', { x: 195, y: 600, yDistance: -260, speed: 900 })
+    await phone.page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[1], { timeout: 10000 })
+  })
+  await check('pe telefon, nimic nu iese în lateral', async () => {
+    const overflow = await phone.page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+    expect(overflow <= 0, `pagina e cu ${overflow} px mai lată decât ecranul`)
+  })
+  await phone.context.close()
+
   const reduced = await openTour(browser, site.url, { width: 1280, height: 800, reducedMotion: true })
   await check('cu mișcare redusă, saltul la hartă e instantaneu', async () => {
     await reduced.page.click('.topbar__nav a[href="#harta"]')
@@ -124,6 +238,14 @@ try {
       null,
       { timeout: 1500 },
     )
+  })
+  await check('cu mișcare redusă, pagina nu se așază singură', async () => {
+    const tops = await reduced.page.evaluate(() => window.__tour.anchors())
+    const y = tops[1] + (tops[2] - tops[1]) * 0.4
+    await reduced.page.evaluate((top) => window.scrollTo(0, top), y)
+    await reduced.page.waitForTimeout(600)
+    const now = await reduced.page.evaluate(() => window.scrollY)
+    expect(Math.abs(now - y) < 2, `pagina a fost mutată de la ${y} la ${now}`)
   })
   await reduced.context.close()
 } finally {

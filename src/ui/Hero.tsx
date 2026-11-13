@@ -9,7 +9,7 @@ export function Hero() {
     <section id="palat" className="stop hero" aria-labelledby="titlu">
       <div className="wrap hero__grid">
         <div className="hero__text">
-          <h1 id="titlu">Palatul Parlamentului din București, în 3D</h1>
+          <h1 id="titlu" tabIndex={-1}>Palatul Parlamentului din București, în 3D</h1>
           <p className="lead">
             Trage de machetă ca să o rotești. Derulează ca să intri pe rând în patru săli și să
             asculți ce spun oamenii despre clădire.

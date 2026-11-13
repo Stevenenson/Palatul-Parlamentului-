@@ -1,41 +1,10 @@
-import { useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { BackSide, MeshStandardMaterial } from 'three'
+import { BackSide } from 'three'
 import { ROOMS } from '../content/rooms'
-import { live } from '../state/tour'
-
-const BLOCKS: { size: [number, number, number]; y: number }[] = [
-  { size: [270, 44, 240], y: 22 },
-  { size: [150, 22, 150], y: 55 },
-  { size: [70, 18, 80], y: 75 },
-]
 
 /**
- * Volume provizorii pentru Pasul 0: verifică traseul camerei și trecerea carcasei
- * în transparență. La Pasul 1 și 2 le iau locul palatul și sălile adevărate.
+ * Volume provizorii pentru săli, până la Pasul 2: arată unde stă fiecare sală în palat
+ * și verifică traseul camerei.
  */
-export function PalacePlaceholder() {
-  const shell = useMemo(
-    () => new MeshStandardMaterial({ color: '#f4f2ee', roughness: 0.9, transparent: true }),
-    [],
-  )
-
-  useFrame(() => {
-    shell.opacity = 0.08 + 0.92 * live.solid
-    shell.depthWrite = live.solid > 0.5
-  })
-
-  return (
-    <group>
-      {BLOCKS.map((block, i) => (
-        <mesh key={i} position={[0, block.y, 0]} material={shell} castShadow receiveShadow>
-          <boxGeometry args={block.size} />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
 export function RoomsPlaceholder() {
   return (
     <group>

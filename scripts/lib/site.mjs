@@ -41,7 +41,7 @@ export async function openTour(browser, url, viewport) {
     if (message.type() === 'error') errors.push(message.text())
   })
   page.on('pageerror', (error) => errors.push(String(error)))
-  await page.goto(url, { waitUntil: 'load' })
+  await page.goto(url + (viewport.hash ?? ''), { waitUntil: 'load' })
   await page.waitForFunction(() => window.__tour && window.__tour.live.frames > 8, null, {
     timeout: 30000,
   })

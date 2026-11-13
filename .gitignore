@@ -4,3 +4,7 @@ dist
 *.local
 review/shots
 .taste-skill
+
+# fotografii de referință (drepturi de autor ale fotografilor) și starea pipeline-ului de modelare
+reference
+.img2threejs

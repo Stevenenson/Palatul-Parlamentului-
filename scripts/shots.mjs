@@ -9,7 +9,8 @@ const label = process.argv[2] ?? 'curent'
 const outDir = path.join('review', 'shots', label)
 
 const VIEWPORTS = [
-  { name: 'desktop', width: 1440, height: 900 },
+  { name: 'desktop', width: 1440, height: 900, transits: true },
+  { name: 'laptop-jos', width: 1366, height: 650 },
   { name: 'mobil', width: 390, height: 844, scale: 2, mobile: true },
 ]
 
@@ -44,7 +45,13 @@ try {
       console.log(`  ${file}`)
     }
 
-    if (!viewport.mobile) {
+    if (viewport.transits) {
+      // Fațada văzută din față, pentru comparația cu fotografiile de referință.
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await waitForCamera(page)
+      for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft')
+      await page.waitForTimeout(300)
+      await page.screenshot({ path: path.join(outDir, `${viewport.name}-0-palat-din-fata.png`) })
       for (const t of TRANSITS) {
         const i = Math.floor(t)
         if (i + 1 >= info.anchors.length) continue
@@ -55,10 +62,10 @@ try {
         await page.screenshot({ path: path.join(outDir, file) })
         console.log(`  ${file}`)
       }
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
-      await waitForCamera(page)
-      await page.screenshot({ path: path.join(outDir, `${viewport.name}-subsol.png`) })
     }
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+    await waitForCamera(page)
+    await page.screenshot({ path: path.join(outDir, `${viewport.name}-subsol.png`) })
 
     for (const error of errors) problems.push(`${viewport.name}: ${error}`)
     await context.close()

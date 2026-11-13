@@ -17,8 +17,10 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
           <p className="panel__index">
             Sala {index + 1} din {ROOMS.length}
           </p>
-          <h2 id={titleId}>{room.name}</h2>
-          <p className="panel__place">{room.place}</p>
+          <h2 id={titleId} tabIndex={-1}>
+            {room.name}
+          </h2>
+          <p className="panel__note">{room.note}</p>
           <p>{room.text}</p>
           <dl className="facts facts--panel">
             {room.facts.map((fact) => (

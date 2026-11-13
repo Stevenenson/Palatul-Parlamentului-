@@ -29,6 +29,13 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
   (`src/scroll/director.ts`) îl leagă de poziția din tur și îl așază pe opriri. Sunt mai puține
   dependențe și nu se deturnează scroll-ul.
 
+- **`img2threejs` doar pentru analiză**: am folosit etapele de analiză ale skill-ului pe fotografiile de referință
+  (clasificare, proporții, inventar de detalii). Generatorul lui de cod construiește obiecte unice din primitive și cere
+  dovezi de material fotorealist, deci nu se potrivește cu o machetă albă făcută din mii de elemente repetate; modelul
+  e scris de mână după analiză și comparat cu fotografiile (`review/shots/pas-1/comparatie-fata.png`).
+- **Postprocesare**: am adăugat `@react-three/postprocessing` pentru ocluzia ambientală, care dă adâncime machetei.
+  `?ao=0` în adresă o oprește, pentru comparații.
+
 ## Arhitectură
 
 - **Un singur canvas WebGL fix** în spatele paginii (`src/three/Scene.tsx`). Secțiunile DOM dau lungimea de scroll.
@@ -55,8 +62,10 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
   scripturile de capturi și teste, agentul reviewer.
   *Gata când:* dev și build merg, capturile se generează, reviewer-ul scrie prima intrare.
 
-- [ ] **Pas 1 — Palatul 3D + hero.** Model procedural: soclu și terase, corp 270 × 240 m, bloc central etajat,
-  aripi, rânduri de coloane și ferestre, cornișe, balconul principal, plan de sit discret. Materiale de machetă, umbre moi.
+- [x] **Pas 1 — Palatul 3D + hero.** Model procedural (`src/three/palace/`): terase, corp de bază de 270 × 240 m cu
+  trei registre sub cornișa principală, pavilioane de colț, registru median cu curți interioare, turnuri laterale, turn
+  central cu travee de capăt, portic cu coloane și balcon, plan de sit discret. Circa 1.500 de ferestre, pilaștri și
+  coloane instanțiate, în câteva apeluri de desenare. Lumină razantă, umbre moi, ocluzie ambientală.
   *Gata când:* se recunoaște clar din față și din ¾ aerian, nu arată „ieftin”, drag-ul merge, rotița derulează pagina, rulează fluid.
 
 - [ ] **Pas 2 — Săli + tur pe scroll.** Kit de sală parametric, fiecare sală cu elemente proprii;

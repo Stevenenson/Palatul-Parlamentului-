@@ -23,7 +23,7 @@ export const STOPS: Stop[] = [
     id: 'palat',
     kind: 'exterior',
     label: 'Palatul',
-    pose: { position: v(300, 150, 520), target: v(0, 34, 0), fov: 30 },
+    pose: { position: v(-392, 126, 646), target: v(0, 27, 8), fov: 30 },
   },
   ...ROOMS.map<Stop>((room) => ({
     id: room.id,
@@ -36,19 +36,13 @@ export const STOPS: Stop[] = [
     id: 'harta',
     kind: 'map',
     label: 'Harta sălilor',
-    pose: { position: v(-300, 400, 480), target: v(0, 14, 24), fov: 30 },
+    pose: { position: v(-320, 430, 500), target: v(0, 10, 20), fov: 30 },
   },
 ]
 
 export const LAST_STOP = STOPS.length - 1
 
 export const makePose = (): Pose => ({ position: new Vector3(), target: new Vector3(), fov: 30 })
-
-export function copyPose(from: Pose, to: Pose) {
-  to.position.copy(from.position)
-  to.target.copy(from.target)
-  to.fov = from.fov
-}
 
 const smoother = (x: number) => x * x * x * (x * (x * 6 - 15) + 10)
 
@@ -97,22 +91,30 @@ export function mapAt(t: number): number {
 const REF_ASPECT = 1.45
 
 /**
- * Pe ecrane înguste strângem cadrul pe orizontală, ca subiectul să umple lățimea
- * telefonului în loc să rămână mic în mijloc.
+ * Pe ecrane înguste strângem puțin cadrul pe orizontală, ca subiectul să umple lățimea
+ * telefonului, dar fără să-i taie colțurile.
  */
 export function fovForAspect(fov: number, aspect: number): number {
   if (aspect >= REF_ASPECT) return fov
-  const fill = MathUtils.lerp(0.66, 1, MathUtils.smoothstep(aspect, 0.6, REF_ASPECT))
+  const fill = MathUtils.lerp(0.86, 1, MathUtils.smoothstep(aspect, 0.6, REF_ASPECT))
   const half = Math.tan(MathUtils.degToRad(fov) / 2) * REF_ASPECT * fill
   return Math.min(MathUtils.radToDeg(2 * Math.atan(half / aspect)), 84)
 }
 
+/** Același prag ca în CSS (`@media (max-width: 760px)`): sub el, panoul de text stă jos. */
+export const NARROW_WIDTH = 760
+
 /**
  * Unde stă subiectul pe ecran (0..1): spre dreapta pe ecrane late, ca să lase loc
- * textului din stânga; pe telefon, la mijloc pe exterior și mai sus în săli și pe
+ * textului din stânga; pe ecrane înguste, la mijloc pe exterior și mai sus în săli și pe
  * hartă, unde panoul de text ocupă partea de jos.
  */
-export function framingAt(t: number, aspect: number): { cx: number; cy: number } {
-  if (aspect > 1.15) return { cx: 0.6, cy: 0.5 }
-  return { cx: 0.5, cy: MathUtils.lerp(0.5, 0.3, MathUtils.smoothstep(t, 0.15, 0.85)) }
+export function framingAt(t: number, width: number, out: { cx: number; cy: number }) {
+  if (width > NARROW_WIDTH) {
+    out.cx = 0.64
+    out.cy = 0.5
+    return
+  }
+  out.cx = 0.5
+  out.cy = MathUtils.lerp(0.5, 0.3, MathUtils.smoothstep(t, 0.15, 0.85))
 }
