@@ -77,7 +77,6 @@ a {
   background: var(--glass);
   box-shadow: var(--shadow-panel);
   backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 /* Supratitlu: litere romane mici, rare, în bronz. */
@@ -233,7 +232,6 @@ main :is(a, button, .panel, .facts) {
   height: var(--bar);
   background: rgb(242 240 235 / 0.72);
   backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid rgb(23 25 29 / 0.07);
 }
 
@@ -455,7 +453,7 @@ h1 {
 
 .fact dd {
   font-family: var(--font-mono);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 1.3rem;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -481,7 +479,6 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-mono);
   font-size: var(--size-label);
   color: var(--muted);
   transition: opacity 0.4s var(--ease);
@@ -505,19 +502,18 @@ h1 {
 
 .room__grid {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .panel {
   width: min(100%, var(--panel));
   position: relative;
-  padding: 26px 26px 24px;
+  padding: 24px 24px 14px;
   border: 1px solid var(--glass-edge);
   border-radius: var(--radius);
   background: var(--glass);
   box-shadow: var(--shadow-panel);
   backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 /* Accentul sălii: o liniuță scurtă, nu o margine întreagă. */
@@ -565,14 +561,58 @@ h2 {
 }
 
 .facts--panel {
-  gap: 12px 28px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  gap: 10px 28px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgb(23 25 29 / 0.12);
 }
 
 .facts--panel .fact dd {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+}
+
+/* „Despre sală”: textul lung și restul cifrelor, pliate până le cere cititorul. */
+.about {
+  margin-top: 12px;
+  border-top: 1px solid rgb(23 25 29 / 0.12);
+}
+
+.about summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.about summary::-webkit-details-marker {
+  display: none;
+}
+
+.about summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--t-2) var(--spring);
+}
+
+.about[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.about > p {
+  color: var(--ink-2);
+}
+
+.about .facts--panel {
+  margin-top: 14px;
+  margin-bottom: 6px;
 }
 
 .link {
@@ -591,7 +631,7 @@ h2 {
 }
 
 .panel .link {
-  margin-top: 12px;
+  margin-top: 2px;
 }
 
 .legend {
@@ -706,9 +746,11 @@ h2 {
   align-items: center;
   min-height: 44px;
   padding: 0 14px;
+  gap: 8px;
   border-radius: 999px;
-  border: 1.5px solid var(--accent);
-  background: var(--surface);
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
   color: var(--ink);
   font-size: var(--size-small);
   font-weight: 600;
@@ -722,8 +764,17 @@ h2 {
     color 0.18s var(--ease);
 }
 
+/* Cifra romană a sălii, într-un disc în culoarea ei: aceeași ca în legendă. */
 .pin__number {
-  display: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font: 600 0.6875rem / 1 var(--font-display);
 }
 
 .pin__stem {
@@ -851,16 +902,15 @@ h2 {
 
 .recording {
   position: absolute;
-  right: calc(var(--edge) + 64px);
+  right: calc(var(--edge) + 56px);
   bottom: 0;
-  width: min(400px, 33vw);
-  padding: 18px 20px 14px;
+  width: min(420px, 34vw);
+  padding: 16px 12px 8px 20px;
   border: 1px solid var(--glass-edge);
   border-radius: var(--radius);
   background: var(--glass);
   box-shadow: var(--shadow-panel);
   backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   pointer-events: auto;
   touch-action: pan-y;
   user-select: none;
@@ -872,6 +922,11 @@ h2 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding-right: 8px;
+}
+
+.recording > div[aria-live] {
+  padding-right: 8px;
 }
 
 .recording__count {
@@ -924,49 +979,16 @@ h2 {
   color: var(--ink-2);
 }
 
+/* Un singur rând de comenzi: înapoi, puncte, înainte, apoi pauză, sunet și mărire. */
 .recording__controls {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0 4px;
-  margin-top: 10px;
-}
-
-.round {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1.5px solid var(--ink);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ink);
-  cursor: pointer;
-  transition:
-    transform 0.18s var(--ease),
-    background-color 0.18s var(--ease),
-    color 0.18s var(--ease);
+  margin-top: 8px;
+  margin-left: -12px;
 }
 
 .round svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
   stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.round:hover {
-  transform: translateY(-2px);
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.round:active {
-  transform: translateY(1px);
 }
 
 .dots {
@@ -977,7 +999,7 @@ h2 {
 .dot {
   display: grid;
   place-items: center;
-  width: 44px;
+  width: 28px;
   height: 44px;
   padding: 0;
   border: 0;
@@ -1008,26 +1030,7 @@ h2 {
 
 .recording__video {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0 14px;
   margin-left: auto;
-}
-
-.sound {
-  min-height: 44px;
-  padding: 0 4px;
-  border: 0;
-  background: linear-gradient(currentColor, currentColor) 0 calc(50% + 0.72em) / 100% 1px no-repeat;
-  color: var(--ink);
-  font: 500 var(--size-small) / 1 var(--font-text);
-  cursor: pointer;
-  transition: background-size 0.25s var(--ease);
-}
-
-.sound:hover {
-  background-size: 0 1px;
-  background-position-x: 100%;
 }
 
 /* ——— Comutatorul dintre machetă și sala reală ——— */
@@ -1459,7 +1462,12 @@ h2 {
     position: static;
     order: -1;
     width: 100%;
-    padding: 14px 16px 12px;
+    padding: 14px 8px 6px 16px;
+  }
+
+  .hero__facts {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
   }
 
   .recording__text {
@@ -1468,7 +1476,11 @@ h2 {
 
   .panel {
     width: 100%;
-    padding: 18px 18px 20px;
+    padding: 20px 18px 10px;
+  }
+
+  .panel::before {
+    left: 18px;
   }
 
   /* Pe telefon punctele ar sta peste butoane; meniul de sus și scroll-ul ajung. */
@@ -1481,7 +1493,6 @@ h2 {
     justify-content: center;
     width: 44px;
     padding: 0;
-    border-width: 2px;
   }
 
   .pin__name {
@@ -1489,8 +1500,10 @@ h2 {
   }
 
   .pin__number {
-    display: block;
-    font-weight: 600;
+    width: 30px;
+    height: 30px;
+    margin-left: 0;
+    font-size: 0.75rem;
   }
 
   .recording__media {

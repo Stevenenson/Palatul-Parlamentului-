@@ -5,13 +5,14 @@
 export function Meander({ units = 5, draw = false }: { units?: number; draw?: boolean }) {
   const step = 20
   let path = ''
-  for (let i = 0; i < units; i++) path += `M${i * step} 10h15v-9h-10v5h5`
+  // Linia de bază e continuă, ca la o friză; fiecare pas urcă și se întoarce într-un cârlig.
+  for (let i = 0; i < units; i++) path += `M${i * step} 10h20v-9h-10v5h5`
   return (
     <svg
       className="meander"
       data-draw={draw || undefined}
-      viewBox={`-1 0 ${units * step - 3} 11`}
-      width={units * step - 3}
+      viewBox={`-1 0 ${units * step + 2} 11`}
+      width={units * step + 2}
       height={11}
       aria-hidden="true"
     >

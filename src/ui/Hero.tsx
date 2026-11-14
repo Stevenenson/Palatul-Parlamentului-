@@ -16,9 +16,9 @@ export function Hero() {
             Palatul Parlamentului
             <span className="sr-only"> din București, în 3D</span>
           </h1>
-          <Meander units={7} />
+          <Meander units={9} />
           <p className="lead">
-            Rotește macheta, apoi coboară prin patru săli și ascultă oamenii din fiecare.
+            Rotește macheta, apoi coboară prin patru săli și vezi filmările din fiecare.
           </p>
           {failed && (
             <p className="notice">

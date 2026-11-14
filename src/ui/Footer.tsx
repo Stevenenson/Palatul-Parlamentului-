@@ -16,6 +16,7 @@ export function Footer() {
             „Palatul Parlamentului” de pe Wikipedia
           </a>
           , citit în noiembrie 2026; unde articolul dă două valori, am folosit-o pe cea din introducere.{' '}
+          Litere: Cinzel și EB Garamond, sub licența SIL Open Font.{' '}
           <a className="link" {...stopLink('palat')}>
             Mergi la începutul turului
           </a>

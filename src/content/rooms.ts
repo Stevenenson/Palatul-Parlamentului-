@@ -17,7 +17,8 @@ export type Vec3 = [number, number, number]
 
 export type Media =
   | { kind: 'image'; src: string }
-  | { kind: 'video'; src: string; poster?: string }
+  /** `silent: true` pentru o filmare fără pistă audio: playerul nu-i mai arată butonul de sunet. */
+  | { kind: 'video'; src: string; poster?: string; silent?: boolean }
 
 export type Recording = {
   id: string
@@ -80,7 +81,10 @@ function testRecordings(
     title: `Filmare de test ${i + 1}`,
     who: `Loc rezervat pentru ${slots[i]}`,
     text: topic,
-    media: firstIsVideo && i === 0 ? { kind: 'video', src: TEST_VIDEO } : { kind: 'image', src: TEST_IMAGE },
+    media:
+      firstIsVideo && i === 0
+        ? { kind: 'video', src: TEST_VIDEO, silent: true }
+        : { kind: 'image', src: TEST_IMAGE },
     demo: true,
   }))
 }
@@ -101,8 +105,8 @@ export const ROOMS: RoomSpec[] = [
     floor: [0, 2, 100],
     size: [150, 11, 18],
     style: 'gallery',
-    camera: { eye: [-13, 3.4, 1.4], look: [0, 3.1, 0], fov: 46 },
-    hologram: { kind: 'table', at: [0, 0, 0], yaw: -Math.PI / 2, width: 4.2 },
+    camera: { eye: [-11.5, 3.5, 1.3], look: [0, 3.2, 0], fov: 46 },
+    hologram: { kind: 'table', at: [0, 0, 0], yaw: -Math.PI / 2, width: 5 },
     recordings: testRecordings('galeria', [
       'Aici intră prima filmare: ce simte cineva care vede galeria pentru prima oară.',
       'Aici intră a doua filmare: cum a fost construită galeria și din ce materiale.',
@@ -128,8 +132,8 @@ export const ROOMS: RoomSpec[] = [
     floor: [0, 6, 20],
     size: [54, 15, 30],
     style: 'hall',
-    camera: { eye: [6, 4.6, 0], look: [-26, 5.4, 0], fov: 46 },
-    hologram: { kind: 'wall', at: [-26.92, 2, 0], yaw: Math.PI / 2, width: 12 },
+    camera: { eye: [4, 4.8, 0], look: [-26, 5.8, 0], fov: 46 },
+    hologram: { kind: 'wall', at: [-26.92, 2, 0], yaw: Math.PI / 2, width: 16 },
     recordings: testRecordings('unirii', [
       'Aici intră prima filmare: o părere despre dimensiunile sălii.',
       'Aici intră a doua filmare: povestea covorului și a tavanului de sticlă.',
@@ -152,7 +156,7 @@ export const ROOMS: RoomSpec[] = [
     size: [25, 10, 25],
     style: 'round',
     camera: { eye: [0, 5.6, 11.7], look: [0, 1.9, 0], fov: 54 },
-    hologram: { kind: 'table', at: [0, 0, 0], yaw: 0, width: 3.8 },
+    hologram: { kind: 'table', at: [0, 0, 0], yaw: 0, width: 4.6 },
     recordings: testRecordings('drepturi', [
       'Aici intră prima filmare: prima impresie despre masa rotundă.',
       'Aici intră a doua filmare: pentru cine a fost gândită sala la început.',
@@ -179,7 +183,7 @@ export const ROOMS: RoomSpec[] = [
     size: [60, 19.6, 34],
     style: 'plenary',
     camera: { eye: [-11, 4.4, -7.5], look: [29.4, 9.8, 2.5], fov: 60 },
-    hologram: { kind: 'wall', at: [29.92, 2.6, 0], yaw: -Math.PI / 2, width: 17 },
+    hologram: { kind: 'wall', at: [29.92, 2.6, 0], yaw: -Math.PI / 2, width: 21 },
     recordings: testRecordings('cuza', [
       'Aici intră prima filmare: cum se vede orașul din logie.',
       'Aici intră a doua filmare: istoria sălii și a balconului pentru orchestră.',

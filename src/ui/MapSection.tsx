@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { ROOMS } from '../content/rooms'
+import { toRoman } from '../content/roman'
 import { useTour } from '../state/tour'
 import { pinElements } from '../state/pins'
 import { stopLink } from './links'
@@ -8,7 +9,7 @@ import { stopLink } from './links'
  * Harta sălilor: legenda din panou și pinurile de pe machetă duc în aceleași săli.
  * Pinurile sunt pentru mouse și atingere; din tastatură se folosește legenda, deci
  * pinurile sunt scoase din ordinea de Tab ca să nu apară fiecare sală de două ori.
- * Numerele din legendă se regăsesc pe pinuri; pe ecrane înguste pinurile arată doar numărul.
+ * Cifrele romane din legendă se regăsesc pe pinuri; pe ecrane înguste pinurile arată doar cifra.
  */
 export function MapSection() {
   const hovered = useTour((s) => s.hoverRoom)
@@ -36,7 +37,7 @@ export function MapSection() {
                   {...stopLink(room.id)}
                 >
                   <span className="legend__dot" aria-hidden="true">
-                    {i + 1}
+                    {toRoman(i + 1)}
                   </span>
                   <span className="legend__name">
                     {room.name}
@@ -70,7 +71,7 @@ export function MapSection() {
             {...stopLink(room.id)}
           >
             <span className="pin__label">
-              <span className="pin__number">{i + 1}</span>
+              <span className="pin__number">{toRoman(i + 1)}</span>
               <span className="pin__name">{room.name}</span>
             </span>
             <span className="pin__stem" />

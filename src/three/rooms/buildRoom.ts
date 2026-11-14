@@ -1,4 +1,4 @@
-import { Group, MeshStandardMaterial } from 'three'
+import { Color, Group, MeshStandardMaterial } from 'three'
 import type { RoomSpec } from '../../content/rooms'
 import {
   Parts,
@@ -250,7 +250,9 @@ export function buildRoom(room: RoomSpec): BuiltRoom {
   BUILDERS[room.style](parts, room)
   addMount(parts, room)
 
-  const accent = new MeshStandardMaterial({ color: room.accent, roughness: 0.95 })
+  // Covoarele sunt suprafețe mari: accentul sălii se amestecă pe jumătate cu pardoseala, ca să nu inunde ecranul.
+  const tone = new Color(room.accent).lerp(new Color('#ece8df'), 0.5)
+  const accent = new MeshStandardMaterial({ color: tone, roughness: 0.95 })
   const group = new Group()
   group.name = room.id
   group.position.set(...room.floor)

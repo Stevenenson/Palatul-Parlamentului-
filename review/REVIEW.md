@@ -712,9 +712,7 @@ măsurat pe pixelii capturilor. Abaterea de ordine (Pasul 8 înaintea Pasului 7)
 ### Ce e bine
 - Hero-ul e clar mai bun decât cel din `final/`: titlul pe un rând, macheta la mijloc și întreagă, o singură
   acțiune. Capitalele Cinzel peste macheta albă dau în sfârșit nota de monument; Garamond la 23 px se citește ușor.
-- Cifrele romane au variantă arabă pentru cititoarele de ecran (`RoomSection.tsx`); fără `text-transform`, fără U→V.
-- Pastila punctului activ, bara subțire și razele de 22 px se leagă între ele; linkul „Harta sălilor” are 44 px.
-- `framingAt` și `r.cx` amortizat nu alocă nimic pe cadru; revenirile pentru transparență redusă există.
+- Cifrele romane au variantă arabă pentru cititoarele de ecran; fără `text-transform`; `framingAt` nu alocă pe cadru.
 
 ### Probleme
 - [ ] **(blocant)** `src/styles/tokens.css:16` — `--bronze` (#7d5f27) pe sticla de peste covorul albastru (fundal
@@ -738,19 +736,33 @@ măsurat pe pixelii capturilor. Abaterea de ordine (Pasul 8 înaintea Pasului 7)
   CLS nemăsurat.
 - [ ] **(minor)** `src/styles/global.css:66-153` — `.pill` din lista Pasului 6 nu există; `.glass`, `.segmented` și
   `.icon-btn` nu sunt folosite nicăieri, iar `.panel` și `.recording` repetă declarațiile din `.glass`.
-- [ ] **(minor)** `mobil-0-palat.png` — a treia cifră („25 iunie 1984”) cade singură pe rândul al doilea; macheta
-  ocupă doar o cincime din înălțime, cu două benzi goale deasupra și dedesubt.
-- [ ] **(minor)** Trei suprafețe de sticlă pe ecran în săli (bară, panou, filmare); planul spune cel mult două.
+- [ ] **(minor)** `mobil-0-palat.png` — a treia cifră („25 iunie 1984”) cade singură pe rândul al doilea. În săli
+  sunt trei suprafețe de sticlă pe ecran (bară, panou, filmare); planul spune cel mult două (de văzut la Pasul 9).
 
 ### Îmbunătățiri propuse
 - [ ] Meandrul e desenat din șapte bucăți despărțite, care la 11 px se citesc ca un șir de cifre. Leagă-le printr-o
   linie de bază continuă (`h20` în loc de `h15`) și lățește-l la 160–200 px, ca să arate a friză.
-- [ ] Pe telefon, o poză de exterior mai frontală și mai de sus (sau `cy` 0,45) ar umple golul și ar scoate
-  esplanada din margini; cifrele pe trei coloane egale, cu valori de 15 px.
-- [ ] Hero-ul are patru familii de litere pe un ecran. Treci indiciul „Trage ca să rotești macheta” pe Plex Sans și
-  valorile cifrelor la grosime 400, ca rândul de jos să fie cu adevărat „fin”.
-- [ ] Paragraful sălii în Garamond de 19 px, ca panoul să nu amestece Cinzel, Garamond, Plex Sans și Plex Mono.
+- [ ] Pe telefon macheta ocupă o cincime din înălțime, între două benzi goale: o poză de exterior mai frontală și
+  mai de sus ar umple golul și ar scoate esplanada din margini; cifrele pe trei coloane egale, la 15 px.
+- [ ] Prea multe voci: hero-ul și panoul sălii amestecă patru familii de litere. Indiciul „Trage ca să rotești
+  macheta” pe Plex Sans, valorile cifrelor la grosime 400, paragraful sălii în Garamond de 19 px.
 - [ ] Covorul amestecat cu pardoseala (circa 35% accent) merită adus înaintea Pasului 9: pe telefon ambele panouri
   ies albăstrui și arată a carduri colorate, nu a sticlă peste piatră.
-- [ ] Garamond `latin-ext` cântărește 114 + 89 kB doar pentru ă, ș, ț; un subset propriu ar scădea mult fonturile.
+
+### Ce am aplicat (runda 1)
+
+- [x] **Blocant, contrastul supratitlului:** `--bronze` e acum `#6b5020`, iar sticla la 82%.
+- [x] **Major, estomparea dispărută la build:** am scos declarațiile scrise de mână cu prefix; minificatorul le
+  generează acum pe amândouă (4 cu prefix, 4 fără, verificat în `dist`). Test nou: `backdropFilter` al panoului conține `blur`.
+- [x] **Major, butonul peste esplanadă:** camera de exterior e puțin mai departe și macheta mai sus (`cy` 0,515).
+- [x] **Minor, „ascultă oamenii”:** înlocuit cu „vezi filmările din fiecare”.
+- [x] **Minor, a treia cifră singură pe rând, pe telefon:** cifrele stau pe trei coloane.
+- [x] **Minor, clase nefolosite:** `.segmented` și `.icon-btn` sunt folosite de la Pașii 7 și 9. `.pill` nu există: butoanele sunt direct pastile.
+- [x] **Propuneri:** meandrul are linia de bază continuă și e mai lat; indiciul de rotire e pe Plex Sans, cifrele la
+  grosime 400; covorul e amestecat pe jumătate cu pardoseala.
+- [ ] **Amânat, rezerva de font cu `size-adjust`:** cere măsurarea lățimilor reale ale Cinzel față de Georgia; fără
+  măsurătoare aș pune cifre ghicite. CLS rămâne nemăsurat.
+- [ ] **Amânat, macheta mică pe telefon:** cere o poză de exterior separată pentru ecrane înguste; de făcut odată cu
+  restanțele de machetă.
+- **Trei suprafețe de sticlă în săli** (bară, panou, player): am păstrat-o; bara de sus e subțire și fixă.
 

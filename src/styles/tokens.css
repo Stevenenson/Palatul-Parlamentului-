@@ -13,7 +13,7 @@
   --line: #d4d0c6;
   --line-strong: #b9b4a8;
   --accent: #c8452b;
-  --bronze: #7d5f27; /* text mic pe hârtie, 5,2:1 */
+  --bronze: #6b5020; /* text mic: 6,6:1 pe hârtie, peste 4,5:1 și pe sticla de peste covoare */
   --gold: #d9c28c; /* doar pe fundal închis */
   --night: #101216;
 
@@ -45,7 +45,7 @@
   --t-3: 0.52s;
 
   /* Sticla: destul de plină cât textul să rămână la peste 4,5:1 pe orice fundal al scenei. */
-  --glass: rgb(251 250 247 / 0.78);
+  --glass: rgb(251 250 247 / 0.82);
   --glass-edge: rgb(255 255 255 / 0.55);
   --glass-blur: blur(24px) saturate(1.6);
   --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 24px 48px -28px rgb(23 25 29 / 0.4);

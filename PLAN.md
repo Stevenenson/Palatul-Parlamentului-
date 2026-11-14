@@ -94,7 +94,22 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
 
 ## Faza 2
 
-Săli reale în 360°, design nou și fonturi cu aer roman: pașii 6–11 sunt în `PLAN-FAZA-2.md`.
+Săli reale în 360°, design nou și fonturi cu aer roman. Planul întreg e în `PLAN-FAZA-2.md`.
+
+- [x] **Pas 6 — Fundația de design.** Cinzel la titluri, EB Garamond la textul de lectură, Plex Mono la cifre;
+  panouri de sticlă, butoane-pastilă, cifre romane, meandru desenat din cod.
+- [x] **Pas 7 — Sala reală 360°.** Panorama Google Street View a sălii, prin încorporarea oficială, pe tot ecranul,
+  cu filmările alături; cadrul se creează abia la clic. Au panoramă Galeria de Onoare și Sala Drepturilor Omului.
+- [x] **Pas 8 — Hero.** Titlul sus, macheta mare la mijloc, un singur buton principal, cifrele la bază.
+- [x] **Pas 9 — Sălile.** Panou compact cu „Despre sală” pliat, player de filmări pe un rând, holograme mai mari,
+  covoare mai potolite.
+- [x] **Pas 10 — Hartă și subsol.** Pinuri de sticlă cu cifre romane, sursele imaginilor și ale fonturilor.
+- [ ] **Pas 11 — opțional.** Panoramă proprie în scena 3D, cu holograma în sala reală: cere fotografii 360° proprii.
+
+Abateri față de `PLAN-FAZA-2.md`: Pasul 8 a fost făcut odată cu Pasul 6; sticla e la 82% (nu 72%) și bronzul mai
+închis, pentru contrast; clasa `.pill` nu există, butoanele sunt direct pastile; restanțele de machetă din Pasul 10
+(coronament, arcade, umbre de contact, `frameloop="demand"`) au rămas nefăcute. Două dintre cele patru linkuri primite
+(galeria cu busturi și sala cu marmură roz) nu par să fie din cele patru săli ale turului și nu sunt folosite încă.
 
 ## După test
 

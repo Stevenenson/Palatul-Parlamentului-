@@ -40,6 +40,9 @@ accent, poziția camerei, locul hologramei, filmările și pozele.
 
 - Filmări: pune fișierele MP4 în `public/media/videos/` și trece-le la `recordings` în sala lor.
 - Poze: creează `public/media/photos/`, pune-le acolo și trece-le la `photos`.
+- Sala reală în 360°: mergi în sală pe Google Arts & Culture, copiază adresa din browser și pune-o la
+  `streetView: fromArtsLink('…')`. Imaginile nu se descarcă: se afișează prin încorporarea Google.
+- O filmare fără sunet primește `silent: true`, ca playerul să nu-i arate butonul de sunet.
 
 ## Cum e organizat
 

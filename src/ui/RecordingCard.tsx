@@ -4,8 +4,26 @@ import { recordingVideos } from '../state/media'
 import { swipeCancel, swipeEnd, swipeMove, swipeStart } from '../state/swipe'
 import { useTour, wrapIndex } from '../state/tour'
 
+const ICONS = {
+  previous: 'M14.5 5.5 8 12l6.5 6.5',
+  next: 'M9.5 5.5 16 12l-6.5 6.5',
+  pause: 'M9 6v12M15 6v12',
+  play: 'M8.5 5.5v13l10.5-6.5z',
+  soundOn: 'M4 10v4h3l4 3.5v-11L7 10zM15 9.5a3.5 3.5 0 0 1 0 5M17.5 7a7 7 0 0 1 0 10',
+  soundOff: 'M4 10v4h3l4 3.5v-11L7 10zM16 9.5l5 5M21 9.5l-5 5',
+  expand: 'M5 10V5h5M19 14v5h-5M5 5l6 6M19 19l-6-6',
+}
+
+function Icon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  )
+}
+
 /**
- * Cardul filmărilor dintr-o sală: spune ce arată holograma acum și o schimbă cu
+ * Playerul filmărilor dintr-o sală: spune ce arată holograma acum și o schimbă cu
  * săgeți, puncte, tastele stânga/dreapta sau cu un swipe pe card ori pe hologramă.
  */
 export function RecordingCard({ room, index }: { room: RoomSpec; index: number }) {
@@ -19,22 +37,23 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
   const current = wrapIndex(position, count)
   const recording = room.recordings[current]
   const { stepRecording, showRecording, set } = useTour.getState()
+  const video = recording.media.kind === 'video' ? recording.media : null
 
   // Sunetul și pauza se aplică filmării chiar în click: Safari și iPhone opresc o filmare
   // căreia i se dă sunet în afara unui gest al utilizatorului.
   const toggleSound = () => {
-    const video = recordingVideos.get(recording.id)
-    if (video) {
-      video.muted = !muted
-      if (muted && !paused) void video.play().catch(() => {})
+    const element = recordingVideos.get(recording.id)
+    if (element) {
+      element.muted = !muted
+      if (muted && !paused) void element.play().catch(() => {})
     }
     set({ muted: !muted })
   }
   const togglePause = () => {
-    const video = recordingVideos.get(recording.id)
-    if (video) {
-      if (paused) void video.play().catch(() => {})
-      else video.pause()
+    const element = recordingVideos.get(recording.id)
+    if (element) {
+      if (paused) void element.play().catch(() => {})
+      else element.pause()
     }
     set({ paused: !paused })
   }
@@ -92,13 +111,11 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
       <div className="recording__controls">
         <button
           type="button"
-          className="round"
+          className="icon-btn round"
           aria-label="Filmarea anterioară"
           onClick={() => stepRecording(index, -1)}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M14.5 5.5 8 12l6.5 6.5" />
-          </svg>
+          <Icon d={ICONS.previous} />
         </button>
         <ol className="dots">
           {room.recordings.map((item, i) => (
@@ -115,28 +132,37 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
         </ol>
         <button
           type="button"
-          className="round"
+          className="icon-btn round"
           aria-label="Filmarea următoare"
           onClick={() => stepRecording(index, 1)}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9.5 5.5 16 12l-6.5 6.5" />
-          </svg>
+          <Icon d={ICONS.next} />
         </button>
         {!failed && (
           <span className="recording__video">
-            <button type="button" className="sound" onClick={openLarge}>
-              Deschide filmarea
-            </button>
-          </span>
-        )}
-        {recording.media.kind === 'video' && !failed && (
-          <span className="recording__video">
-            <button type="button" className="sound" onClick={togglePause}>
-              {paused ? 'Pornește filmarea' : 'Pune pauză'}
-            </button>
-            <button type="button" className="sound" onClick={toggleSound}>
-              {muted ? 'Pornește sunetul' : 'Oprește sunetul'}
+            {video && (
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label={paused ? 'Pornește filmarea' : 'Pune pauză'}
+                onClick={togglePause}
+              >
+                <Icon d={paused ? ICONS.play : ICONS.pause} />
+              </button>
+            )}
+            {/* O filmare fără pistă audio nu primește buton de sunet. */}
+            {video && !video.silent && (
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label={muted ? 'Pornește sunetul' : 'Oprește sunetul'}
+                onClick={toggleSound}
+              >
+                <Icon d={muted ? ICONS.soundOff : ICONS.soundOn} />
+              </button>
+            )}
+            <button type="button" className="icon-btn" aria-label="Deschide filmarea mare" onClick={openLarge}>
+              <Icon d={ICONS.expand} />
             </button>
           </span>
         )}

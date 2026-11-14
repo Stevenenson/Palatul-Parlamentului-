@@ -199,30 +199,24 @@ try {
   await check('o filmare se poate deschide mare, cu comenzile browserului', async () => {
     await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
     await waitForCamera(page)
-    await page.locator('#sala-unirii .sound', { hasText: 'Deschide filmarea' }).click()
+    await page.click('#sala-unirii .icon-btn[aria-label="Deschide filmarea mare"]')
     await page.waitForSelector('#sala-unirii dialog[open] video[controls]', { timeout: 3000 })
     const hologram = await page.evaluate(() => window.__tour.playing['sala-unirii']()[0])
     expect(!hologram, 'holograma a continuat să ruleze sub casetă')
     await page.click('#sala-unirii dialog[open] .btn')
     expect((await page.locator('#sala-unirii dialog[open]').count()) === 0, 'caseta nu s-a închis')
-    await page.locator('#sala-unirii .sound', { hasText: 'Pornește filmarea' }).click()
+    await page.click('#sala-unirii .icon-btn[aria-label="Pornește filmarea"]')
   })
 
   await check('filmarea video rulează doar cât sala e activă', async () => {
     await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
     await waitForCamera(page)
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 8000 })
-    const sound = page.locator('#sala-unirii .sound', { hasText: 'sunetul' })
-    expect((await sound.textContent()).trim() === 'Pornește sunetul', 'butonul de sunet nu pornește pe „Pornește sunetul”')
-    await sound.click()
-    const heard = await page.evaluate(() => window.__tour.playing['sala-unirii']()[0])
-    expect(heard, 'filmarea s-a oprit când i s-a dat sunet')
-    expect((await sound.textContent()).trim() === 'Oprește sunetul', 'butonul de sunet nu și-a schimbat textul')
-    await sound.click()
-    const pause = page.locator('#sala-unirii .sound', { hasText: /Pune pauză|Pornește filmarea/ })
-    await pause.click()
+    // Filmarea de test nu are pistă audio, deci playerul nu trebuie să-i arate buton de sunet.
+    expect((await page.locator('#sala-unirii .icon-btn[aria-label*="sunetul"]').count()) === 0, 'filmarea fără sunet are buton de sunet')
+    await page.click('#sala-unirii .icon-btn[aria-label="Pune pauză"]')
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 3000 })
-    await pause.click()
+    await page.click('#sala-unirii .icon-btn[aria-label="Pornește filmarea"]')
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 3000 })
     await page.click('#sala-unirii .round[aria-label="Filmarea următoare"]')
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
@@ -303,6 +297,14 @@ try {
     await page.waitForFunction(() => window.scrollY > 0, null, { timeout: 3000 })
   })
 
+  await check('panourile de sticlă estompează scena și în versiunea construită', async () => {
+    const blur = await page.evaluate(() => {
+      const style = getComputedStyle(document.querySelector('.panel'))
+      return style.backdropFilter || style.webkitBackdropFilter
+    })
+    expect(String(blur).includes('blur'), `filtrul de fundal al panoului e „${blur}”`)
+  })
+
   await check('fără erori în consolă', async () => {
     expect(errors.length === 0, errors.join(' | '))
   })
@@ -324,8 +326,11 @@ try {
   })
   await direct.context.close()
 
-  const low = await openTour(browser, site.url, { width: 1100, height: 520 })
+  const low = await openTour(browser, site.url, { width: 1100, height: 420 })
   await check('o secțiune mai înaltă decât fereastra se poate citi până jos', async () => {
+    // Cu „Despre sală” deschis, panoul nu mai încape într-o fereastră joasă.
+    await low.page.evaluate(() => document.querySelector('#galeria-de-onoare .about').setAttribute('open', ''))
+    await low.page.waitForTimeout(300)
     const info = await low.page.evaluate(() => {
       const section = document.getElementById('galeria-de-onoare')
       return { top: window.__tour.anchors()[1], extra: section.offsetHeight - window.innerHeight }

@@ -48,16 +48,30 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
             {room.name}
           </h2>
           <p className="panel__note">{room.note}</p>
-          <p>{room.text}</p>
           <dl className="facts facts--panel">
-            {room.facts.map((fact) => (
+            {room.facts.slice(0, 2).map((fact) => (
               <div key={fact.label} className="fact">
                 <dt>{fact.label}</dt>
                 <dd>{fact.value}</dd>
               </div>
             ))}
           </dl>
-          <PhotoStrip room={room} />
+          {/* Restul stă pliat, ca panoul să lase sala la vedere. */}
+          <details className="about">
+            <summary>Despre sală</summary>
+            <p>{room.text}</p>
+            {room.facts.length > 2 && (
+              <dl className="facts facts--panel">
+                {room.facts.slice(2).map((fact) => (
+                  <div key={fact.label} className="fact">
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            <PhotoStrip room={room} />
+          </details>
           <a className="link" {...stopLink('harta')}>
             Vezi sala pe hartă
           </a>
