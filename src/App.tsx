@@ -15,7 +15,10 @@ const Scene = lazy(() => import('./three/Scene').then((module) => ({ default: mo
 
 function hasWebGL() {
   try {
-    return Boolean(document.createElement('canvas').getContext('webgl2'))
+    const gl = document.createElement('canvas').getContext('webgl2')
+    // Contextul de probă se eliberează imediat: browserele țin doar câteva deschise.
+    gl?.getExtension('WEBGL_lose_context')?.loseContext()
+    return Boolean(gl)
   } catch {
     return false
   }
@@ -45,11 +48,7 @@ export function App() {
             </Suspense>
           </SceneBoundary>
         )}
-        {scene !== 'failed' && (
-          <p className="stage__status" data-hidden={scene === 'ready' || undefined}>
-            Se încarcă macheta
-          </p>
-        )}
+        {scene === 'loading' && <p className="stage__status">Se încarcă macheta</p>}
       </div>
       <main id="continut">
         <Hero />

@@ -412,7 +412,7 @@ h2 {
 
 .legend__item {
   display: grid;
-  grid-template-columns: 14px minmax(0, 1fr);
+  grid-template-columns: 24px minmax(0, 1fr);
   column-gap: 12px;
   align-items: center;
   min-height: 56px;
@@ -436,10 +436,14 @@ h2 {
 
 .legend__dot {
   grid-row: span 2;
-  width: 12px;
-  height: 12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--accent);
+  color: #fff;
+  font: 600 0.8125rem / 1 var(--font-text);
 }
 
 .legend__name {
@@ -474,10 +478,6 @@ h2 {
   height: 2px;
   background: linear-gradient(90deg, var(--ink) 40%, var(--line) 40%) 0 0 / 250% 100%;
   animation: loading 1.4s linear infinite;
-}
-
-.stage__status[data-hidden] {
-  opacity: 0;
 }
 
 @keyframes loading {
@@ -543,6 +543,10 @@ h2 {
     transform 0.18s var(--ease),
     background-color 0.18s var(--ease),
     color 0.18s var(--ease);
+}
+
+.pin__number {
+  display: none;
 }
 
 .pin__stem {
@@ -637,6 +641,15 @@ h2 {
   background: rgb(23 25 29 / 0.72);
 }
 
+.lightbox video {
+  display: block;
+  max-width: 100%;
+  max-height: 78vh;
+  margin-inline: auto;
+  border-radius: var(--radius-small);
+  background: var(--ink);
+}
+
 .lightbox img {
   display: block;
   max-width: 100%;
@@ -662,8 +675,8 @@ h2 {
   position: absolute;
   right: calc(var(--edge) + 64px);
   bottom: 0;
-  width: min(380px, 31vw);
-  padding: 18px 20px 16px;
+  width: min(400px, 33vw);
+  padding: 18px 20px 14px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
@@ -708,6 +721,16 @@ h2 {
   letter-spacing: -0.012em;
 }
 
+.recording__media {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  margin-top: 10px;
+  border-radius: var(--radius-small);
+  background: var(--ink);
+  object-fit: contain;
+}
+
 .recording__who {
   margin-top: 4px;
   font-size: var(--size-small);
@@ -722,9 +745,10 @@ h2 {
 
 .recording__controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 0 4px;
+  margin-top: 10px;
 }
 
 .round {
@@ -772,7 +796,7 @@ h2 {
 .dot {
   display: grid;
   place-items: center;
-  width: 28px;
+  width: 44px;
   height: 44px;
   padding: 0;
   border: 0;
@@ -801,9 +825,16 @@ h2 {
   transform: scale(1.35);
 }
 
+.recording__video {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 14px;
+  margin-left: auto;
+}
+
 .sound {
   min-height: 44px;
-  margin-left: auto;
   padding: 0 4px;
   border: 0;
   background: linear-gradient(currentColor, currentColor) 0 calc(50% + 0.72em) / 100% 1px no-repeat;
@@ -1013,6 +1044,27 @@ h2 {
     left: 50%;
   }
 
+  /* Harta e mică pe telefon: pinurile arată numărul sălii, numele rămâne în legendă. */
+  .pin__label {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+    border-width: 2px;
+  }
+
+  .pin__name {
+    display: none;
+  }
+
+  .pin__number {
+    display: block;
+    font-weight: 600;
+  }
+
+  .recording__media {
+    max-height: 30svh;
+  }
+
   .footer__row {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1065,5 +1117,6 @@ h2 {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

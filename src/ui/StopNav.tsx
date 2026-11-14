@@ -1,5 +1,5 @@
 import { useTour } from '../state/tour'
-import { STOPS } from '../three/poses'
+import { STOP_LIST as STOPS } from '../content/stops'
 import { stopLink } from './links'
 
 /** Punctele din marginea ecranului: arată unde ești în tur și duc direct la orice oprire. */

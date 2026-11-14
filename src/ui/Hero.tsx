@@ -14,8 +14,8 @@ export function Hero() {
             Palatul Parlamentului din București, în 3D
           </h1>
           <p className="lead">
-            Trage de machetă ca să o rotești. Derulează ca să intri pe rând în patru săli și să
-            asculți ce spun oamenii despre clădire.
+            Trage de machetă ca să o rotești. Derulează ca să intri pe rând în patru săli și să vezi
+            filmările din fiecare.
           </p>
           {failed && (
             <p className="notice">

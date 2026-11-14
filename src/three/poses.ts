@@ -1,9 +1,9 @@
 import { MathUtils, Vector3 } from 'three'
-import { ROOMS, type RoomSpec } from '../content/rooms'
+import type { RoomSpec } from '../content/rooms'
+import { LAST_STOP, STOP_LIST, type StopInfo } from '../content/stops'
 
 export type Pose = { position: Vector3; target: Vector3; fov: number }
-export type StopKind = 'exterior' | 'room' | 'map'
-export type Stop = { id: string; kind: StopKind; label: string; room?: RoomSpec; pose: Pose }
+export type Stop = StopInfo & { pose: Pose }
 
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z)
 
@@ -17,30 +17,14 @@ function roomPose(room: RoomSpec): Pose {
   }
 }
 
-/** Opririle turului, în ordinea de pe pagină. Fiecare are o secțiune DOM cu același `id`. */
-export const STOPS: Stop[] = [
-  {
-    id: 'palat',
-    kind: 'exterior',
-    label: 'Palatul',
-    pose: { position: v(-392, 126, 646), target: v(0, 27, 8), fov: 30 },
-  },
-  ...ROOMS.map<Stop>((room) => ({
-    id: room.id,
-    kind: 'room',
-    label: room.name,
-    room,
-    pose: roomPose(room),
-  })),
-  {
-    id: 'harta',
-    kind: 'map',
-    label: 'Harta sălilor',
-    pose: { position: v(-320, 430, 500), target: v(0, 10, 20), fov: 30 },
-  },
-]
+const EXTERIOR: Pose = { position: v(-392, 126, 646), target: v(0, 27, 8), fov: 30 }
+const MAP: Pose = { position: v(-320, 430, 500), target: v(0, 10, 20), fov: 30 }
 
-export const LAST_STOP = STOPS.length - 1
+/** Opririle turului, cu poziția camerei pe fiecare. */
+export const STOPS: Stop[] = STOP_LIST.map((info) => ({
+  ...info,
+  pose: info.room ? roomPose(info.room) : info.kind === 'map' ? MAP : EXTERIOR,
+}))
 
 export const makePose = (): Pose => ({ position: new Vector3(), target: new Vector3(), fov: 30 })
 

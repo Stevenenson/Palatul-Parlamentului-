@@ -9,6 +9,7 @@ import {
   Vector3,
 } from 'three'
 import { ROOMS } from '../../content/rooms'
+import { pinElements } from '../../state/pins'
 import { live, useTour } from '../../state/tour'
 
 /**
@@ -17,13 +18,13 @@ import { live, useTour } from '../../state/tour'
  * spunem unde să stea, proiectând centrul fiecărei săli prin camera scenei.
  */
 
-/** Elementele DOM ale pinurilor, înregistrate de `MapSection`. */
-export const pinElements: (HTMLElement | null)[] = ROOMS.map(() => null)
-
 const anchor = new Vector3()
 const screenX = ROOMS.map(() => 0)
 const screenY = ROOMS.map(() => 0)
 const lifts = ROOMS.map(() => 0)
+/** Lățimile etichetelor, măsurate o dată pentru fiecare lățime de fereastră. */
+const widths = ROOMS.map(() => 0)
+let widthsFor = 0
 const order = ROOMS.map((_, i) => i)
 /** Dreptunghiurile etichetelor deja așezate în cadrul curent: stânga, dreapta, sus, jos. */
 const placed = ROOMS.map(() => [0, 0, 0, 0])
@@ -93,7 +94,10 @@ export function MapMarkers() {
     for (const i of order) {
       const pin = pinElements[i]
       if (!pin) continue
-      const half = (pin.firstElementChild as HTMLElement).offsetWidth / 2 + 5
+      if (widthsFor !== size.width || widths[i] === 0) {
+        widths[i] = (pin.firstElementChild as HTMLElement).offsetWidth
+      }
+      const half = widths[i] / 2 + 5
       let lift = LIFT
       for (let attempt = 0; attempt < 5; attempt++) {
         const top = screenY[i] - lift - LABEL - 5
@@ -119,6 +123,7 @@ export function MapMarkers() {
         pin.style.setProperty('--lift', `${lift}px`)
       }
     }
+    widthsFor = size.width
   })
 
   return (

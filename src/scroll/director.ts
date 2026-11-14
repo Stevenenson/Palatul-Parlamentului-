@@ -1,5 +1,5 @@
 import { live, useTour } from '../state/tour'
-import { LAST_STOP, STOPS } from '../three/poses'
+import { LAST_STOP, STOP_LIST as STOPS } from '../content/stops'
 
 /**
  * Directorul leagă scroll-ul nativ al paginii de poziția din tur.
@@ -156,8 +156,10 @@ function onScroll() {
 function travel(i: number, y: number) {
   const distance = Math.abs(i - live.t)
   if (Math.abs(window.scrollY - y) < 2 && live.flightTo === null) return
-  if (distance <= 1.25 && live.flightTo === null) {
-    tweenScroll(y, 700 + 500 * distance, i)
+  // Fără scenă 3D nu are cine să zboare: pagina doar derulează până la oprire.
+  const noScene = useTour.getState().scene === 'failed'
+  if (noScene || (distance <= 1.25 && live.flightTo === null)) {
+    tweenScroll(y, 700 + 500 * Math.min(distance, 1.5), i)
     return
   }
   cancelTween()

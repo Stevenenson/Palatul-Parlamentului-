@@ -10,8 +10,11 @@ export function Footer() {
           Filmările de test vor fi înlocuite cu cele reale.
         </p>
         <p>
-          Cifrele despre clădire vin din articolul „Palatul Parlamentului” de pe Wikipedia în română;
-          unde articolul dă două valori, am folosit-o pe cea din introducere.{' '}
+          Cifrele despre clădire vin din articolul{' '}
+          <a className="link" href="https://ro.wikipedia.org/wiki/Palatul_Parlamentului">
+            „Palatul Parlamentului” de pe Wikipedia
+          </a>
+          , citit în noiembrie 2026; unde articolul dă două valori, am folosit-o pe cea din introducere.{' '}
           <a className="link" {...stopLink('palat')}>
             Mergi la începutul turului
           </a>

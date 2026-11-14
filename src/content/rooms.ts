@@ -70,7 +70,7 @@ function testRecordings(
   topics: [string, string, string],
   firstIsVideo = false,
 ): Recording[] {
-  const slots = ['un elev sau un student', 'un adult', 'un senior']
+  const slots = ['un elev sau un student', 'un adult', 'o persoană în vârstă']
   return topics.map((topic, i) => ({
     id: `${roomId}-test-${i + 1}`,
     title: `Filmare de test ${i + 1}`,
@@ -121,7 +121,7 @@ export const ROOMS: RoomSpec[] = [
     size: [54, 15, 30],
     style: 'hall',
     camera: { eye: [6, 4.6, 0], look: [-26, 5.4, 0], fov: 46 },
-    hologram: { kind: 'wall', at: [-26.4, 2, 0], yaw: Math.PI / 2, width: 12 },
+    hologram: { kind: 'wall', at: [-26.92, 2, 0], yaw: Math.PI / 2, width: 12 },
     recordings: testRecordings('unirii', [
       'Aici intră prima filmare: o părere despre dimensiunile sălii.',
       'Aici intră a doua filmare: povestea covorului și a tavanului de sticlă.',
@@ -166,8 +166,8 @@ export const ROOMS: RoomSpec[] = [
     floor: [0, 28.2, 81],
     size: [60, 19.6, 34],
     style: 'plenary',
-    camera: { eye: [-10, 5.4, 0], look: [29, 7.4, 0], fov: 50 },
-    hologram: { kind: 'wall', at: [29.4, 2.8, 0], yaw: -Math.PI / 2, width: 13 },
+    camera: { eye: [-11, 4.4, -7.5], look: [29.4, 9.8, 2.5], fov: 60 },
+    hologram: { kind: 'wall', at: [29.92, 2.6, 0], yaw: -Math.PI / 2, width: 17 },
     recordings: testRecordings('cuza', [
       'Aici intră prima filmare: cum se vede orașul din logie.',
       'Aici intră a doua filmare: istoria sălii și a balconului pentru orchestră.',

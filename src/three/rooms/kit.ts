@@ -76,7 +76,14 @@ export function box(w: number, h: number, d: number, x: number, y: number, z: nu
 
 /** Cilindru cu baza la înălțimea `y`. Cu 8 segmente devine coloană octogonală. */
 export function cylinder(radius: number, h: number, x: number, y: number, z: number, segments = 20) {
-  const geometry = new CylinderGeometry(radius, radius, h, segments)
+  let geometry: BufferGeometry = new CylinderGeometry(radius, radius, h, segments)
+  if (segments <= 8) {
+    // Cu normale netezite, opt fețe ar arăta ca un cilindru rotund; le vrem cu muchii, ca la o coloană octogonală.
+    const faceted = geometry.toNonIndexed()
+    faceted.computeVertexNormals()
+    geometry.dispose()
+    geometry = faceted
+  }
   geometry.translate(x, y + h / 2, z)
   return geometry
 }

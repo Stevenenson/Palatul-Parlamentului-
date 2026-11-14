@@ -5,6 +5,7 @@ import {
   DoubleSide,
   type Group,
   MathUtils,
+  type Mesh,
   MeshBasicMaterial,
   SRGBColorSpace,
   type Texture,
@@ -12,10 +13,14 @@ import {
   VideoTexture,
 } from 'three'
 import { ROOMS, type Recording, type RoomSpec } from '../../content/rooms'
+import { recordingVideos } from '../../state/media'
 import { live, useTour, wrapIndex } from '../../state/tour'
 import { containFit, createHologramMaterial } from './hologramMaterial'
 
 type Slide = { texture: Texture; aspect: number; video: HTMLVideoElement | null }
+
+/** O filmare care rulează deja cu sunet a fost pornită de utilizator: nu ne atingem de ea. */
+const shouldBeHeard = (video: HTMLVideoElement) => !video.paused && !video.muted
 
 function loadSlide(recording: Recording): Slide {
   if (recording.media.kind === 'video') {
@@ -25,6 +30,7 @@ function loadSlide(recording: Recording): Slide {
     video.loop = true
     video.playsInline = true
     video.preload = 'metadata'
+    recordingVideos.set(recording.id, video)
     const texture = new VideoTexture(video)
     texture.colorSpace = SRGBColorSpace
     const slide: Slide = { texture, aspect: 16 / 9, video }
@@ -49,12 +55,13 @@ function loadSlide(recording: Recording): Slide {
  */
 function Hologram({ room, index }: { room: RoomSpec; index: number }) {
   const group = useRef<Group>(null)
+  const panel = useRef<Mesh>(null)
   const wall = room.hologram.kind === 'wall'
   const width = wall ? room.hologram.width - 0.3 : room.hologram.width
   const height = wall ? (room.hologram.width * 9) / 16 - 0.3 : room.hologram.width * 0.72
 
   const { material, uniforms } = useMemo(
-    () => createHologramMaterial(room.accent, wall ? 0 : 0.36),
+    () => createHologramMaterial(room.accent, wall ? 0 : 0.3),
     [room.accent, wall],
   )
   const beam = useMemo(
@@ -69,7 +76,7 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
     [room.accent],
   )
   const slides = useMemo(() => room.recordings.map(loadSlide), [room.recordings])
-  const state = useRef({ position: 0, power: 0 })
+  const state = useRef({ position: 0, power: 0, asleep: false })
 
   useEffect(() => {
     if (live.debug) {
@@ -81,13 +88,17 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
       }
     }
     return () => {
+      for (const recording of room.recordings) recordingVideos.delete(recording.id)
       for (const slide of slides) {
-        slide.video?.pause()
-        slide.video?.removeAttribute('src')
+        if (slide.video) {
+          slide.video.pause()
+          slide.video.removeAttribute('src')
+          slide.video.load() // abia `load()` eliberează efectiv fișierul și decodorul
+        }
         slide.texture.dispose()
       }
     }
-  }, [slides, room.id])
+  }, [slides, room.id, room.recordings])
 
   useEffect(
     () => () => {
@@ -105,6 +116,18 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
     const here = store.stop === stop && Math.abs(live.t - stop) < 0.3
     s.power = live.reducedMotion ? (here ? 1 : 0) : MathUtils.damp(s.power, here ? 1 : 0, 4.5, dt)
 
+    // Stinsă și departe de sală, holograma nu mai are nimic de calculat.
+    if (!here && s.power < 0.004) {
+      if (!s.asleep) {
+        s.asleep = true
+        s.power = 0
+        if (group.current) group.current.visible = false
+        for (const slide of slides) slide.video?.pause()
+      }
+      return
+    }
+    s.asleep = false
+
     const target = store.recording[index] + (here ? live.swipe : 0)
     s.position = live.reducedMotion ? target : MathUtils.damp(s.position, target, 10, dt)
     if (Math.abs(s.position - target) < 0.0005) s.position = target
@@ -113,12 +136,17 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
     const base = Math.floor(s.position)
     const a = slides[wrapIndex(base, count)]
     const b = slides[wrapIndex(base + 1, count)]
-    const panel = width / height
+    const shift = s.position - base
+    // Rama de pe perete are forma ei; panoul de deasupra soclului ia forma filmării din față.
+    const shape = wall
+      ? width / height
+      : MathUtils.clamp(MathUtils.lerp(a.aspect, b.aspect, shift), 0.5, (width * 1.25) / height)
+    if (panel.current && !wall) panel.current.scale.x = (shape * height) / width
     uniforms.mapA.value = a.texture
     uniforms.mapB.value = b.texture
-    containFit(a.aspect, panel, uniforms.fitA.value)
-    containFit(b.aspect, panel, uniforms.fitB.value)
-    uniforms.shift.value = s.position - base
+    containFit(a.aspect, shape, uniforms.fitA.value)
+    containFit(b.aspect, shape, uniforms.fitB.value)
+    uniforms.shift.value = shift
     uniforms.time.value += dt
     uniforms.power.value = s.power
     uniforms.motion.value = live.reducedMotion ? 0 : 1
@@ -130,8 +158,9 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
     slides.forEach((slide, i) => {
       const video = slide.video
       if (!video) return
-      video.muted = store.muted
-      const shouldPlay = here && i === current
+      // Sunetul se pornește în handlerul de click al cardului; aici doar îl ținem la zi pentru celelalte filmări.
+      if (video.muted !== store.muted && (store.muted || !shouldBeHeard(video))) video.muted = store.muted
+      const shouldPlay = here && i === current && !store.paused
       if (shouldPlay && video.paused) void video.play().catch(() => {})
       if (!shouldPlay && !video.paused) video.pause()
     })
@@ -151,7 +180,7 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
 
   return (
     <group ref={group} visible={false}>
-      <mesh position={position} rotation={[0, yaw, 0]} material={material} renderOrder={3}>
+      <mesh ref={panel} position={position} rotation={[0, yaw, 0]} material={material} renderOrder={3}>
         <planeGeometry args={[width, height]} />
       </mesh>
       {!wall && (

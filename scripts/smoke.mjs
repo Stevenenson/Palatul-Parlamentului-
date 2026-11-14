@@ -196,12 +196,34 @@ try {
     expect(Math.abs(y - anchors[1]) < 2, 'swipe-ul a mișcat pagina')
   })
 
+  await check('o filmare se poate deschide mare, cu comenzile browserului', async () => {
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await waitForCamera(page)
+    await page.locator('#sala-unirii .sound', { hasText: 'Deschide filmarea' }).click()
+    await page.waitForSelector('#sala-unirii dialog[open] video[controls]', { timeout: 3000 })
+    const hologram = await page.evaluate(() => window.__tour.playing['sala-unirii']()[0])
+    expect(!hologram, 'holograma a continuat să ruleze sub casetă')
+    await page.click('#sala-unirii dialog[open] .btn')
+    expect((await page.locator('#sala-unirii dialog[open]').count()) === 0, 'caseta nu s-a închis')
+    await page.locator('#sala-unirii .sound', { hasText: 'Pornește filmarea' }).click()
+  })
+
   await check('filmarea video rulează doar cât sala e activă', async () => {
     await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
     await waitForCamera(page)
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 8000 })
-    const sound = await page.textContent('#sala-unirii .sound')
-    expect(sound.trim() === 'Pornește sunetul', `butonul de sunet spune „${sound}”`)
+    const sound = page.locator('#sala-unirii .sound', { hasText: 'sunetul' })
+    expect((await sound.textContent()).trim() === 'Pornește sunetul', 'butonul de sunet nu pornește pe „Pornește sunetul”')
+    await sound.click()
+    const heard = await page.evaluate(() => window.__tour.playing['sala-unirii']()[0])
+    expect(heard, 'filmarea s-a oprit când i s-a dat sunet')
+    expect((await sound.textContent()).trim() === 'Oprește sunetul', 'butonul de sunet nu și-a schimbat textul')
+    await sound.click()
+    const pause = page.locator('#sala-unirii .sound', { hasText: /Pune pauză|Pornește filmarea/ })
+    await pause.click()
+    await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 3000 })
+    await pause.click()
+    await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 3000 })
     await page.click('#sala-unirii .round[aria-label="Filmarea următoare"]')
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
     await page.click('#sala-unirii .round[aria-label="Filmarea anterioară"]')
@@ -313,6 +335,32 @@ try {
     expect(overflow <= 0, `pagina e cu ${overflow} px mai lată decât ecranul`)
   })
   await phone.context.close()
+
+  // Fără WebGL: pagina trebuie să rămână întreagă, cu filmările mutate în carduri.
+  const plain = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  await plain.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+      return String(type).startsWith('webgl') ? null : original.call(this, type, ...rest)
+    }
+  })
+  const bare = await plain.newPage()
+  const bareErrors = []
+  bare.on('pageerror', (error) => bareErrors.push(String(error)))
+  await bare.goto(site.url, { waitUntil: 'load' })
+  await check('fără WebGL, pagina spune ce lipsește și arată filmările în carduri', async () => {
+    await bare.waitForSelector('.notice', { timeout: 8000 })
+    expect((await bare.locator('.stage canvas').count()) === 0, 'scena a fost totuși montată')
+    expect((await bare.locator('.recording__media').count()) === 4, 'cardurile nu arată filmările')
+    expect((await bare.locator('#sala-unirii video.recording__media').count()) === 1, 'filmarea video nu are player')
+    await bare.click('.topbar__nav a[href="#harta"]')
+    const tops = await bare.evaluate(() => window.__tour.anchors())
+    await bare.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[5], { timeout: 8000 })
+    await bare.click('.legend__item[href="#sala-unirii"]')
+    await bare.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[2], { timeout: 8000 })
+    expect(bareErrors.length === 0, bareErrors.join(' | '))
+  })
+  await plain.close()
 
   const reduced = await openTour(browser, site.url, { width: 1280, height: 800, reducedMotion: true })
   await check('cu mișcare redusă, saltul la hartă e instantaneu', async () => {

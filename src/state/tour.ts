@@ -46,6 +46,8 @@ type TourState = {
   recording: number[]
   /** Filmările pornesc fără sunet; utilizatorul îl pornește din card. */
   muted: boolean
+  /** Utilizatorul a pus filmarea pe pauză. Se anulează când trece la altă filmare. */
+  paused: boolean
   /** Sala evidențiată pe hartă (cursorul e pe pinul sau pe rândul ei din legendă). */
   hoverRoom: number | null
   /** Starea scenei 3D: se încarcă, desenează, sau nu a putut porni (fără WebGL, eroare). */
@@ -68,11 +70,15 @@ export const useTour = create<TourStore>((set) => ({
   hasOrbited: false,
   recording: ROOMS.map(() => 0),
   muted: true,
+  paused: false,
   hoverRoom: null,
   scene: 'loading',
   set: (patch) => set(patch),
   stepRecording: (room, direction) =>
-    set((state) => ({ recording: state.recording.map((p, i) => (i === room ? p + direction : p)) })),
+    set((state) => ({
+      paused: false,
+      recording: state.recording.map((p, i) => (i === room ? p + direction : p)),
+    })),
   showRecording: (room, index) =>
     set((state) => {
       const count = ROOMS[room].recordings.length
@@ -81,6 +87,6 @@ export const useTour = create<TourStore>((set) => ({
       let delta = index - wrapIndex(position, count)
       if (delta > count / 2) delta -= count
       if (delta < -count / 2) delta += count
-      return { recording: state.recording.map((p, i) => (i === room ? p + delta : p)) }
+      return { paused: false, recording: state.recording.map((p, i) => (i === room ? p + delta : p)) }
     }),
 }))

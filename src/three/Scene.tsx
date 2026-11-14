@@ -57,7 +57,7 @@ function Lights() {
         position={[470, 390, 300]}
         intensity={3.0}
         castShadow
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={LIGHT_DEVICE ? [2048, 2048] : [4096, 4096]}
         shadow-bias={-0.0003}
         shadow-normalBias={0.3}
         shadow-radius={2}

@@ -396,3 +396,296 @@ Rămase deschise:
 - harta de umbre refăcută la schimbarea vizibilității detaliului și recompilarea materialelor la primul scroll: nemăsurate;
 - `frameloop="demand"` și o captură din unghiul fotografiilor: neimplementate.
 
+## Pașii 2–5 · runda 1 și Pas 1 · runda 2 · 14 noiembrie 2026
+
+**Verdict:** APROBAT CU OBSERVAȚII
+
+Niciun blocant: pe desktop, Pașii 2–4 fac ce spun criteriile lor, cu teste. Sunt însă 6 majore, iar Pasul 5 nu poate fi
+socotit închis până nu se rezolvă cele două ale lui. Cele două blocante de la Pasul 1 sunt rezolvate pe imagine.
+
+**Verificări rulate:** build ok (fișier de pornire `index` 228,06 kB, 72,04 kB gzip; `Scene` 38,87 kB, 14,56 kB gzip;
+`Effects` 214,56 kB, 97,52 kB gzip; bucata comună three/fiber `events` 930,62 kB, 247,97 kB gzip; CSS 25,88 kB, 5,26 kB gzip;
+același avertisment Vite pentru chunk peste 500 kB), lint ok (0 probleme), teste 27 din 27, capturi 26 (10 desktop
+1440 × 900, 6 laptop 1366 × 650, 6 mobil 390 × 844, din care 4 cadre de tranzit pe desktop), fără erori în consolă,
+60 de cadre pe secundă pe exterior pe „ANGLE Metal, Apple M5 Pro”. Commit verificat: `7dffa71`, pe un instantaneu al lui;
+capturile au rămas în instantaneu (`review-final/review/shots/final-review/` din scratchpad), nu în `review/shots/` din proiect.
+
+Cât de sigură e fiecare observație:
+- **văzut pe captură** (10 imagini deschise, cât permitea limita): `desktop-0-palat`, `desktop-1` … `desktop-4` (cele patru
+  săli), `desktop-5-harta`, `desktop-tranzit-1_5`, `mobil-1-galeria-de-onoare`, `mobil-5-harta`, plus `reference/palat-oblic.jpg`;
+- **citit integral**: `rooms/kit.ts`, `rooms/buildRoom.ts`, `rooms/Rooms.tsx`, `hologram/Holograms.tsx`,
+  `hologram/hologramMaterial.ts`, `state/swipe.ts`, `ui/RecordingCard.tsx`, `map/MapMarkers.tsx`, `ui/MapSection.tsx`,
+  `three/Scene.tsx`, `three/Effects.tsx`, `App.tsx`, `ui/SceneBoundary.tsx`, `ui/Footer.tsx`, `content/rooms.ts`, partea de
+  pointer din `CameraRig.tsx` (76–172);
+- **verificat în build**: ce se încarcă la pornire (`dist/index.html` și primul rând din `dist/assets/index-*.js`);
+- **neverificat**: celelalte 16 capturi (toate `laptop-jos-*`, `mobil-0/2/3/4`, tranzitele `0_5`, `2_5`, `4_5`, vederea din
+  față a palatului); `buildPalace.ts` și `massing.ts` doar prin căutări punctuale, nu rând cu rând; `director.ts` deloc
+  (testele trec); corpul testelor din `scripts/smoke.mjs` în afară de cel video; `ui/PhotoStrip.tsx` (nu se desenează,
+  fiindcă `photos` e gol peste tot); Safari și un telefon real; rezerva fără WebGL doar din cod, nu într-un browser;
+  cifrele din `rooms.ts` nu le-am recitit în articol.
+
+### Pas 1 · runda 2: punctele din runda 1
+
+- **(blocant) Lumina** — rezolvat, văzut pe `desktop-0-palat.png`. Soarele e la `[470, 390, 300]` (`Scene.tsx:57`): acoperișurile
+  sunt cele mai deschise, fațada principală e luminată, latura lungă din stânga e vizibil mai gri. Volumele se despart.
+- **(blocant) Ferestrele** — rezolvat pe imagine. Au ancadrament și geam gri cald; fațada nu mai arată ca un rând de puncte
+  tipărite, iar parterul cu arcade se citește ca arcade.
+- **(major) Muchiile** — rezolvat (`buildPalace.ts:465-466`, opacitate 0,2 pe macheta opacă); conturul fin se vede pe cornișe
+  și pe turn.
+- **(major) Trecerea în transparență** — parțial. `buried()` există și e folosit (`buildPalace.ts:115`, `:203`, `:211`), iar
+  detaliul se stinge înaintea pereților. Pragul a rămas: `material.depthWrite = solid > 0.6` (`:460`), când peretele are
+  încă opacitate peste 0,6. Nu l-am confirmat pe imagine (`desktop-tranzit-0_5.png` a rămas nedeschis). Trecut la minore.
+- **(major) Ocluzia și bundle-ul** — parțial. Pe telefoane și tablete postprocesarea e oprită și `dpr` e cel mult 1,5
+  (`Scene.tsx:74-77`, `:97`), iar `Effects` e fișier separat. Dar afirmația „fișierul de pornire are 72 kB gzip în loc de
+  421” e adevărată doar pe hârtie: fișierul de pornire importă static bucata cu three.js (248 kB gzip). Vezi majorul de la
+  Pasul 5. Cadrele pe secundă sunt măsurate tot numai pe M5 Pro (60).
+- **Minorele bifate** — banda transversală din planul de sit a dispărut și luminatoarele de pe acoperiș există (văzute pe
+  captură). Turnurile de 24 m, cele 11 travee, coloanele porticului, `rear-spine`, tasta ținută apăsat, sincronizarea
+  după zbor și `scrollRestoration` nu le-am reverificat în cod; testele care le ating trec, iar captura nu le contrazice.
+- **Rămase deschise** — toate patru au motiv scris. Compoziția hero pe 1440 × 900 e tot la limită pe captura nouă:
+  pavilionul din stânga începe la circa 13 px de capătul primului rând din lead, iar terasa de jos e tăiată de marginea
+  din dreapta și trece pe sub punctele de navigare.
+
+**Mai arată „ieftin”?** Pe captura hero, nu. Se citește ca o machetă albă cu relief adevărat, nu ca un model low-poly.
+Ce o mai ține sub nivelul fotografiei `palat-oblic.jpg`, în ordinea efectului:
+1. acoperișurile sunt capace albe, fără atic: în fotografie fiecare treaptă se termină cu o cornișă grea și o balustradă.
+   Un atic retras de 1,5–2 m pe fiecare volum ar da „coroana” siluetei în trepte;
+2. registrul al doilea și pavilioanele au în realitate arcade adânci cu coloane; în machetă relieful e același peste tot
+   (ancadrament de 36 cm). Trei–patru arcade retrase cu 1–1,5 m la pavilioane și pe rezalit ar prinde umbră adevărată;
+3. terasele sunt trei plăci goale cu scări foarte mici: câteva linii de parapet sau de gard viu le-ar da scară.
+
+### Criteriile pașilor
+
+**Pas 1 (runda 2)**
+- [x] nu arată „ieftin” — îndeplinit pe `desktop-0-palat.png`, cu cele trei rezerve de mai sus. Din față și pe mobil nu am
+  deschis capturile.
+- [ ] rulează fluid — 60 de cadre pe secundă pe M5 Pro, măsurate de scriptul de capturi. Pe telefon tot nemăsurat.
+
+**Pas 2 — Săli + tur pe scroll**
+- [x] scroll în ambele sensuri, fără salturi — testele „scroll-ul schimbă oprirea activă”, „scroll-ul parțial se așază pe
+  oprirea următoare”, „la scroll în sus…”, „o singură crestătură de rotiță…”. Dintr-un singur cadru de tranzit nu pot
+  judeca fluiditatea; cadrul în sine e slab compus (vezi minore).
+- [x] indicator de sală activă — punctele din dreapta, văzute pe fiecare captură, cu punctul plin pe oprirea corectă.
+- Recunoaștere din descriere: **Galeria de Onoare** da (două șiruri de coloane, covor roșu, șir de lustre, grinzi);
+  **Sala Drepturilor Omului** da (masă inelară, 60 de scaune, lambriu, candelabru); **Sala Unirii** da (luminator cu ramă
+  aurie, colonade, covor); **Sala Cuza** nu: se vede un singur luminator din 7 și nicio logie (vezi majorul).
+
+**Pas 3 — Holograme + carusel**
+- [x] swipe cu mouse și touch — testele „filmările se schimbă din săgeți, din puncte, din tastatură și cu swipe” și „pe
+  telefon, un swipe orizontal pe hologramă schimbă filmarea”.
+- [x] video se oprește la ieșirea din sală — testul „filmarea video rulează doar cât sala e activă” (`smoke.mjs:202-211`)
+  și `Holograms.tsx:128-137`.
+- [x] textul e lizibil — textul stă pe card, pe fond aproape opac, la mărimea textului de bază. Pe holograma de soclu
+  imaginea se vede, dar are benzi gri în lateral (vezi majorul).
+- [x] conținutul de test e marcat — eticheta „Conținut de test”, titlul „Filmare de test N”, „Loc rezervat pentru…” și
+  „Aici intră prima filmare: …”. Nu pune nicio părere în gura cuiva.
+
+**Pas 4 — Harta 3D cu pinuri**
+- [x] fiecare pin duce în sala corectă — testul „fiecare pin de pe hartă duce în sala lui”; pe `desktop-5-harta.png` fiecare
+  pin stă pe sala lui.
+- [x] se poate folosi din tastatură prin legendă — testul „din legenda hărții se ajunge în sală”; legenda e o listă de
+  linkuri, cu evidențiere comună cu pinurile la focus (`MapSection.tsx:31-34`).
+- [x] etichetele nu se acoperă — pe desktop da; pe `mobil-5-harta.png` nu (vezi majorul).
+
+**Pas 5 — Finisaj**
+- [x] scena se încarcă după text — nu în fapt: three.js e pe drumul critic (vezi majorul).
+- [x] mesaj de încărcare — „Se încarcă macheta” (`App.tsx:48-52`), ascuns la al treilea cadru desenat (`CameraRig.tsx:185`).
+- [x] fără WebGL pagina rămâne utilizabilă — din cod: `hasWebGL()`, `SceneBoundary` și nota din hero. Filmările însă nu
+  mai au unde să se vadă (vezi majorul). Niciun test nu acoperă cazul.
+- [x] pe telefoane fără postprocesare — `Scene.tsx:74-77`.
+- [x] `prefers-reduced-motion` — două teste pentru scroll; holograma oprește baleiajul și pâlpâirea (`Holograms.tsx:106-109`, `:124`).
+- [x] sursa cifrelor în subsol — `Footer.tsx:12-14`; e numită, dar fără link și fără data consultării.
+
+### Ce e bine
+- Sălile costă puține apeluri de desenare: fiecare își unește piesele pe materiale (`Parts`, `kit.ts:48-69`), deci în jur de
+  opt mesh-uri pe sală, cu materiale comune între săli.
+- Galeria și Sala Drepturilor Omului arată a machetă îngrijită, nu a cutie: numerele din text (34 de coloane, 67 de
+  lustre, 60 de scaune) sunt chiar construite în cod (`buildRoom.ts:72-76`, `:94-102`, `:181-189`).
+- Gestul de swipe are un singur cod pentru scenă și pentru card (`swipe.ts`), cu anulare la `pointercancel` și la buton
+  ridicat pe nevăzute (`CameraRig.tsx:110-114`, `:136`). Trecerea de la tras la filmarea nouă e continuă.
+- Conținutul de test e cinstit: marcat vizibil, fără nume, fără citate inventate.
+- Pinurile sunt linkuri reale din pagină, poziționate din scenă; legenda le dublează pentru tastatură, iar pinurile ies
+  din ordinea de Tab ca să nu apară fiecare sală de două ori.
+- Testele au crescut de la 22 la 27 și acoperă exact lucrurile noi: caruselul pe toate căile, video pornit și oprit,
+  pinurile, swipe-ul pe telefon.
+
+### Probleme
+
+**Pas 1 (runda 2)**
+- [ ] **(minor, din cod, neconfirmat pe imagine)** `src/three/palace/buildPalace.ts:460` — A rămas pragul din majorul 4 al
+  rundei 1: `depthWrite` se oprește la `solid = 0,6`, când peretele are încă opacitate peste 0,6, deci într-un singur
+  cadru pot apărea fețele din spate și dispare ocluzia. La `:458`, `material.needsUpdate` recompilează materialele la
+  primul scroll (lăsat deschis, nemăsurat). Rezolvare: leagă `depthWrite` de un prag la care peretele e deja aproape
+  transparent (sub 0,15) sau folosește `alphaHash`; confirmă pe `desktop-tranzit-0_5.png` și pe două cadre în jurul pragului.
+
+**Pas 2 — Săli**
+- [x] **(major)** `src/content/rooms.ts:169` cu `src/three/rooms/buildRoom.ts:201-228` — Sala Cuza nu se recunoaște din
+  descriere. Cardul spune „7 luminatoare în plafon” și „logie amplă”, iar `desktop-4-sala-alexandru-ioan-cuza.png` arată un
+  singur luminator, un perete gol cu un ecran și nicio arcadă: logia e pe peretele din dreapta camerei, ascunsă după
+  coloane, iar luminatoarele din față sunt strivite de perspectivă (camera stă la 5,4 m sub un tavan de 19,6 m). Sala
+  seamănă până la confuzie cu Sala Unirii: cutie albă, coloane, luminator, covor, ecran. Rezolvare: mută poziția camerei
+  în colț și deschide unghiul (de încercat `eye: [-24, 4, -8]`, `look: [18, 9, 6]`, `fov` 58), ca să intre în cadru 4–5
+  fâșii de luminator și arcadele logiei; sau mută holograma pe peretele opus logiei, ca logia să fie fundalul.
+- [x] **(minor)** `src/three/rooms/kit.ts:78-82` cu `buildRoom.ts:76` — Coloanele „octogonale” ale galeriei ies rotunde pe
+  captură: cilindrul cu 8 segmente păstrează normalele netede, deci fețele nu se văd. „34 de coloane octogonale” e
+  cifra de pe card. Rezolvare: normale plate pentru coloanele cu 8 segmente (`toNonIndexed()` și `computeVertexNormals()`).
+- [ ] **(minor, din calcul)** `kit.ts:184-206`, `buildRoom.ts:93-102`, `src/three/rooms/Rooms.tsx:9-20`, `kit.ts:61` — Lustrele
+  galeriei au, după socoteala mea, circa 119.000 de triunghiuri (17 mari a câte ~2.100 și 50 mici a câte ~1.650; un bec
+  are 80 de triunghiuri și ocupă 2–3 px). E de trei ori cât tot exteriorul palatului. Sălile sunt mereu vizibile, deci
+  se desenează și în hero, în spatele carcasei opace. `toNonIndexed()` de la `:61` triplează în plus vârfurile, deși
+  toate piesele din trusă au index. Pe M5 Pro nu se simte; pe telefon e nemăsurat. Rezolvare: becuri și inele
+  instanțiate sau mult mai sărace (icosaedru de 20 de triunghiuri, tor 4 × 16), unire cu index, `group.visible = false`
+  cât `live.solid` e peste 0,99.
+- [x] **(minor)** `buildRoom.ts:55-58` cu `rooms.ts:124` și `:170` — Ramele de perete plutesc la circa 0,5 m în fața
+  peretelui (rama la `x = -26,4`, peretele la `-27`; la Cuza 29,4 față de 30). Din poziția camerei nu se vede; se vede
+  când privești în jur și pe hartă. Rezolvare: pune rama la 7 cm de perete și holograma în fața ei.
+- [ ] **(minor)** `desktop-tranzit-1_5.png` — La jumătatea drumului dintre galerie și Sala Unirii, cam 70 % din ecran e
+  hârtie goală cu câteva linii, iar sala de destinație stă în colțul din dreapta sus, pe sub bara de sus și pe sub
+  cardul filmărilor galeriei. Nu e un salt, dar e un cadru mort. Rezolvare: întoarce privirea spre sala următoare mai
+  devreme decât poziția (curbă separată pentru `look`), ca destinația să stea în mijlocul cadrului pe tot tranzitul.
+
+**Pas 3 — Holograme + filmări**
+- [x] **(major)** `src/three/hologram/hologramMaterial.ts:48-50` cu `src/three/hologram/Holograms.tsx:54-57` — Holograma de
+  soclu are două benzi gri murdare în lateral. Panoul are proporția 1,39 : 1, imaginea de test e pe înalt, iar în afara
+  imaginii shaderul desenează „geamul” întunecat (`tint * 0.12`) cu opacitate 0,36. Într-o sală albă nu arată a
+  proiecție, ci a dreptunghi gri lipit în aer: se vede pe `desktop-1`, `desktop-3` și `mobil-1`, deci e primul lucru
+  văzut la intrarea în tur. Filmările reale făcute cu telefonul pe înalt vor arăta la fel. Rezolvare: dă panoului
+  proporția filmării curente (scalează mesh-ul pe X, interpolat cât durează alunecarea) sau aplică `backing` doar sub
+  imagine și lasă restul complet transparent.
+- [x] **(major, din cod, neverificat pe Safari)** `Holograms.tsx:133-135` cu `src/ui/RecordingCard.tsx:77` — Sunetul se
+  pornește în afara gestului utilizatorului. Butonul schimbă doar `muted` din store, iar `video.muted = false` se aplică
+  la cadrul următor, din `useFrame`. Regula WebKit e că un video care rulează fără gest și își pierde `muted` în afara
+  unui gest este pus pe pauză; `play()` cerut apoi din buclă e respins, iar `catch(() => {})` ascunde eroarea și cererea
+  se repetă la fiecare cadru. Pe iPhone, „Pornește sunetul” ar îngheța deci filmarea. Filmarea de test nu are pistă
+  audio (scriptul nu generează una), deci testele nu pot prinde cazul. Rezolvare: în handlerul de click, pune sincron
+  `muted` pe elementul video curent și cheamă `play()` acolo (un registru al elementelor video în `live`); după un
+  `play()` respins, revino la `muted` și nu mai încerca la fiecare cadru. De verificat pe un iPhone cu o filmare cu voce.
+- [x] **(minor)** `Holograms.tsx:83-89`, `:71`, `:36-41` — (1) La demontare, `removeAttribute('src')` fără `video.load()` nu
+  eliberează resursa video. (2) Toate filmările din toate sălile se încarcă la pornirea scenei, iar același SVG de test
+  se descarcă și se urcă pe placa video de 11 ori (cache-ul three e oprit implicit). Cu conținut real înseamnă toate
+  imaginile și metadatele tuturor filmelor la început. Rezolvare: încarcă filmările unei săli când turul se apropie de
+  ea (`|t − stop| < 1`) și eliberează-le când se îndepărtează.
+- [x] **(minor)** `Holograms.tsx:100-138` — Fiecare hologramă lucrează la fiecare cadru și când e stinsă: citire din store,
+  `containFit`, o funcție nouă pentru `forEach`. Rezolvare: ieșire timpurie când sala nu e activă și `power` e sub 0,01.
+- [x] **(minor, din cod)** `src/state/swipe.ts:16-18`, `:31-43` cu `Holograms.tsx:108` — Gest întrerupt: dacă turul pleacă din
+  sală cât ții apăsat (rotiță sau săgeată), `live.swipe` rămâne nenul și se aplică hologramei din sala următoare, iar la
+  eliberare pasul se face în sala veche. Un al doilea deget suprascrie `startX`. Rezolvare: în `swipeMove`, dacă
+  `activeRoom() !== room`, cheamă `swipeCancel()`; ține minte și `pointerId`.
+- [x] **(minor)** `src/styles/global.css:772-776` și `:673-675` — Punctele caruselului au țintă de 28 × 44 px, sub cei 44 px
+  pe lățime (săgețile au 44). `user-select: none` pe tot cardul face ca textul filmării să nu poată fi selectat sau
+  copiat, ceea ce va conta când acolo va sta o transcriere. Rezolvare: puncte la 44 px sau mai rare; `user-select: none`
+  doar cât durează gestul.
+- [x] **(minor)** `RecordingCard.tsx:34` — `aria-live` e doar pe contor: cititorul de ecran aude „Filmarea 2 din 3”, dar nu
+  și titlul și persoana. Pune regiunea live pe un element care le cuprinde pe toate trei.
+- [ ] **(minor)** `RecordingCard.tsx:76-80` — „Pornește sunetul” apare pentru o filmare de test fără sunet, deci butonul nu
+  face nimic audibil. Imaginea de test are un triunghi de redare care nu pornește nimic la click. Rezolvare: un ton
+  scurt în filmarea de test (ar acoperi și majorul de mai sus) și fără simbol de redare pe imaginea statică.
+
+**Pas 4 — Hartă**
+- [x] **(major)** `src/three/map/MapMarkers.tsx:89-121` — Pe telefon, etichetele hărții sunt stricate (`mobil-5-harta.png`).
+  Algoritmul ridică o etichetă până nu mai calcă altă etichetă, dar nu ține seama nici de bara de sus, nici de punctele
+  și tijele celorlalte pinuri. Pe 390 px, „Sala Unirii” urcă trei trepte (tijă de 190 px) și ajunge sub bara de sus:
+  nu se vede și nu se poate atinge. „Galeria de Onoare” acoperă punctele Sălii Unirii și Sălii Cuza, iar tija Sălii Cuza
+  trece prin textul ei. Am refăcut calculul din pozițiile de pe captură și dă exact așezarea văzută. Rezolvare: pe ecrane
+  înguste, pinuri numerotate 1–4 (cu aceleași numere în legendă) în loc de etichete cu nume, sau etichete așezate în
+  lateral cu linie de legătură; în orice variantă, limitează poziția sub bara de sus și tratează punctele ca obstacole.
+- [x] **(minor)** `MapMarkers.tsx:96` — `offsetWidth` se citește pentru fiecare pin la fiecare cadru, imediat după ce s-au
+  scris `transform` și `opacity`: recalculare de layout forțată pe cadru cât se vede harta. Lățimile nu se schimbă; ține-le
+  minte la înregistrarea pinului și la redimensionare.
+- [ ] **(minor)** `desktop-5-harta.png` — Pe desktop, eticheta „Galeria de Onoare” acoperă jumătate din macheta Sălii Cuza.
+  Aceeași tratare a sălilor ca obstacole ar rezolva și asta.
+
+**Pas 5 — Finisaj**
+- [x] **(major)** `src/ui/MapSection.tsx:4` (și de verificat `src/three/poses.ts`, importat din `state/swipe.ts:1`) — Scena
+  nu se încarcă după text. `MapSection` importă `pinElements` din `three/map/MapMarkers.tsx`, care importă
+  `@react-three/fiber` și `three`, deci biblioteca intră în graful static al paginii. Dovada din build: `dist/index.html`
+  are `<link rel="modulepreload">` pentru `events-…js` (930,62 kB, 247,97 kB gzip), iar `index-…js` începe cu un import
+  static din el. La pornire se descarcă și se interpretează deci 72 + 248 = 320 kB gzip înainte să apară orice text, nu
+  72 kB cum scrie în „Ce am aplicat”. Întârziate sunt doar `Scene` (14,56 kB gzip) și `Effects` (97,52 kB gzip).
+  Rezolvare: mută `pinElements` într-un modul fără importuri din three (de exemplu `src/state/pins.ts`); `poses.ts` să
+  folosească tupluri simple sau doar `import type`; React într-o bucată proprie, ca să nu stea în aceeași bucată cu
+  three. Criteriu de verificare: `dist/index.html` fără `modulepreload` către bucata cu three.
+- [x] **(major)** `src/ui/RecordingCard.tsx` cu `src/App.tsx:41-47` — Filmările există doar ca textură în WebGL. Fără WebGL
+  (rezerva de la `App.tsx:16-24`) cardul rămâne cu titlu și text, dar filmarea nu are unde să se vadă; cu WebGL, video-ul
+  nu are pauză, derulare, subtitrări sau ecran mare și nu există pentru un cititor de ecran. Cu conținut de test nu
+  doare; cu filmările reale, miezul paginii e inaccesibil pentru o parte din vizitatori. Rezolvare: un buton „Deschide
+  filmarea” pe card, care arată un `<video controls>` (sau imaginea) într-o casetă, cum face deja `PhotoStrip` pentru
+  poze; când `scene === 'failed'`, filmarea direct în card.
+- [x] **(minor)** `App.tsx:48-52` cu `global.css:471-481` și `:1062-1069` — Mesajul de încărcare rămâne în pagină cu
+  opacitate 0 și cu animația infinită pornită. Regula pentru mișcare redusă scurtează durata la 0,01 ms fără
+  `animation-iteration-count: 1`, deci bara nu se oprește, ci se repetă de mii de ori pe secundă. Mesajul stă în
+  `.stage`, care are `aria-hidden`, deci un cititor de ecran nu-l aude. Rezolvare: scoate elementul după ce scena e gata;
+  adaugă `animation-iteration-count: 1` în regulă.
+- [x] **(minor, nemăsurat)** `src/three/Scene.tsx:60` și `App.tsx:16-22` — Harta de umbre are 4096 × 4096 și pe telefoane
+  (2048 ar ajunge acolo). `hasWebGL()` creează un context WebGL2 de probă pe care nu-l mai eliberează
+  (`WEBGL_lose_context`).
+- [x] **(minor)** `scripts/smoke.mjs` — Niciun test pentru rezerva fără WebGL și niciunul pentru mesajul de încărcare. Un
+  test care pornește pagina cu `getContext` înlocuit să întoarcă `null` ar verifica nota din hero, legenda și linkurile.
+
+**Texte**
+- [x] **(minor)** `src/ui/Hero.tsx:17-18` — „să asculți ce spun oamenii despre clădire” promite ce pagina nu are încă:
+  filmările sunt de test și fără sunet. Până vin cele reale: „și să vezi filmările din fiecare sală”.
+- [x] **(minor)** `src/content/rooms.ts:73` — „Loc rezervat pentru un senior”: „senior” cu sensul acesta e anglicism; mai
+  firesc „o persoană în vârstă”.
+- [x] **(minor)** `src/ui/Footer.tsx:12-14` — Sursa cifrelor e numită, dar nu e link și nu are data consultării. Articolul
+  se schimbă; pune adresa și data. Cifrele din `rooms.ts` nu le-am reverificat în articol în runda aceasta; intern se
+  potrivesc (625 m² = 25 × 25, 2.040 m² = 60 × 34, nava de 18 × 54 m cu dimensiunile sălii din cod).
+
+### Îmbunătățiri propuse
+- [ ] Umbre de contact în săli: un disc moale, închis, sub fiecare coloană, sub masă și sub socluri, desenat o singură
+  dată. Sălile nu au umbre de la soare, iar pe telefon nici ocluzie, deci acolo coloanele par să plutească pe podea.
+- [ ] Atic retras pe acoperișuri și trei–patru arcade adânci la pavilioane și pe rezalit (vezi lista de la Pasul 1):
+  cel mai mare câștig de asemănare cu fotografia pentru puțină geometrie.
+- [ ] Sala Unirii și Sala Cuza să difere și prin altceva decât culoarea covorului: la Unirii camera mai jos și spre
+  luminator, ca tavanul de sticlă să fie subiectul; la Cuza logia.
+- [ ] Holograma de soclu puțin în lateralul axului galeriei, nu pe mijlocul covorului, ca perspectiva coloanelor să
+  rămână liberă; cardul filmărilor acoperă acum și marginea soclului (`desktop-1`).
+- [ ] O captură în `shots.mjs` cu harta pe 390 px după ce se repară etichetele și una fără WebGL, ca cele două cazuri să
+  rămână sub ochi la fiecare pas.
+- [ ] Rămase din runda 1 a Pasului 1 și încă valabile: `frameloop="demand"` cât turul stă pe o oprire; captura din
+  unghiul fotografiei și una de aproape cu porticul.
+
+### De reluat mai târziu
+- [ ] **Capturile nedeschise:** `laptop-jos-*`, `mobil-0/2/3/4`, tranzitele `0_5`, `2_5`, `4_5` și palatul din față. Până
+  atunci, compoziția pe 1366 × 650 și hero-ul pe telefon rămân nejudecate pe imagine, a doua oară la rând.
+- [ ] **Telefon real:** cadre pe secundă în galerie (acolo sunt cele mai multe triunghiuri), sunetul pe iPhone, harta.
+- [ ] **Ordinea pe mobil:** pe `mobil-1`, cardul filmărilor stă deasupra panoului sălii. De verificat dacă ordinea din DOM
+  e aceeași cu cea de pe ecran, ca Tab și cititorul de ecran să nu sară în sus și în jos.
+- [ ] **`PhotoStrip`:** nu se desenează cât `photos` e gol, deci nu l-am văzut și nu are test. De verificat cu prima poză reală.
+- [ ] **Ramele foto de pe pereții 3D:** rămase din Pasul 3, cu motiv scris în `PLAN.md`.
+- [ ] **Cifrele:** de recitit o dată în articol, cu link și dată, înainte de publicare.
+- [ ] **Hero pe 1440 × 900 și macheta mică pe telefon:** lăsate deschise la Pasul 1, în așteptarea utilizatorului.
+
+### Ce am aplicat (runda 1)
+
+Toate cele 6 probleme majore sunt rezolvate. Testele din browser au crescut de la 27 la 29 și trec toate; capturile noi
+sunt în `review/shots/final/`.
+
+- **Sala Cuza:** camera privește acum în diagonală, cu logia luminată în dreapta și mai multe luminatoare în tavan;
+  holograma e mai mare (17 m) și stă pe peretele din capăt. Nu mai seamănă cu Sala Unirii.
+- **Holograma de soclu:** panoul ia forma filmării din față, deci nu mai are benzi gri pe lateral.
+- **Sunetul filmărilor:** „Pornește sunetul” și „Pune pauză” acționează asupra filmării chiar în click
+  (`state/media.ts`), nu în bucla de desenare. Pe iPhone și Safari tot trebuie încercat cu o filmare cu voce.
+- **Harta pe telefon:** pinurile arată numărul sălii, același cu cel din legendă; nu se mai acoperă și nu mai ies sub
+  bara de sus.
+- **three.js în afara pornirii:** opririle și registrul pinurilor stau în module fără three (`content/stops.ts`,
+  `state/pins.ts`). `dist/index.html` nu mai are niciun `modulepreload`; la pornire se încarcă 77 kB gzip, iar scena
+  (256 kB gzip, cu three.js) vine după text.
+- **Filmările în afara scenei:** orice filmare se poate deschide mare, într-o casetă cu comenzile browserului
+  („Deschide filmarea”); fără WebGL, filmarea apare direct în card. Ambele cazuri au test.
+- **Minore rezolvate:** coloane octogonale cu muchii; ramele hologramelor lipite de perete; video eliberat cu `load()`;
+  holograma stinsă nu mai calculează nimic; un swipe se anulează dacă turul pleacă din sală; punctele caruselului au
+  44 px; cititorul de ecran aude titlul filmării noi; lățimile etichetelor de pe hartă se măsoară o singură dată;
+  mesajul de încărcare dispare din pagină când scena e gata; hartă de umbre de 2048 px pe telefoane; contextul WebGL
+  de probă e eliberat; textele „să asculți ce spun oamenii” și „senior” corectate; sursa cifrelor are link și dată.
+
+Rămase deschise, cu motiv:
+
+- **Aspectul machetei:** aticul de pe acoperișuri, arcadele adânci de la pavilioane și terasele mai puțin goale sunt
+  îmbunătățiri de asemănare, nu defecte; le fac după ce vede utilizatorul macheta și spune ce contează pentru el.
+- **Butonul de sunet la filmarea de test:** filmarea generată nu are pistă audio; butonul capătă rost la filmările reale.
+- **Pragul `depthWrite`, lustrele, cadrul de tranzit dintre galerie și Sala Unirii, eticheta „Galeria de Onoare” peste
+  Sala Cuza pe desktop:** minore, nejudecate încă pe imagine de reviewer.
+- **Telefon real, Safari, `PhotoStrip` cu poze adevărate, ramele foto de pe pereții 3D:** au nevoie de dispozitive și de
+  materialele utilizatorului.
+

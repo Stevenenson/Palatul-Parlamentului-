@@ -87,9 +87,10 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
   link-uri directe (`#sala-unirii`) și buton Înapoi funcțional.
   *Gata când:* fiecare pin duce în sala corectă cu tranziție lină și se poate folosi și din tastatură (prin legendă).
 
-- [x] **Pas 5 — Finisaj.** Scena se încarcă după text, cu mesaj de încărcare; fără WebGL sau la eroare pagina rămâne
-  utilizabilă; pe telefoane fără postprocesare; `prefers-reduced-motion` respectat în scroll, cameră și hologramă;
-  cifrele au sursa scrisă în subsol. Restanțele sunt în `review/REVIEW.md`.
+- [x] **Pas 5 — Finisaj.** Scena se încarcă după text (77 kB gzip la pornire, scena cu three.js separat), cu mesaj de
+  încărcare; fără WebGL sau la eroare pagina rămâne utilizabilă și filmările se văd în carduri; pe telefoane fără
+  postprocesare; `prefers-reduced-motion` respectat în scroll, cameră și hologramă; orice filmare se poate deschide
+  mare, cu comenzile browserului; cifrele au sursa, cu link și dată, în subsol. Restanțele sunt în `review/REVIEW.md`.
 
 ## După test
 

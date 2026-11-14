@@ -1,4 +1,4 @@
-import { STOPS } from '../three/poses'
+import { STOP_LIST as STOPS } from '../content/stops'
 import { live, useTour } from './tour'
 
 /**
@@ -30,6 +30,11 @@ export function swipeStart(x: number): boolean {
 
 export function swipeMove(x: number) {
   if (room === null) return
+  // Turul a plecat din sală în mijlocul gestului (scroll, tastă): gestul se anulează.
+  if (activeRoom() !== room) {
+    swipeCancel()
+    return
+  }
   // Tragi spre stânga ca să aduci filmarea următoare, ca la orice carusel.
   live.swipe = Math.max(-1, Math.min(1, (startX - x) / span))
 }
@@ -38,7 +43,9 @@ export function swipeEnd() {
   if (room === null) return
   const pulled = live.swipe
   live.swipe = 0
-  if (Math.abs(pulled) > COMMIT) useTour.getState().stepRecording(room, pulled > 0 ? 1 : -1)
+  if (Math.abs(pulled) > COMMIT && activeRoom() === room) {
+    useTour.getState().stepRecording(room, pulled > 0 ? 1 : -1)
+  }
   room = null
 }
 
