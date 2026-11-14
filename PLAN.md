@@ -68,8 +68,10 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
   coloane instanțiate, în câteva apeluri de desenare. Lumină razantă, umbre moi, ocluzie ambientală.
   *Gata când:* se recunoaște clar din față și din ¾ aerian, nu arată „ieftin”, drag-ul merge, rotița derulează pagina, rulează fluid.
 
-- [ ] **Pas 2 — Săli + tur pe scroll.** Kit de sală parametric, fiecare sală cu elemente proprii;
-  carcasa trece în transparență la intrare; panou cu numele și descrierea sălii.
+- [x] **Pas 2 — Săli + tur pe scroll.** Trusă comună (`src/three/rooms/kit.ts`) și patru săli construite după descrierile
+  din articol (`buildRoom.ts`): galeria cu 34 de coloane octogonale, 67 de lustre și covor roșu; Sala Unirii cu luminator
+  de sticlă și colonade; Sala Drepturilor Omului cu masa rotundă și 60 de scaune; Sala Cuza cu 7 luminatoare și logie.
+  Pereții se văd doar din interior, deci din zbor și de pe hartă sălile apar ca machete secționate.
   *Gata când:* scroll în ambele sensuri trece lin prin toate sălile, fără salturi, cu indicator de sală activă.
 
 - [ ] **Pas 3 — Holograme + carusel.** Proiector, con de lumină, plan cu shader; imagine sau video;

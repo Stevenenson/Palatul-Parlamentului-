@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { EffectComposer, N8AO } from '@react-three/postprocessing'
-import { type DirectionalLight, MathUtils } from 'three'
+import { type AmbientLight, type DirectionalLight, MathUtils } from 'three'
 import { live } from '../state/tour'
 import { CameraRig } from './CameraRig'
 import { Palace } from './palace/Palace'
 import { PALACE } from './palace/massing'
-import { RoomsPlaceholder } from './Placeholder'
+import { Rooms } from './rooms/Rooms'
 
 /** Aceeași culoare ca `--paper` din CSS: fundalul scenei se continuă în pagină. */
 export const PAPER = '#f2f0eb'
@@ -21,6 +21,7 @@ export const PAPER = '#f2f0eb'
  */
 function Lights() {
   const sun = useRef<DirectionalLight>(null)
+  const fill = useRef<AmbientLight>(null)
   const gl = useThree((state) => state.gl)
   const warmup = useRef(0)
 
@@ -37,12 +38,19 @@ function Lights() {
       warmup.current += 1
       gl.shadowMap.needsUpdate = true
     }
-    if (sun.current) sun.current.shadow.intensity = MathUtils.smoothstep(live.solid, 0.3, 0.95)
+    const inside = 1 - live.solid
+    if (sun.current) {
+      sun.current.shadow.intensity = MathUtils.smoothstep(live.solid, 0.3, 0.95)
+      // În săli nu există umbre de la soare, deci lumina devine mai difuză ca pereții să nu rămână gri.
+      sun.current.intensity = MathUtils.lerp(2.45, 0.95, inside)
+    }
+    if (fill.current) fill.current.intensity = 1.05 * inside
   })
 
   return (
     <>
       <hemisphereLight args={['#ffffff', '#d6d1c6', 1.5]} />
+      <ambientLight ref={fill} intensity={0} />
       <directionalLight
         ref={sun}
         position={[-390, 420, 320]}
@@ -109,7 +117,7 @@ export function Scene() {
       <Lights />
       <Ground />
       <Palace />
-      <RoomsPlaceholder />
+      <Rooms />
       <CameraRig />
       {AO_ENABLED && <Effects />}
     </Canvas>
