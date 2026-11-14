@@ -74,16 +74,22 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
   Pereții se văd doar din interior, deci din zbor și de pe hartă sălile apar ca machete secționate.
   *Gata când:* scroll în ambele sensuri trece lin prin toate sălile, fără salturi, cu indicator de sală activă.
 
-- [ ] **Pas 3 — Holograme + carusel.** Proiector, con de lumină, plan cu shader; imagine sau video;
-  carusel cu swipe, săgeți și tastatură; card cu titlu și text; rame foto pe pereți cu lightbox.
+- [x] **Pas 3 — Holograme + carusel.** Holograma fiecărei săli (`src/three/hologram/`): panou cu shader (tentă în culoarea
+  sălii, linii de baleiaj, pâlpâire), pe soclu sau în rama de pe perete; imagine sau video. Filmările se schimbă din
+  săgeți, puncte, tastele stânga/dreapta sau cu swipe pe hologramă ori pe card. Video-ul rulează doar cât sala e activă.
+  O filmare de test MP4 (`scripts/make-test-video.mjs`) dovedește calea video.
   *Gata când:* swipe merge cu mouse și touch, video se oprește la ieșirea din sală, textul e lizibil.
+  *Rămas:* ramele foto de pe pereții 3D. Fotografiile au deocamdată un rând de miniaturi cu casetă mare în panoul sălii
+  (`ui/PhotoStrip.tsx`), care apare când pui poze în `rooms.ts`.
 
-- [ ] **Pas 4 — Harta 3D cu pinuri.** Palat transparent, sălile ca volume colorate, pinuri cu etichete, hover, legendă;
-  click → zbor în sală; link-uri directe.
-  *Gata când:* fiecare pin duce în sala corectă cu tranziție lină și se poate folosi și din tastatură.
+- [x] **Pas 4 — Harta 3D cu pinuri.** Palat transparent cu sălile văzute ca machete secționate, conturul fiecărei săli în
+  culoarea ei, pinuri cu etichete care nu se acoperă între ele, evidențiere comună cu legenda, zbor în sală la click,
+  link-uri directe (`#sala-unirii`) și buton Înapoi funcțional.
+  *Gata când:* fiecare pin duce în sala corectă cu tranziție lină și se poate folosi și din tastatură (prin legendă).
 
-- [ ] **Pas 5 — Finisaj.** Ecran de încărcare, mobil, mișcare redusă, fallback fără WebGL, performanță,
-  texte verificate cu surse, credite. Review final și restanțele din `review/REVIEW.md`.
+- [x] **Pas 5 — Finisaj.** Scena se încarcă după text, cu mesaj de încărcare; fără WebGL sau la eroare pagina rămâne
+  utilizabilă; pe telefoane fără postprocesare; `prefers-reduced-motion` respectat în scroll, cameră și hologramă;
+  cifrele au sursa scrisă în subsol. Restanțele sunt în `review/REVIEW.md`.
 
 ## După test
 

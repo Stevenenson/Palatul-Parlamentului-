@@ -36,6 +36,8 @@ export type Volume = {
   cornice?: Cornice
   /** Lățimea zonei pline de la colțuri, fără ferestre. */
   margin?: number
+  /** Numărul de travee pe fețele lungi, când cel socotit din modul nu se potrivește cu clădirea. */
+  bays?: number
 }
 
 /** Modulul de travee: distanța dintre axele a două ferestre vecine. */
@@ -126,7 +128,7 @@ const pavilionFrontRight: Volume = {
 const sideTowerFrontRight: Volume = {
   id: 'side-tower-front-right',
   x0: 70,
-  x1: 100,
+  x1: 94,
   z0: 72,
   z1: 103,
   y0: 28,
@@ -253,8 +255,8 @@ export const VOLUMES: Volume[] = [
   mirrorX(midRight, 'mid-left'),
   {
     id: 'mid-spine',
-    x0: -40,
-    x1: 40,
+    x0: -48,
+    x1: 48,
     z0: -57,
     z1: 62,
     y0: 28,
@@ -296,6 +298,8 @@ export const VOLUMES: Volume[] = [
     cornice: TOWER_CORNICE,
     faces: ['front', 'back'],
     margin: 0.6,
+    // 11 travee, ca în fotografii: o fereastră în ax, nu un pilastru.
+    bays: 11,
   },
   towerEndRight,
   mirrorX(towerEndRight, 'tower-end-left'),
@@ -322,6 +326,15 @@ export const PORTICO = {
   entablature: { x0: -30.5, x1: 30.5, z0: 115.5, z1: 122.4, y0: 20.6, y1: 24.6 },
   steps: { x0: -33, x1: 33, z0: 115.5, z1: 126, rise: 0.42, count: 5 },
 }
+
+/** Luminatoarele de pe acoperișurile care se văd de sus (poziții schematice). */
+export const ROOF_LIGHTS = [
+  { x0: -20, x1: 20, z0: -50, z1: 8, y: 64.06 },
+  { x0: -82, x1: -54, z0: -88, z1: -66, y: 48.06 },
+  { x0: 54, x1: 82, z0: -88, z1: -66, y: 48.06 },
+  { x0: 76, x1: 91, z0: -44, z1: 44, y: 48.06 },
+  { x0: -91, x1: -76, z0: -44, z1: 44, y: 48.06 },
+]
 
 /** Terasele pe care stă clădirea, de sus în jos. */
 export const TERRACES = [

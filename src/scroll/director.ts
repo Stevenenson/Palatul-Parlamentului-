@@ -299,6 +299,8 @@ export function initDirector(): () => void {
       return
     }
     event.preventDefault()
+    // O tastă ținută apăsat nu trebuie să sară în lanț prin toate sălile: o apăsare, o oprire.
+    if (event.repeat) return
     if (base + step >= 0) goToStop(base + step)
   }
 
@@ -320,6 +322,17 @@ export function initDirector(): () => void {
     travel(i, sections[i].top)
   }
 
+  // După un zbor, adresa și așezarea se pun la zi cu locul în care a ajuns pagina.
+  const unsubscribe = useTour.subscribe((state, previous) => {
+    if (previous.flying && !state.flying) {
+      sync()
+      armSettle()
+    }
+  })
+
+  // Fără restaurarea automată a scroll-ului: butonul Înapoi trece prin `popstate`, deci face zbor.
+  window.history.scrollRestoration = 'manual'
+
   const observer = new ResizeObserver(onResize)
   observer.observe(document.body)
   media.addEventListener('change', onMotion)
@@ -338,6 +351,7 @@ export function initDirector(): () => void {
   return () => {
     cancelTween()
     if (idleTimer !== null) window.clearTimeout(idleTimer)
+    unsubscribe()
     observer.disconnect()
     media.removeEventListener('change', onMotion)
     window.removeEventListener('scroll', onScroll)

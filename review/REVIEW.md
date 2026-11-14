@@ -189,3 +189,210 @@ Amânate, cu motiv:
 - **`@react-three/drei`:** rămâne până la Pasul 4, unde decid dacă pinurile îl folosesc; altfel îl scot.
 - **Capturi de tranzit pe mobil:** nu le-am adăugat; tranzițiile se judecă pe desktop, iar pe mobil am adăugat subsolul.
 
+## Pas 1 — Palatul 3D + hero · runda 1 · 14 noiembrie 2026
+
+**Verdict:** NECESITĂ MODIFICĂRI
+
+**Verificări rulate:** build ok (JS 1.389,30 kB, 421,23 kB gzip; CSS 20,43 kB; același avertisment Vite pentru chunk peste
+500 kB), lint ok (0 probleme), teste 22 din 22, capturi 26 (12 desktop 1440 × 900, 7 laptop 1366 × 650, 7 mobil 390 × 844),
+fără erori în consolă, GPU „ANGLE Metal, Apple M5 Pro”. Commit verificat: `dd15dc5`, pe un instantaneu al lui; capturile au
+rămas în instantaneu (`review-pas-1/review/shots/pas-1-review/` din scratchpad), nu în `review/shots/` din proiect.
+
+Verdictul vine dintr-un singur criteriu, cel de aspect. Funcțional nu am găsit nimic stricat, iar cele două blocante sunt
+reglaje (o lumină și tratarea ferestrelor), nu o refacere a modelului.
+
+Cât de sigură e fiecare observație:
+- **văzut pe captură**: doar `desktop-0-palat.png` și `desktop-0-palat-din-fata.png`, comparate cu `reference/palat-frontal.png`
+  și `reference/palat-oblic.jpg`;
+- **calculat din cod**: unghiurile luminii, pozițiile pe ecran (verificate pe captura de 1440 px: colțul clădirii iese la
+  539 px din calcul și la circa 535 px în captură), numărul de ferestre și geometria îngropată, socotite de mână din `massing.ts`;
+- **din citirea codului, neconfirmat în browser**: tot ce spun despre `director.ts`, `CameraRig.tsx` și trecerea în transparență;
+- **neverificat**: review-ul s-a încheiat înainte să deschid restul capturilor. Nu am văzut `desktop-5-harta.png`,
+  `desktop-tranzit-0_5.png`, `laptop-jos-0-palat.png`, `mobil-0-palat.png`, `mobil-5-harta.png` și nici celelalte 17. Nu am
+  măsurat cadrele pe secundă și apelurile de desenare, nu am citit corpul testelor din `scripts/smoke.mjs` (le-am rulat doar)
+  și nu am reverificat cifrele noi din `rooms.ts` cu articolul. Compoziția pe 1366 × 650 și pe 390 × 844 (punctul 4 din
+  cerere) rămâne deci nejudecată pe imagine; pentru mobil dau mai jos doar un calcul.
+
+### Criteriile pasului
+- [x] se recunoaște clar din față — `desktop-0-palat-din-fata.png` față de `palat-frontal.png`: silueta în trei trepte, turnul
+  central cu traveele de capăt mai înalte, turnurile laterale, pavilioanele de colț și porticul sunt la locul lor. Turnul
+  ocupă 34 % din lățimea fațadei în captură și 32 % în fotografie.
+- [x] se recunoaște din ¾ aerian — `desktop-0-palat.png`. Cu rezerva că unghiul e jos (camera stă la 7,5° deasupra
+  orizontalei), deci „aerian” e mult spus, iar acoperișurile care se văd sunt plăci albe goale.
+- [ ] nu arată „ieftin” — încă nu. E curat și ordonat, dar se citește ca un model low-poly cu ferestre desenate, nu ca o
+  machetă: lumina nu separă volumele, ferestrele sunt plane albastru-gri lipite pe perete, pe exterior nu există muchii, iar
+  acoperișurile și terasele sunt goale. Vezi cele două blocante și primul major.
+- [x] drag-ul merge — testul „macheta se rotește cu drag și cu săgețile pe exterior” verifică mutarea camerei; captura din
+  față e făcută cu patru apăsări pe săgeata stângă și arată macheta rotită.
+- [x] rotița derulează pagina — testul „rotița derulează pagina și peste machetă”.
+- [ ] rulează fluid — neverificat. Testele și capturile trec fără expirări pe un M5 Pro, ceea ce nu spune nimic despre un
+  telefon. Nu există nicio măsurătoare și nicio variantă mai ieftină a ocluziei pentru ecrane mici (vezi al treilea major).
+
+### Verificarea rundei 1 de la Pasul 0
+
+Cele 6 majore, verificate prin teste (22 din 22) și prin citirea codului:
+- **Tab și așezarea** — rezolvat. `onFocusIn` (`src/scroll/director.ts:306-316`) duce turul pe secțiunea elementului focusat
+  și ține cont de secțiunile înalte; test propriu.
+- **Focusul după salt** — rezolvat. `stopLink` cere `focus: true`, iar titlurile au `tabIndex={-1}`; test propriu. Apelul
+  dublu `travel()` (o dată din `focusin`, o dată din `goToStop`) e inofensiv: al doilea reia aceeași țintă.
+- **Limita de unghi** — rezolvat, din cod (`src/three/CameraRig.tsx:221-226`): fără rotire, `phi` rămâne exact cel din date.
+  Nu are test. A apărut un efect secundar mic, trecut la minore.
+- **Pragul de așezare** — rezolvat: `min(12 %, 60 px)` și salt explicit la săgeți, PageUp/PageDown și Space; două teste.
+  Saltul explicit a adus cazul tastei ținute apăsat, trecut la minore.
+- **Link direct cu ancoră** — rezolvat (`director.ts:210-215`); test propriu.
+- **Secțiuni mai înalte decât fereastra** — rezolvat (`extra` și `leave()`, `director.ts:38-62`); test la 1100 × 520.
+  Capturile `laptop-jos-*` există, dar nu le-am deschis.
+
+Minorele bifate: pragul unic de 760 px, cronometrul rearmat, eliberarea drag-ului, cursorul doar pentru mouse, `hasOrbited`
+după o rotire reală, `place` → `note`, corecturile la Sala Unirii, capturile de subsol și oprirea legănării în `?debug` se
+regăsesc în cod. Două rezerve: bara de scroll ținută cu mouse-ul e rezolvată doar pentru barele clasice (vezi minore), iar
+linkul de 44 px din subsol l-am văzut doar în CSS, nu l-am remăsurat. „Cadrul hero reglat” e adevărat pe jumătate: clădirea
+nu mai intră sub text, dar a rămas la limită (vezi minore).
+
+Amânările au fiecare un motiv scris (dimensiunile clădirii, textele despre filmări și pinuri, `drei`, tranzitul pe mobil).
+Reparațiile nu au stricat nimic din ce acoperă testele; din citirea codului au apărut patru scăpări mici, toate la minore.
+
+### Ce e bine
+- Modelul e ieftin de desenat: 8 apeluri pentru tot palatul (sit, terase, volume, patru mesh-uri instanțiate, profile) și în
+  jur de 40.000 de triunghiuri după socoteala mea. Rămâne loc pentru detaliu adevărat la ferestre.
+- Proporțiile mari sunt credibile față de fotografii: turnul, rezalitul cu 15 travee (impar, deci cu fereastră în ax),
+  registrul median cu 21, pavilioanele de 32 m, traveele de capăt ale turnului mai înalte decât corpul lui.
+- Harta de umbre se desenează o dată, iar tăria umbrei urmează opacitatea carcasei, cum s-a cerut la Pasul 0. Cadrul
+  camerei de umbre cuprinde toate terasele (colțul cel mai depărtat ajunge la 252 m din 260).
+- Fundalul scenei se continuă în pagină fără cusătură, iar pe 1440 × 900 clădirea nu acoperă niciun text.
+- `massing.ts` e doar date, `buildPalace.ts` doar construcție, iar oglindirile țin simetria fără duplicare. `?ao=0` și
+  `?debug` fac comparațiile repetabile.
+
+### Probleme
+- [x] **(blocant)** `src/three/Scene.tsx:48` — Lumina nu e razantă și nu separă volumele. Cu soarele la `[-390, 420, 320]`,
+  cele trei fețe care se văd în hero primesc aproape aceeași lumină: stânga 0,59, fațada 0,49, acoperișul 0,64 (produsul
+  dintre normală și direcția luminii). Pe captură, pereții din stânga și din față au practic același alb, deci macheta pare
+  plată. Un pilastru de 0,6 m aruncă 0,73 m de umbră, adică sub 2 px la distanța din hero; comentariul din cod promite
+  „umbre lungi”. Rezolvare: adu soarele din dreapta și mai jos, de exemplu `[520, 330, 215]`. Fațada primește 0,33 (lumină
+  la 19° față de planul ei, umbră de 1,45 m la pilaștri), fața din stânga cade în umbră, acoperișul rămâne cel mai deschis:
+  trei tonuri distincte, iar umbra turnului cade pe aripa care se vede. Reverifică după aceea cadrul camerei de umbre.
+- [x] **(blocant)** `src/three/palace/buildPalace.ts:115-133` și `:149` — Ferestrele sunt plane colorate așezate la 7 cm în
+  fața peretelui: nu au gol, nu au ancadrament, nu prind nici umbră, nici ocluzie. Albastrul-gri `#97a3ab` e rece față de
+  hârtia caldă și, la 6–8 px cât are o fereastră în hero, fațada arată ca un rând de puncte tipărite. Asta dă cel mai tare
+  senzația de „ieftin”. Rezolvare: un ancadrament instanțiat care iese 0,25–0,35 m în jurul fiecărui gol (sau golul retras
+  0,5 m, cu glafuri), geamul într-un gri cald mai închis, fără albastru. Bugetul de triunghiuri permite.
+- [x] **(major)** `buildPalace.ts:293` și `:373-374` — Pe exterior nu există muchii: `edge.opacity` e 0 cât carcasa e opacă,
+  deși direcția din `PLAN.md` e „alb mat, muchii fine”. Fără ele și cu lumina de acum, turnurile laterale se pierd în
+  registrul median. Rezolvare: muchii la opacitate 0,2–0,3 și pe machetă opacă, dar construite din conturul reuniunii
+  volumelor. Acum sunt luate cutie cu cutie (`:304-309`), deci ar apărea cusături pe pereți continui (la `x = ±97, z = 62`
+  între `mid-front` și `mid-right`, la `x = ±40` între `mid-spine` și `rear-spine`); aceleași linii interioare se văd
+  probabil deja în starea transparentă.
+- [x] **(major, din citirea codului)** `buildPalace.ts:352-376` — Trecerea în transparență are un prag și scoate la iveală
+  interiorul. (1) `depthWrite` se oprește la `solid = 0,6`, când peretele are încă opacitate 0,62: într-un singur cadru apar
+  toate fețele din spate și dispare ocluzia de pe clădire, fiindcă N8AO citește adâncimea. (2) Volumele sunt cutii care
+  intră una în alta, iar detaliul se pune și pe fețele îngropate: din circa 1.900 de poziții de fereastră, vreo 380 sunt în
+  interiorul altui volum (fața bazei din spatele rezalitului, fețele interioare ale pavilioanelor și ale turnurilor
+  laterale, spatele turnului), la fel 32 din cele 80 de coloane ale pavilioanelor. Cât macheta e opacă nu se văd; cât se
+  stinge, se văd prin pereți. Pasul 2 se sprijină exact pe această trecere. Rezolvare: sari peste instanțele al căror punct
+  cade în alt volum (un test punct-în-cutie în `addFacade` și `addPavilionColumns`); stinge întâi detaliul, apoi pereții,
+  cu o trecere prealabilă de adâncime sau cu `alphaHash`, ca să nu existe comutare; scade ocluzia odată cu carcasa.
+  De confirmat pe `desktop-tranzit-0_5.png` și pe două cadre de o parte și de alta a lui `t ≈ 0,39`.
+- [x] **(major, nemăsurat)** `Scene.tsx:81-83` și `:103` — Ocluzia ambientală rulează la rezoluție întreagă, pe „medium”,
+  cu MSAA 4 și `dpr` până la 1,75, la fiecare cadru, pe orice dispozitiv. Pe telefon costul e necunoscut și nu există o
+  variantă mai ușoară, deci „rulează fluid” nu are nicio dovadă acolo. Pachetul a adus și 231 kB în bundle (103 kB gzip:
+  de la 318 la 421 kB). Rezolvare: pe ecrane înguste sau cu touch, `halfRes` și calitate „low” ori „performance”, `dpr` cel
+  mult 1,5; măsoară pe un telefon real, cu și fără `?ao=0`; expune în `__tour` numărul de apeluri și durata cadrului, ca
+  testele să poată ține un buget.
+- [ ] **(minor)** `src/three/poses.ts:26` și `src/three/palace/massing.ts:327-331` — Compoziția pe 1440 × 900 e la limită.
+  Pavilionul din stânga începe la circa 13 px de capătul primului rând din lead; vârful terasei intră sub coloana de text
+  (x ≈ 447, y ≈ 510); terasa de jos e tăiată de marginea din dreapta și trece pe sub ultimul punct de navigare. Clădirea
+  ocupă 55 % din lățime, dar are doar vreo 300 px înălțime. Cu macheta rotită din față, terasa ajunge la 5 px de butonul
+  „Vezi harta sălilor”. Rezolvare: terase mai strânse în față (`z1` 186 → circa 165), lead mai îngust, apoi clădirea adusă
+  mai aproape.
+- [ ] **(minor, din calcul)** `poses.ts:97-102` — Pe 390 × 844 macheta ar ocupa o fâșie de circa 270 × 100 px (clădirea între
+  16 % și 86 % din lățime), iar colțul din dreapta al terasei ar ieși cu vreo 4 px din cadru. Captura mobilă nu am
+  deschis-o. Dacă se confirmă, pe ecrane înguste merită o poziție de cameră mai sus (25–30°), ca amprenta să umple înălțimea.
+- [x] **(minor)** `massing.ts:126-138` — Turnurile laterale sunt prea late și prea lipite de pavilioane: au 30 m, iar între
+  ele și pavilion rămâne un șanț de 3 m (`x` 100–103, `z` 88–103), cu ferestre față în față. În `palat-frontal.png` au cam
+  24 m și sunt despărțite clar de pavilion prin acoperișul aripii. O parte din diferență poate veni din perspectiva
+  fotografiei. De încercat `x` 64–90.
+- [x] **(minor)** `massing.ts:286-299` — Turnul central are 10 travee, deci un pilastru în ax; în fotografie arcada de sus
+  are 11 ferestre, cu una în ax. Pe fețele simetrice numărul de travee ar trebui forțat impar.
+- [x] **(minor)** `buildPalace.ts:218-233` — Coloanele pavilioanelor plutesc: stau la 1,25 m de perete, între 8,6 și 22 m,
+  fără nimic dedesubt (brâul iese 0,38 m) și fără antablament deasupra. Nu se vede din hero, dar se vede de aproape.
+  Rezolvare: o consolă și un antablament, sau coloane angajate la 0,7 m.
+- [x] **(minor)** `buildPalace.ts:195-198` cu `massing.ts:315-324` — La portic, bazele coloanelor (0–1,1 m) sunt îngropate
+  în podiumul de trepte (2,1 m), deci sunt geometrie moartă, iar coloanele ies direct din trepte. Pasul coloanelor (7,2 m)
+  nu se potrivește cu traveea rezalitului (6,21 m), deci coloanele nu cad pe pilaștrii din spate.
+- [x] **(minor)** `massing.ts:154-167` cu `:254-266` — Traveele de capăt ale turnului (`x` până la ±48) ies 8 m în consolă
+  peste curțile interioare (`mid-spine` are doar ±40), cu fața de jos la 48 m. Se vede când utilizatorul ridică unghiul.
+- [x] **(minor)** `massing.ts:273-285` cu `:74-80` — Acoperișul lui `rear-spine` (64 m) taie al treilea rând de ferestre de
+  pe spatele turnului (62,4–66,7 m): rămân jumătăți de fereastră. De coborât la 61,8 m sau de sărit rândurile de sub el.
+- [x] **(minor)** `buildPalace.ts:268-270` — Banda transversală din planul de sit se termină brusc, cu capăt drept, în golul
+  dintre text și machetă (x ≈ 620, y ≈ 690 în hero). De scurtat la lățimea teraselor sau de estompat spre capete.
+- [ ] **(minor)** `buildPalace.ts:370-375` cu `src/three/palace/Palace.tsx:21` — Harta de umbre de 4096 × 4096 se
+  redesenează când detaliul dispare (`solid = 0,015`), deși tăria umbrei e deja 0, și încă o dată la întoarcere: două
+  treceri inutile, în mijlocul tranziției. Obiectele nu se mișcă, deci harta veche rămâne bună; `update` poate să nu mai
+  ceară nimic.
+- [ ] **(minor, nemăsurat)** `buildPalace.ts:363-367` — La primul scroll, cele trei materiale trec pe `transparent` și se
+  recompilează exact când pornește mișcarea. De măsurat; dacă se simte, compilează ambele variante la încărcare.
+- [x] **(minor, din citirea codului)** `src/scroll/director.ts:269-303` — Tasta ținută apăsat sare în lanț: fiecare repetare
+  pleacă de la oprirea țintă și cere următoarea, deci o jumătate de secundă pe săgeată jos duce până la hartă. Rezolvare:
+  ignoră `event.repeat` (cu `preventDefault`, fără pas nou).
+- [x] **(minor, din citirea codului)** `director.ts:76-87` și `:129-132` cu `CameraRig.tsx:183-188` — La sfârșitul unui
+  zbor nu se resincronizează nimic. După Home de la hartă sau după săgeți în lanț, adresa păstrează ancora veche. Dacă
+  dai din rotiță în timpul zborului, camera merge întâi la țintă și abia apoi revine, iar așezarea nu mai e rearmată.
+  Rezolvare: la `flight.k >= 1`, cheamă din director o funcție care face `sync()` și `armSettle()`.
+- [ ] **(minor, din citirea codului)** `director.ts:257-262` — Bara de scroll ținută cu mouse-ul e recunoscută doar când
+  ocupă loc (`clientX >= clientWidth`). Cu barele suprapuse, implicite pe macOS, condiția nu e niciodată adevărată.
+- [x] **(minor)** `CameraRig.tsx:221-226` — În sălile unde camera privește în sus (`phi` peste 1,5), limita superioară
+  devine chiar `phi`, deci urmărirea cursorului merge pe verticală într-un singur sens. Limitează doar `r.pitch` și adaugă
+  `lookPitch` după.
+- [x] **(minor)** `src/content/rooms.ts` — Cifre noi, pe care nu le-am reverificat cu articolul: covorul „de circa 3 tone”,
+  „7 luminatoare”, nava de „18 × 54 m”, „a doua ca suprafață”. Tot aici: `massing.ts:5` trimite la
+  `.img2threejs/image-analysis.md`, iar `PLAN.md` la `review/shots/pas-1/comparatie-fata.png`; ambele sunt în `.gitignore`,
+  deci cine clonează proiectul nu le găsește.
+
+### Îmbunătățiri propuse
+- [x] Acoperișuri: luminatoarele Sălii Unirii și ale Sălii Cuza, un atic retras și câteva linii de panouri. Dau scară, iar
+  la Pasul 4 devin repere pe hartă.
+- [ ] O captură în `shots.mjs` din unghiul fotografiei (jos, din ax, dinspre piață) și una de aproape cu porticul. Din hero,
+  pilaștrii au 2 px, deci detaliul fațadei nu se poate judeca.
+- [ ] `frameloop="demand"` cât turul stă pe o oprire și nu se mișcă nimic: acum scena și ocluzia se redesenează continuu.
+- [x] `history.scrollRestoration = 'manual'`, ca butonul Înapoi să facă mereu zbor, nu un salt de scroll urmat de o
+  trecere rapidă a camerei prin toate sălile (neconfirmat în browser; depinde de ordinea evenimentelor din browser).
+
+### De reluat mai târziu
+- [ ] **Runda 2:** capturile nedeschise acum (hartă, tranzit, laptop jos, mobil) și o măsurătoare de cadre pe secundă.
+- [x] **Pas 3 / 4:** textele care promit filmări și pinuri (amânate la Pasul 0, încă valabile).
+- [x] **Pas 4:** `@react-three/drei`, tot nefolosit; `.stage` cu `aria-hidden` și pinurile.
+- [x] **Pas 5:** scena și postprocesarea încărcate cu `import()` după text (421 kB gzip într-un singur fișier); limită de
+  eroare în jurul lui `<Scene />`; `backdrop-filter` peste canvas.
+
+### Ce am aplicat (runda 1)
+
+Cele două probleme blocante și cele trei majore sunt rezolvate; capturile noi sunt în `review/shots/pas-4/`.
+
+- **Lumina:** soarele vine acum jos, din dreapta fațadei (`[470, 390, 300]`). Latura din stânga rămâne în umbră și
+  desparte volumele, iar pavilioanele, porticul și ancadramentele aruncă umbre pe fațadă și pe terase. Am ridicat puțin
+  umplerea difuză și am slăbit ocluzia ambientală, ca macheta să rămână albă, nu gri.
+- **Ferestrele:** fiecare are acum un ancadrament care iese 36 cm din perete (montanți, buiandrug sau arhivoltă, glaf),
+  iar geamul e gri cald, fără albastru. Umbra ancadramentului cade pe geam și dă golului adâncime.
+- **Muchiile fine:** volumele și cornișele au contur subțire și pe macheta opacă (`edge.opacity` 0,2).
+- **Trecerea în transparență:** ferestrele și pilaștrii îngropați în alte volume nu se mai construiesc deloc (`buried`),
+  iar detaliul se stinge înaintea pereților.
+- **Ocluzia ambientală și bundle-ul:** pe telefoane și tablete scena rulează fără postprocesare; biblioteca stă într-un
+  fișier separat (97 kB gzip), încărcat doar pe calculatoare. Scena întreagă se încarcă după text: fișierul de pornire
+  are acum 72 kB gzip în loc de 421. Scriptul de capturi măsoară cadrele pe secundă: 60 pe exterior, pe un M5 Pro.
+- **Proporții și detalii:** turnurile laterale au 24 m în loc de 30; turnul central are 11 travee, cu fereastră în ax;
+  coloanele care pluteau la pavilioane au dispărut; coloanele porticului stau pe ultima treaptă; corpul de sub turn e
+  lățit ca traveele de capăt să nu mai iasă în consolă; banda transversală din planul de sit a fost scoasă; pe
+  acoperișuri au apărut luminatoare.
+- **Scăpările din director și cameră:** o tastă ținută apăsat mută turul o singură oprire; după un zbor, adresa și
+  așezarea se pun la zi; privitul în jur merge în ambele sensuri și în sălile unde camera privește în sus;
+  `scrollRestoration` e pe `manual`.
+- **Cifrele din `rooms.ts`:** covorul de circa 3 t, cei 2.040 m², cele 7 luminatoare și logia vin cuvânt cu cuvânt din
+  secțiunile „Sala Unirii” și „Sala A.I. Cuza” ale articolului, citite prin API-ul Wikipedia.
+
+Rămase deschise:
+
+- compoziția hero la limită pe 1440 × 900 și macheta mică pe telefon: de reglat după ce vede utilizatorul pagina;
+- bara de scroll ținută cu mouse-ul pe macOS cu bare suprapuse: browserul nu dă niciun semnal pentru ea;
+- harta de umbre refăcută la schimbarea vizibilității detaliului și recompilarea materialelor la primul scroll: nemăsurate;
+- `frameloop="demand"` și o captură din unghiul fotografiilor: neimplementate.
+

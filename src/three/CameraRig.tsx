@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { MathUtils, type PerspectiveCamera, Spherical, Vector3 } from 'three'
+import { activeRoom, swipeCancel, swipeEnd, swipeMove, swipeStart } from '../state/swipe'
 import { live, useTour } from '../state/tour'
 import {
   STOPS,
@@ -33,7 +34,7 @@ const lastStop = STOPS.length - 1
 /**
  * Mută camera după poziția din tur și adaugă peste ea rotirea făcută de utilizator.
  * Pe exterior și pe hartă se poate roti cu drag sau cu săgețile stânga/dreapta;
- * în săli camera doar urmărește discret cursorul.
+ * în săli camera doar urmărește discret cursorul, iar aceleași gesturi schimbă filmarea.
  */
 export function CameraRig() {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
@@ -65,6 +66,7 @@ export function CameraRig() {
     // Pe touch, gestul vertical rămâne al paginii (scroll); cel orizontal rotește macheta.
     el.style.touchAction = 'pan-y'
     let pointer: number | null = null
+    let swiping: number | null = null
     let x = 0
     let y = 0
 
@@ -84,7 +86,15 @@ export function CameraRig() {
       r.yaw = wrapAngle(r.yaw)
     }
     const onDown = (event: PointerEvent) => {
-      if (event.button !== 0 || !canOrbit()) return
+      if (event.button !== 0) return
+      if (!canOrbit()) {
+        // Într-o sală, drag-ul orizontal pe scenă trece la filmarea vecină.
+        if (swipeStart(event.clientX)) {
+          swiping = event.pointerId
+          el.setPointerCapture(swiping)
+        }
+        return
+      }
       pointer = event.pointerId
       x = event.clientX
       y = event.clientY
@@ -96,6 +106,13 @@ export function CameraRig() {
       if (event.pointerType === 'mouse') {
         live.pointerX = (event.clientX / window.innerWidth) * 2 - 1
         live.pointerY = (event.clientY / window.innerHeight) * 2 - 1
+      }
+      if (swiping === event.pointerId) {
+        if (event.buttons === 0) {
+          swiping = null
+          swipeCancel()
+        } else swipeMove(event.clientX)
+        return
       }
       if (pointer !== event.pointerId) return
       // Dacă butonul s-a ridicat pe nevăzute sau turul a plecat de pe oprire, drag-ul se încheie.
@@ -114,6 +131,11 @@ export function CameraRig() {
       }
     }
     const onUp = (event: PointerEvent) => {
+      if (swiping === event.pointerId) {
+        swiping = null
+        if (event.type === 'pointercancel') swipeCancel()
+        else swipeEnd()
+      }
       if (pointer === event.pointerId) release()
     }
     const onKey = (event: KeyboardEvent) => {
@@ -121,7 +143,14 @@ export function CameraRig() {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
       const target = event.target
       if (target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return
-      if (!canOrbit()) return
+      if (!canOrbit()) {
+        // În săli, săgețile schimbă filmarea.
+        const room = activeRoom()
+        if (room === null) return
+        event.preventDefault()
+        useTour.getState().stepRecording(room, event.key === 'ArrowRight' ? 1 : -1)
+        return
+      }
       event.preventDefault()
       const turn = event.key === 'ArrowLeft' ? KEY_YAW : -KEY_YAW
       r.yaw = wrapAngle(r.yaw + turn)
@@ -153,6 +182,7 @@ export function CameraRig() {
     const dt = Math.min(delta, 0.1)
     const instant = live.reducedMotion
     live.frames += 1
+    if (live.frames === 3) useTour.getState().set({ scene: 'ready' })
 
     // 1. Unde suntem în tur: fie într-un zbor pornit de un salt, fie pe traseul dat de scroll.
     if (live.flightTo !== null) {
@@ -219,11 +249,8 @@ export function CameraRig() {
     r.spherical.theta += r.yaw + sway + r.lookYaw
     // Limitele se aplică doar rotirii utilizatorului: unghiul de bază al opririi rămâne cel din date.
     const phi = r.spherical.phi
-    r.spherical.phi = MathUtils.clamp(
-      phi - r.pitch - r.lookPitch,
-      Math.min(phi, PHI_MIN),
-      Math.max(phi, PHI_MAX),
-    )
+    r.spherical.phi =
+      MathUtils.clamp(phi - r.pitch, Math.min(phi, PHI_MIN), Math.max(phi, PHI_MAX)) - r.lookPitch
     r.offset.setFromSpherical(r.spherical)
     camera.position.copy(r.pose.target).add(r.offset)
     camera.lookAt(r.pose.target)

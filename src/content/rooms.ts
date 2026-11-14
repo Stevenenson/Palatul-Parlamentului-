@@ -62,14 +62,21 @@ export type RoomSpec = {
 
 const TEST_IMAGE = '/media/placeholders/filmare-test.svg'
 
-function testRecordings(roomId: string, topics: [string, string, string]): Recording[] {
+/** Generată cu `node scripts/make-test-video.mjs`; arată că și calea video funcționează. */
+const TEST_VIDEO = '/media/videos/filmare-test.mp4'
+
+function testRecordings(
+  roomId: string,
+  topics: [string, string, string],
+  firstIsVideo = false,
+): Recording[] {
   const slots = ['un elev sau un student', 'un adult', 'un senior']
   return topics.map((topic, i) => ({
     id: `${roomId}-test-${i + 1}`,
     title: `Filmare de test ${i + 1}`,
     who: `Loc rezervat pentru ${slots[i]}`,
     text: topic,
-    media: { kind: 'image', src: TEST_IMAGE },
+    media: firstIsVideo && i === 0 ? { kind: 'video', src: TEST_VIDEO } : { kind: 'image', src: TEST_IMAGE },
     demo: true,
   }))
 }
@@ -119,7 +126,7 @@ export const ROOMS: RoomSpec[] = [
       'Aici intră prima filmare: o părere despre dimensiunile sălii.',
       'Aici intră a doua filmare: povestea covorului și a tavanului de sticlă.',
       'Aici intră a treia filmare: ce evenimente au loc aici.',
-    ]),
+    ], true),
     photos: [],
   },
   {

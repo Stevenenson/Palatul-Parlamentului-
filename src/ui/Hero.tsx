@@ -4,16 +4,24 @@ import { stopLink } from './links'
 
 export function Hero() {
   const hasOrbited = useTour((s) => s.hasOrbited)
+  const failed = useTour((s) => s.scene === 'failed')
 
   return (
     <section id="palat" className="stop hero" aria-labelledby="titlu">
       <div className="wrap hero__grid">
         <div className="hero__text">
-          <h1 id="titlu" tabIndex={-1}>Palatul Parlamentului din București, în 3D</h1>
+          <h1 id="titlu" tabIndex={-1}>
+            Palatul Parlamentului din București, în 3D
+          </h1>
           <p className="lead">
             Trage de machetă ca să o rotești. Derulează ca să intri pe rând în patru săli și să
             asculți ce spun oamenii despre clădire.
           </p>
+          {failed && (
+            <p className="notice">
+              Browserul acesta nu poate desena macheta 3D. Textele despre săli și lista lor rămân mai jos.
+            </p>
+          )}
           <div className="actions">
             <a className="btn btn--primary" {...stopLink(ROOMS[0].id)}>
               Începe turul sălilor
@@ -33,7 +41,7 @@ export function Hero() {
           ))}
         </dl>
 
-        <p className="hint" data-done={hasOrbited || undefined}>
+        <p className="hint" data-done={hasOrbited || failed || undefined}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 12a8 4 0 0 0 16 0M4 12a8 4 0 0 1 16 0M17 15.5l3-3.5-4-1.5" />
           </svg>

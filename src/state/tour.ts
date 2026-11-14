@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { ROOMS } from '../content/rooms'
 
 /**
  * Valori care se schimbă la fiecare cadru. Stau în afara React ca să nu
@@ -20,6 +21,8 @@ export const live = {
   /** Poziția cursorului, normalizată la -1..1, pentru privitul în jur din săli. */
   pointerX: 0,
   pointerY: 0,
+  /** Cât a tras utilizatorul spre filmarea vecină, în timpul unui swipe: -1..1. */
+  swipe: 0,
   reducedMotion: false,
   /** Pagina a fost deschisă cu `?debug`: fără legănare, ca două capturi la fel să iasă identice. */
   debug: false,
@@ -27,7 +30,7 @@ export const live = {
   frames: 0,
 }
 
-type TourStore = {
+type TourState = {
   /** Oprirea cea mai apropiată de poziția de scroll. */
   stop: number
   /** Scroll-ul s-a așezat exact pe oprire. */
@@ -36,13 +39,48 @@ type TourStore = {
   flying: boolean
   /** A apucat utilizatorul să rotească macheta. */
   hasOrbited: boolean
-  set: (patch: Partial<Omit<TourStore, 'set'>>) => void
+  /**
+   * Filmarea curentă din fiecare sală. Numărul crește și scade fără limită, ca holograma
+   * să alunece mereu în direcția gestului; pe ecran contează restul împărțirii la numărul de filmări.
+   */
+  recording: number[]
+  /** Filmările pornesc fără sunet; utilizatorul îl pornește din card. */
+  muted: boolean
+  /** Sala evidențiată pe hartă (cursorul e pe pinul sau pe rândul ei din legendă). */
+  hoverRoom: number | null
+  /** Starea scenei 3D: se încarcă, desenează, sau nu a putut porni (fără WebGL, eroare). */
+  scene: 'loading' | 'ready' | 'failed'
 }
+
+type TourStore = TourState & {
+  set: (patch: Partial<TourState>) => void
+  stepRecording: (room: number, direction: 1 | -1) => void
+  showRecording: (room: number, index: number) => void
+}
+
+/** Indicele filmării afișate, din poziția fără limită. */
+export const wrapIndex = (position: number, count: number) => ((position % count) + count) % count
 
 export const useTour = create<TourStore>((set) => ({
   stop: 0,
   settled: true,
   flying: false,
   hasOrbited: false,
+  recording: ROOMS.map(() => 0),
+  muted: true,
+  hoverRoom: null,
+  scene: 'loading',
   set: (patch) => set(patch),
+  stepRecording: (room, direction) =>
+    set((state) => ({ recording: state.recording.map((p, i) => (i === room ? p + direction : p)) })),
+  showRecording: (room, index) =>
+    set((state) => {
+      const count = ROOMS[room].recordings.length
+      const position = state.recording[room]
+      // Drumul cel mai scurt până la filmarea cerută, în oricare direcție.
+      let delta = index - wrapIndex(position, count)
+      if (delta > count / 2) delta -= count
+      if (delta < -count / 2) delta += count
+      return { recording: state.recording.map((p, i) => (i === room ? p + delta : p)) }
+    }),
 }))

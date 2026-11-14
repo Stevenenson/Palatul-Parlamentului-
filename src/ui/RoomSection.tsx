@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react'
 import { ROOMS, type RoomSpec } from '../content/rooms'
 import { stopLink } from './links'
+import { PhotoStrip } from './PhotoStrip'
+import { RecordingCard } from './RecordingCard'
 
 export function RoomSection({ room, index }: { room: RoomSpec; index: number }) {
   const titleId = `${room.id}-titlu`
@@ -30,10 +32,12 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
               </div>
             ))}
           </dl>
+          <PhotoStrip room={room} />
           <a className="link" {...stopLink('harta')}>
             Vezi sala pe hartă
           </a>
         </article>
+        <RecordingCard room={room} index={index} />
       </div>
     </section>
   )

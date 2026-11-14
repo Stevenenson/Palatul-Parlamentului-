@@ -37,6 +37,12 @@ try {
     console.log(`${viewport.name}: ${info.ids.length} opriri, GPU: ${info.renderer}`)
 
     await page.evaluate(() => window.__tour.setSnap(false))
+    const fps = async () => {
+      const before = await page.evaluate(() => window.__tour.live.frames)
+      await page.waitForTimeout(2000)
+      return ((await page.evaluate(() => window.__tour.live.frames)) - before) / 2
+    }
+    console.log(`  cadre pe secundă pe exterior: ${(await fps()).toFixed(0)}`)
     for (let i = 0; i < info.anchors.length; i++) {
       await page.evaluate((y) => window.scrollTo(0, y), info.anchors[i])
       await waitForCamera(page)

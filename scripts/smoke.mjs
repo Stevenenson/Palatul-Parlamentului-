@@ -171,6 +171,76 @@ try {
     })
   })
 
+  const count = (id) => page.evaluate((room) => document.querySelector(`#${room} .recording__count`).textContent.trim(), id)
+
+  await check('filmările se schimbă din săgeți, din puncte, din tastatură și cu swipe', async () => {
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[1])
+    await waitForCamera(page)
+    const room = 'galeria-de-onoare'
+    expect((await count(room)) === 'Filmarea 1 din 3', `pornește cu „${await count(room)}”`)
+    await page.click(`#${room} .round[aria-label="Filmarea următoare"]`)
+    expect((await count(room)) === 'Filmarea 2 din 3', 'săgeata nu a schimbat filmarea')
+    await page.click(`#${room} .dots li:nth-child(3) .dot`)
+    expect((await count(room)) === 'Filmarea 3 din 3', 'punctul nu a schimbat filmarea')
+    await page.evaluate(() => document.activeElement.blur())
+    await page.keyboard.press('ArrowRight')
+    expect((await count(room)) === 'Filmarea 1 din 3', 'săgeata dreapta nu a trecut de la ultima la prima')
+    await page.mouse.move(1050, 420)
+    await page.mouse.down()
+    await page.mouse.move(700, 425, { steps: 8 })
+    const pulled = await page.evaluate(() => window.__tour.live.swipe)
+    await page.mouse.up()
+    expect(pulled > 0.5, `în timpul gestului, holograma a fost trasă doar ${pulled}`)
+    expect((await count(room)) === 'Filmarea 2 din 3', `după swipe: „${await count(room)}”`)
+    const y = await page.evaluate(() => window.scrollY)
+    expect(Math.abs(y - anchors[1]) < 2, 'swipe-ul a mișcat pagina')
+  })
+
+  await check('filmarea video rulează doar cât sala e activă', async () => {
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await waitForCamera(page)
+    await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 8000 })
+    const sound = await page.textContent('#sala-unirii .sound')
+    expect(sound.trim() === 'Pornește sunetul', `butonul de sunet spune „${sound}”`)
+    await page.click('#sala-unirii .round[aria-label="Filmarea următoare"]')
+    await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
+    await page.click('#sala-unirii .round[aria-label="Filmarea anterioară"]')
+    await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 5000 })
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[3])
+    await waitForCamera(page)
+    await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
+  })
+
+  await check('fiecare pin de pe hartă duce în sala lui', async () => {
+    const ids = await page.evaluate(() => [...document.querySelectorAll('.pin')].map((pin) => pin.getAttribute('href')))
+    expect(ids.length === 4, `sunt ${ids.length} pinuri`)
+    for (let i = 0; i < ids.length; i++) {
+      await page.evaluate((y) => window.scrollTo(0, y), anchors[last])
+      await waitForCamera(page)
+      const label = page.locator(`.pin[href="${ids[i]}"] .pin__label`)
+      await label.waitFor({ state: 'visible', timeout: 5000 })
+      const box = await label.boundingBox()
+      expect(box && box.x > 0 && box.x + box.width < 1280 && box.y > 64 && box.y + box.height < 800, `pinul ${ids[i]} iese din ecran`)
+      await label.click()
+      // De pe hartă, sala vecină se atinge prin derulare, celelalte prin zbor: așteptăm să ajungă pagina.
+      await page.waitForFunction(
+        (y) => window.__tour.live.flightTo === null && Math.abs(window.scrollY - y) < 2,
+        anchors[i + 1],
+        { timeout: 15000 },
+      )
+      await waitForCamera(page)
+      expect((await currentStop(page)) === i + 1, `pinul ${ids[i]} a dus la oprirea ${await currentStop(page)}`)
+      expect((await page.evaluate(() => location.hash)) === ids[i], 'adresa nu are ancora sălii')
+    }
+  })
+
+  await check('pinurile se ascund în afara hărții', async () => {
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await waitForCamera(page)
+    const visible = await page.evaluate(() => [...document.querySelectorAll('.pin')].some((pin) => getComputedStyle(pin).visibility === 'visible'))
+    expect(!visible, 'un pin a rămas vizibil într-o sală')
+  })
+
   await check('rotița derulează pagina și peste machetă', async () => {
     await page.evaluate(() => window.scrollTo(0, 0))
     await page.mouse.move(900, 450)
@@ -222,6 +292,20 @@ try {
     await session.send('Input.synthesizeScrollGesture', { x: 195, y: 600, yDistance: -260, speed: 900 })
     await phone.page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[1], { timeout: 10000 })
   })
+  await check('pe telefon, un swipe orizontal pe hologramă schimbă filmarea', async () => {
+    const session = await phone.context.newCDPSession(phone.page)
+    const touch = (type, x, y) =>
+      session.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] })
+    await touch('touchStart', 300, 230)
+    for (let x = 280; x >= 80; x -= 25) await touch('touchMove', x, 232)
+    await touch('touchEnd', 80, 232)
+    await phone.page.waitForFunction(
+      () => document.querySelector('#galeria-de-onoare .recording__count').textContent.trim() === 'Filmarea 2 din 3',
+      null,
+      { timeout: 5000 },
+    )
+  })
+
   await check('pe telefon, nimic nu iese în lateral', async () => {
     const overflow = await phone.page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
