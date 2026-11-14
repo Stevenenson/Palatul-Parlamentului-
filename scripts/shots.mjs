@@ -51,6 +51,19 @@ try {
       console.log(`  ${file}`)
     }
 
+    // Foaia „Sala reală 360°”, cu un cadru local în locul celui Google.
+    const real = page.locator('.view__real').first()
+    if ((await real.count()) > 0) {
+      await page.evaluate((y) => window.scrollTo(0, y), info.anchors[1])
+      await waitForCamera(page)
+      await real.click()
+      await page.waitForSelector('dialog.real[open] iframe')
+      await page.waitForTimeout(700)
+      await page.screenshot({ path: path.join(outDir, `${viewport.name}-360.png`) })
+      console.log(`  ${viewport.name}-360.png`)
+      await page.keyboard.press('Escape')
+    }
+
     if (viewport.transits) {
       // Fațada văzută din față, pentru comparația cu fotografiile de referință.
       await page.evaluate(() => window.scrollTo(0, 0))

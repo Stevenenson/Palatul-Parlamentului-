@@ -689,3 +689,68 @@ Rămase deschise, cu motiv:
 - **Telefon real, Safari, `PhotoStrip` cu poze adevărate, ramele foto de pe pereții 3D:** au nevoie de dispozitive și de
   materialele utilizatorului.
 
+## Faza 2 — Pașii 6 și 8 · runda 1 · 2026-11-14
+
+**Verdict:** NECESITĂ MODIFICĂRI — două reparații mici (contrastul supratitlului, sticla fără estompare); restul e bun.
+
+**Verificări rulate** (instantaneul `b8fd831`): build ok — `index` 244,91 kB / 77,63 kB gzip, CSS 33,22 kB / 6,27 kB
+gzip, `Scene` 955,16 kB / 256,23 kB gzip, `Effects` 214,58 kB / 97,52 kB gzip; lint ok, 0 probleme; teste 29 din 29;
+capturi 26, în `review/shots/f2-pas6-review/` (am deschis 6), fără erori în consolă, 60 cadre/s. Contrastul l-am
+măsurat pe pixelii capturilor. Abaterea de ordine (Pasul 8 înaintea Pasului 7) nu strică nimic.
+
+### Criteriile pașilor
+- [x] Pas 6: titlurile în Cinzel, diacritice corecte — „BUCUREȘTI” (Ș cu virgulă) și „HARTA SĂLILOR” se văd bine;
+  „Săli”/„Hartă” din bară sunt în Plex. Ț, Â și Î nu apar în niciun titlu din cele 6 capturi: nu le-am putut vedea.
+- [ ] Pas 6: contrast de cel puțin 4,5:1 pe sticlă peste covorul albastru — textul gri trece (4,83:1), titlul 12,2:1,
+  citatul 6,7:1; **supratitlul „SALA II DIN IV” pe telefon are 4,12:1** (`mobil-2-sala-unirii.png`).
+- [x] Pas 6: testele trec (29 din 29); pornirea 77,63 kB gzip (sub 85); `index` nu conține three.js, `Scene` da.
+- [x] Pas 8: 1440×900 — clădirea ține de la x≈268 la x≈1196, adică 64% din lățime, cu tot cu esplanadă, netăiată.
+- [x] Pas 8: 390×844 — clădirea ocupă 82% din lățime; esplanada e tăiată de ambele margini (clădirea nu).
+- [x] Pas 8: titlul nu acoperă macheta la niciuna dintre cele trei mărimi; un singur buton plin plus un link.
+- Neverificat: stingerea titlului la derulare și meandrul de încărcare (nu apar în capturi), Safari, telefon real.
+
+### Ce e bine
+- Hero-ul e clar mai bun decât cel din `final/`: titlul pe un rând, macheta la mijloc și întreagă, o singură
+  acțiune. Capitalele Cinzel peste macheta albă dau în sfârșit nota de monument; Garamond la 23 px se citește ușor.
+- Cifrele romane au variantă arabă pentru cititoarele de ecran (`RoomSection.tsx`); fără `text-transform`, fără U→V.
+- Pastila punctului activ, bara subțire și razele de 22 px se leagă între ele; linkul „Harta sălilor” are 44 px.
+- `framingAt` și `r.cx` amortizat nu alocă nimic pe cadru; revenirile pentru transparență redusă există.
+
+### Probleme
+- [ ] **(blocant)** `src/styles/tokens.css:16` — `--bronze` (#7d5f27) pe sticla de peste covorul albastru (fundal
+  rezultat 204/216/235) dă 4,12:1 la un text de 11 px; criteriul Pasului 6 cere 4,5:1. Reparație: un bronz mai închis
+  pentru textul de pe sticlă (de exemplu #6b5020, circa 5,2:1) sau sticlă la 0,86 în panourile sălilor.
+- [ ] **(major)** `src/styles/global.css:70-71, 226-227, 510-511, 853-854` — în `dist` nu rămâne nicio declarație
+  `backdrop-filter` fără prefix: minificatorul păstrează doar `-webkit-backdrop-filter` (5 apariții cu prefix, 0 fără,
+  în afară de condiția `@supports`). Chrome și Firefox nu cunosc prefixul, deci panourile sunt doar semitransparente:
+  în capturi muchia covorului și silueta coloanei trec nete pe sub text, iar culoarea e exact amestecul alfa, fără
+  `saturate`. Am verificat separat că același Chrome estompează corect o pagină de probă, deci nu e o limită a
+  capturilor. Reparație: scrie întâi varianta cu prefix și apoi pe cea standard (sau valori literale în loc de
+  `var()`, ori `build.cssTarget`), verifică în `dist` și adaugă un test: `getComputedStyle(panou).backdropFilter`
+  diferit de `none`. Remăsoară contrastul după aceea.
+- [ ] **(major)** `src/three/poses.ts:20, 100` — la 1440×900 și 1366×650 butonul „Începe turul” stă peste colțul din
+  față al esplanadei, iar linkul peste desenul pieței: macheta pare tăiată de buton. Reparație: `cy` de exterior
+  0,55 → circa 0,50 sau camera puțin mai departe, până rămân 24 px liberi între esplanadă și buton.
+- [ ] **(minor)** `src/ui/Hero.tsx:21` — „ascultă oamenii din fiecare” readuce promisiunea scoasă la review-ul final
+  (filmările sunt de test și fără sunet). Până vin cele reale: „și vezi filmările din fiecare”.
+- [ ] **(minor)** `src/styles/tokens.css:21-22` — lipsește rezerva `Georgia` cu `size-adjust` cerută de plan. Pe
+  telefon titlul are două rânduri în Cinzel și probabil unul în Georgia, deci textul sare la sosirea fontului.
+  CLS nemăsurat.
+- [ ] **(minor)** `src/styles/global.css:66-153` — `.pill` din lista Pasului 6 nu există; `.glass`, `.segmented` și
+  `.icon-btn` nu sunt folosite nicăieri, iar `.panel` și `.recording` repetă declarațiile din `.glass`.
+- [ ] **(minor)** `mobil-0-palat.png` — a treia cifră („25 iunie 1984”) cade singură pe rândul al doilea; macheta
+  ocupă doar o cincime din înălțime, cu două benzi goale deasupra și dedesubt.
+- [ ] **(minor)** Trei suprafețe de sticlă pe ecran în săli (bară, panou, filmare); planul spune cel mult două.
+
+### Îmbunătățiri propuse
+- [ ] Meandrul e desenat din șapte bucăți despărțite, care la 11 px se citesc ca un șir de cifre. Leagă-le printr-o
+  linie de bază continuă (`h20` în loc de `h15`) și lățește-l la 160–200 px, ca să arate a friză.
+- [ ] Pe telefon, o poză de exterior mai frontală și mai de sus (sau `cy` 0,45) ar umple golul și ar scoate
+  esplanada din margini; cifrele pe trei coloane egale, cu valori de 15 px.
+- [ ] Hero-ul are patru familii de litere pe un ecran. Treci indiciul „Trage ca să rotești macheta” pe Plex Sans și
+  valorile cifrelor la grosime 400, ca rândul de jos să fie cu adevărat „fin”.
+- [ ] Paragraful sălii în Garamond de 19 px, ca panoul să nu amestece Cinzel, Garamond, Plex Sans și Plex Mono.
+- [ ] Covorul amestecat cu pardoseala (circa 35% accent) merită adus înaintea Pasului 9: pe telefon ambele panouri
+  ies albăstrui și arată a carduri colorate, nu a sticlă peste piatră.
+- [ ] Garamond `latin-ext` cântărește 114 + 89 kB doar pentru ă, ș, ț; un subset propriu ar scădea mult fonturile.
+

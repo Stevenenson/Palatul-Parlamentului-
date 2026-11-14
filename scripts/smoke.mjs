@@ -32,7 +32,7 @@ const currentStop = (page) =>
   })
 
 try {
-  const { context, page, errors } = await openTour(browser, site.url, { width: 1280, height: 800 })
+  const { context, page, errors, google } = await openTour(browser, site.url, { width: 1280, height: 800 })
   const anchors = await page.evaluate(() => window.__tour.anchors())
   const last = anchors.length - 1
 
@@ -231,6 +231,39 @@ try {
     await page.evaluate((y) => window.scrollTo(0, y), anchors[3])
     await waitForCamera(page)
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
+  })
+
+  await check('sala reală 360° se deschide doar la cerere și oprește macheta', async () => {
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[1])
+    await waitForCamera(page)
+    const withView = await page.evaluate(() =>
+      [...document.querySelectorAll('main > section.room')].filter((s) => s.querySelector('.view__real')).map((s) => s.id),
+    )
+    expect(withView.includes('galeria-de-onoare'), 'galeria nu are butonul 360°')
+    expect(!withView.includes('sala-unirii'), 'Sala Unirii are buton 360° fără să aibă panoramă')
+    expect(google.length === 0, `pagina a cerut ${google.length} adrese Google înainte de clic: ${google[0]}`)
+    expect((await page.locator('iframe').count()) === 0, 'cadrul există înainte de clic')
+    await page.click('#galeria-de-onoare .view__real')
+    await page.waitForSelector('dialog.real[open] iframe', { timeout: 3000 })
+    const src = await page.getAttribute('dialog.real iframe', 'src')
+    expect(src.startsWith('https://www.google.com/maps/embed'), `cadrul are adresa ${src}`)
+    expect(src.includes('14eTnatAqjBDRpLrMDlVdg'), 'adresa cadrului nu are panorama galeriei')
+    const before = await page.evaluate(() => window.__tour.live.frames)
+    await page.waitForTimeout(500)
+    const drawn = (await page.evaluate(() => window.__tour.live.frames)) - before
+    expect(drawn <= 1, `scena a mai desenat ${drawn} cadre sub foaia 360°`)
+    await page.click('dialog.real .icon-btn[aria-label="Filmarea următoare"]')
+    expect((await count('galeria-de-onoare')) === 'Filmarea 3 din 3', `filmarea din sală e „${await count('galeria-de-onoare')}”`)
+    const y = await page.evaluate(() => window.scrollY)
+    await page.keyboard.press('ArrowDown')
+    await page.waitForTimeout(300)
+    expect(Math.abs((await page.evaluate(() => window.scrollY)) - y) < 2, 'săgeata jos a mișcat pagina de sub foaie')
+    await page.keyboard.press('Escape')
+    await page.waitForFunction(() => !document.querySelector('dialog.real[open]'), null, { timeout: 3000 })
+    const focused = await page.evaluate(() => document.activeElement?.className)
+    expect(String(focused).includes('view__real'), `focusul a rămas pe „${focused}”`)
+    const again = await page.evaluate(() => window.__tour.live.frames)
+    await page.waitForFunction((n) => window.__tour.live.frames > n + 4, again, { timeout: 5000 })
   })
 
   await check('fiecare pin de pe hartă duce în sala lui', async () => {

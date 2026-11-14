@@ -6,6 +6,7 @@ import { Footer } from './ui/Footer'
 import { Hero } from './ui/Hero'
 import { Meander } from './ui/Meander'
 import { MapSection } from './ui/MapSection'
+import { RealRoom } from './ui/RealRoom'
 import { RoomSection } from './ui/RoomSection'
 import { SceneBoundary } from './ui/SceneBoundary'
 import { StopNav } from './ui/StopNav'
@@ -65,6 +66,7 @@ export function App() {
       </main>
       <Footer />
       <StopNav />
+      <RealRoom />
     </>
   )
 }

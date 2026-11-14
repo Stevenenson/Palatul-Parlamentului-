@@ -7,7 +7,8 @@ export function Footer() {
         <p className="footer__brand">Palatul Parlamentului, tur 3D</p>
         <p>
           Macheta este schematică: proporțiile clădirii și pozițiile sălilor sunt aproximative.
-          Filmările de test vor fi înlocuite cu cele reale.
+          Filmările de test vor fi înlocuite cu cele reale. Vederile reale în 360° sunt panorame Google
+          Street View, afișate prin încorporarea Google; nu sunt copiate în acest site.
         </p>
         <p>
           Cifrele despre clădire vin din articolul{' '}

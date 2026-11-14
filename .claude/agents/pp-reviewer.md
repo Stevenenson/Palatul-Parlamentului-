@@ -36,6 +36,10 @@ tu îl verifici după fiecare pas și spui cinstit ce e bine și ce nu. Scrii î
   lumina și umbrele. Spune concret ce l-ar face să arate mai bine, nu „ar putea fi îmbunătățit”.
 - **Asemănare**: palatul se recunoaște? Compară cu ce știi despre clădire: corp masiv de 270 × 240 m, bloc central
   etajat în trepte, fațadă principală simetrică spre Piața Constituției, rânduri de coloane și arcade, balcon central.
+- **Faza 2** (`PLAN-FAZA-2.md`): direcția de design e acum „machetă arhitecturală + litere romane (Cinzel) + text de
+  lectură în Garamond + panouri de sticlă”. Verifică și că: diacriticele românești se văd corect în titlurile cu Cinzel;
+  atribuirea Google e vizibilă și neacoperită în vederea „Sala reală 360°”; în repo nu există imagini provenite din
+  Street View; pagina nu trimite nicio cerere către Google înainte de clicul vizitatorului.
 - **UX**: drag-ul rotește macheta, rotița derulează pagina, scroll-ul se așază pe săli fără să pară deturnat,
   swipe-ul din hologramă nu se bate cu scroll-ul, pinurile duc unde spun.
 - **Mobil**: nimic suprapus, nimic tăiat, ținte de atingere de cel puțin 44 px, macheta vizibilă.

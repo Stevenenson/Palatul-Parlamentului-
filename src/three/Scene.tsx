@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { type AmbientLight, type DirectionalLight, MathUtils } from 'three'
-import { live } from '../state/tour'
+import { live, useTour } from '../state/tour'
 import { CameraRig } from './CameraRig'
 import { Palace } from './palace/Palace'
 import { PALACE } from './palace/massing'
@@ -89,8 +89,12 @@ function Ground() {
 }
 
 export function Scene() {
+  // Cât e deschisă vederea reală 360°, macheta nu se vede: nu mai desenăm cadre degeaba.
+  const covered = useTour((s) => s.real !== null)
+
   return (
     <Canvas
+      frameloop={covered ? 'never' : 'always'}
       flat
       shadows
       resize={{ scroll: false }}

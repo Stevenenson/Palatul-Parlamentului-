@@ -50,6 +50,8 @@ type TourState = {
   paused: boolean
   /** Sala evidențiată pe hartă (cursorul e pe pinul sau pe rândul ei din legendă). */
   hoverRoom: number | null
+  /** Sala a cărei vedere reală 360° e deschisă (indice în `ROOMS`), altfel `null`. */
+  real: number | null
   /** Starea scenei 3D: se încarcă, desenează, sau nu a putut porni (fără WebGL, eroare). */
   scene: 'loading' | 'ready' | 'failed'
 }
@@ -72,6 +74,7 @@ export const useTour = create<TourStore>((set) => ({
   muted: true,
   paused: false,
   hoverRoom: null,
+  real: null,
   scene: 'loading',
   set: (patch) => set(patch),
   stepRecording: (room, direction) =>

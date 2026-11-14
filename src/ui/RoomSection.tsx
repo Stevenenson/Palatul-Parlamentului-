@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { ROOMS, type RoomSpec } from '../content/rooms'
 import { toRoman } from '../content/roman'
+import { useTour } from '../state/tour'
 import { stopLink } from './links'
 import { PhotoStrip } from './PhotoStrip'
 import { RecordingCard } from './RecordingCard'
@@ -16,6 +17,24 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
       style={{ '--accent': room.accent } as CSSProperties}
     >
       <div className="wrap room__grid">
+        {room.streetView && (
+          <div className="view">
+            <div className="segmented glass" role="group" aria-label={`Vederea sălii: ${room.name}`}>
+              <button type="button" aria-pressed="true">
+                Machetă
+              </button>
+              <button
+                type="button"
+                className="view__real"
+                aria-pressed="false"
+                onClick={() => useTour.getState().set({ real: index })}
+              >
+                Sala reală 360°
+              </button>
+            </div>
+            <p className="view__note">Imaginile reale se încarcă de la Google Street View.</p>
+          </div>
+        )}
         <article className="panel">
           <p className="panel__index">
             <span aria-hidden="true">

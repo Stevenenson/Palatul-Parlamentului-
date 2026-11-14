@@ -11,6 +11,8 @@
  * „Sala Drepturilor Omului” și „Sala A.I. Cuza”).
  */
 
+import { fromArtsLink, type StreetView } from './streetView'
+
 export type Vec3 = [number, number, number]
 
 export type Media =
@@ -58,6 +60,8 @@ export type RoomSpec = {
   }
   recordings: Recording[]
   photos: Photo[]
+  /** Vederea reală 360° a sălii, din Google Street View. Fără ea, sala are doar macheta. */
+  streetView?: StreetView
 }
 
 const TEST_IMAGE = '/media/placeholders/filmare-test.svg'
@@ -105,6 +109,10 @@ export const ROOMS: RoomSpec[] = [
       'Aici intră a treia filmare: la ce folosește galeria astăzi.',
     ]),
     photos: [],
+    // De confirmat de utilizator că panorama e din Galeria de Onoare (coloane de marmură albă, covor roșu).
+    streetView: fromArtsLink(
+      'https://artsandculture.google.com/streetview/palatul-parlamentului-camera-deputa%C5%A3ilor-bucure%C5%9Fti-rom%C3%A2nia/zQEC7KIv69LFug?sv_lng=26.087973174509607&sv_lat=44.42811747889636&sv_h=183.2362377121136&sv_p=1.2913230928367625&sv_pid=14eTnatAqjBDRpLrMDlVdg&sv_z=0.3020190226523405',
+    ),
   },
   {
     id: 'sala-unirii',
@@ -151,6 +159,10 @@ export const ROOMS: RoomSpec[] = [
       'Aici intră a treia filmare: ce ședințe se țin aici acum.',
     ]),
     photos: [],
+    // De confirmat de utilizator că panorama e din Sala Drepturilor Omului (sală lambrisată în stejar).
+    streetView: fromArtsLink(
+      'https://artsandculture.google.com/streetview/palatul-parlamentului-camera-deputa%C5%A3ilor-bucure%C5%9Fti-rom%C3%A2nia/zQEC7KIv69LFug?sv_lng=26.088336328231183&sv_lat=44.42816184643911&sv_h=248.49521466771355&sv_p=-1.6791443112335287&sv_pid=hIaGuTOuL8428i_hbIqn6w&sv_z=0.3020190226523405',
+    ),
   },
   {
     id: 'sala-alexandru-ioan-cuza',

@@ -15,6 +15,15 @@ html {
   overflow-x: clip;
 }
 
+/* Cu o casetă deschisă (filmare mare, sala reală 360°), pagina de dedesubt nu se derulează. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+dialog {
+  overscroll-behavior: contain;
+}
+
 body {
   margin: 0;
   min-height: 100svh;
@@ -1019,6 +1028,243 @@ h2 {
 .sound:hover {
   background-size: 0 1px;
   background-position-x: 100%;
+}
+
+/* ——— Comutatorul dintre machetă și sala reală ——— */
+
+.view {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+
+.view__note {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--glass);
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font: 500 0.6875rem / 1.5 var(--font-mono);
+  color: var(--ink-2);
+  vertical-align: 2px;
+}
+
+/* ——— Sala reală 360°: panorama Google pe tot ecranul, filmările alături ——— */
+
+.real {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--night);
+  color: #f2f0eb;
+}
+
+.real[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  animation: real-in var(--t-3) var(--spring);
+}
+
+@keyframes real-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+.real :focus-visible {
+  outline-color: var(--gold);
+}
+
+.real__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 20px;
+}
+
+.real__name .overline {
+  color: var(--gold);
+}
+
+.real__name h2 {
+  margin-top: 2px;
+  font-size: 1.25rem;
+}
+
+.real__switch {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.real__switch button {
+  color: rgb(242 240 235 / 0.82);
+}
+
+.real__close {
+  justify-self: end;
+  color: #f2f0eb;
+}
+
+.real__close:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.real__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 12px;
+  min-height: 0;
+  padding-inline: 12px;
+}
+
+/* Colțuri aproape drepte: atribuirea Google din josul cadrului trebuie să rămână întreagă. */
+.real__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: #000;
+}
+
+.real__side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: var(--radius-m);
+  background: rgb(255 255 255 / 0.06);
+  overflow-y: auto;
+}
+
+.real__count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--size-label);
+  color: rgb(242 240 235 / 0.72);
+}
+
+.real .tag {
+  border-color: rgb(255 255 255 / 0.28);
+  color: rgb(242 240 235 / 0.82);
+}
+
+.real__media {
+  display: block;
+  width: 100%;
+  max-height: 34vh;
+  margin-top: 12px;
+  border-radius: var(--radius-small);
+  background: #000;
+  object-fit: contain;
+}
+
+.real__side h3 {
+  margin: 14px 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: 0.03em;
+}
+
+.real__who {
+  margin-top: 4px;
+  font-size: var(--size-small);
+  color: rgb(242 240 235 / 0.72);
+}
+
+.real__text {
+  margin-top: 10px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1875rem;
+  line-height: 1.35;
+}
+
+.real__controls {
+  display: flex;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.real__controls .icon-btn {
+  color: #f2f0eb;
+  border: 1px solid rgb(255 255 255 / 0.22);
+}
+
+.real__controls .icon-btn:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.real__credit {
+  padding: 8px 20px 12px;
+  font-size: 0.8125rem;
+  color: rgb(242 240 235 / 0.72);
+}
+
+.real__credit a {
+  color: #f2f0eb;
+}
+
+@media (max-width: 760px) {
+  .real__bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 8px 8px 8px 14px;
+  }
+
+  .real__switch {
+    display: none;
+  }
+
+  .real__body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 58% minmax(0, 1fr);
+    gap: 8px;
+    padding-inline: 8px;
+  }
+
+  .real__side {
+    padding: 12px;
+  }
+
+  .real__media {
+    max-height: 16vh;
+    margin-top: 8px;
+  }
+
+  .real__side h3 {
+    margin-top: 8px;
+  }
+
+  .real__text {
+    font-size: 1.0625rem;
+  }
+
+  .real__credit {
+    padding: 6px 14px 10px;
+  }
 }
 
 /* ——— Punctele de navigare din margine ——— */

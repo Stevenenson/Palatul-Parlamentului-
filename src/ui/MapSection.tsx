@@ -38,7 +38,14 @@ export function MapSection() {
                   <span className="legend__dot" aria-hidden="true">
                     {i + 1}
                   </span>
-                  <span className="legend__name">{room.name}</span>
+                  <span className="legend__name">
+                    {room.name}
+                    {room.streetView && (
+                      <span className="badge" title="Are vedere reală în 360°">
+                        360°
+                      </span>
+                    )}
+                  </span>
                   <span className="legend__note">{room.note}</span>
                 </a>
               </li>

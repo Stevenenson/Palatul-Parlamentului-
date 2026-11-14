@@ -26,6 +26,26 @@ export async function launchBrowser() {
   }
 }
 
+/**
+ * Înlocuiește cadrul Google Street View cu o pagină locală: testele nu depind de rețea,
+ * iar capturile de ecran nu conțin imagini Street View (regulile Google nu permit capturi cu ele).
+ * Întoarce lista cererilor care ar fi plecat spre Google.
+ */
+export async function stubStreetView(context) {
+  const requests = []
+  await context.route(/^https:\/\/([a-z0-9-]+\.)*(google|googleapis|gstatic)\.com\//, (route) => {
+    requests.push(route.request().url())
+    return route.fulfill({
+      contentType: 'text/html; charset=utf-8',
+      body: `<!doctype html><html lang="ro"><body style="margin:0;height:100vh;display:grid;place-items:center;
+        background:repeating-linear-gradient(45deg,#2a2e36 0 24px,#252930 24px 48px);color:#d9c28c;
+        font:500 15px/1.4 ui-monospace,Menlo,monospace;text-align:center">
+        <p>Locul cadrului Google Street View<br>(înlocuit în teste și în capturi)</p></body></html>`,
+    })
+  })
+  return requests
+}
+
 /** Deschide pagina și așteaptă până când scena 3D desenează cadre. */
 export async function openTour(browser, url, viewport) {
   const context = await browser.newContext({
@@ -35,6 +55,7 @@ export async function openTour(browser, url, viewport) {
     hasTouch: Boolean(viewport.mobile),
     reducedMotion: viewport.reducedMotion ? 'reduce' : 'no-preference',
   })
+  const google = await stubStreetView(context)
   const page = await context.newPage()
   const errors = []
   page.on('console', (message) => {
@@ -46,7 +67,7 @@ export async function openTour(browser, url, viewport) {
     timeout: 30000,
   })
   await page.evaluate(() => document.fonts.ready)
-  return { context, page, errors }
+  return { context, page, errors, google }
 }
 
 /** Așteaptă până când camera a ajuns unde o trimite scroll-ul. */

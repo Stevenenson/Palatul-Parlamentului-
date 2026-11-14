@@ -271,6 +271,8 @@ export function initDirector(): () => void {
   const onKey = (event: KeyboardEvent) => {
     if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return
     if (isTyping(event.target)) return
+    // O casetă deschisă (filmare mare, sala reală 360°) ține tastele pentru ea.
+    if (document.querySelector('dialog[open]')) return
     let step = 0
     if (event.key === 'ArrowDown' || event.key === 'PageDown') step = 1
     else if (event.key === 'ArrowUp' || event.key === 'PageUp') step = -1
