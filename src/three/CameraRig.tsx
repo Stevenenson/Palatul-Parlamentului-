@@ -56,6 +56,7 @@ export function CameraRig() {
     framing: { cx: 0.5, cy: 0.5 },
     fov: 0,
     near: 0,
+    cx: 0.5,
     cy: 0.5,
     view: [0, 0, 0, 0],
   })
@@ -270,8 +271,9 @@ export function CameraRig() {
 
     // 4. Subiectul stă decalat față de centru, ca să lase loc textului.
     framingAt(r.flight ? r.flight.to : live.t, size.width, r.framing)
+    r.cx = instant ? r.framing.cx : MathUtils.damp(r.cx, r.framing.cx, 4, dt)
     r.cy = instant ? r.framing.cy : MathUtils.damp(r.cy, r.framing.cy, 4, dt)
-    const offsetX = Math.round((0.5 - r.framing.cx) * size.width)
+    const offsetX = Math.round((0.5 - r.cx) * size.width)
     const offsetY = Math.round((0.5 - r.cy) * size.height)
     const view = r.view
     if (view[0] !== size.width || view[1] !== size.height || view[2] !== offsetX || view[3] !== offsetY) {

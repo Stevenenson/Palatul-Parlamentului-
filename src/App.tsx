@@ -4,6 +4,7 @@ import { initDirector } from './scroll/director'
 import { useTour } from './state/tour'
 import { Footer } from './ui/Footer'
 import { Hero } from './ui/Hero'
+import { Meander } from './ui/Meander'
 import { MapSection } from './ui/MapSection'
 import { RoomSection } from './ui/RoomSection'
 import { SceneBoundary } from './ui/SceneBoundary'
@@ -48,7 +49,12 @@ export function App() {
             </Suspense>
           </SceneBoundary>
         )}
-        {scene === 'loading' && <p className="stage__status">Se încarcă macheta</p>}
+        {scene === 'loading' && (
+          <p className="stage__status">
+            <Meander units={5} draw />
+            Se încarcă macheta
+          </p>
+        )}
       </div>
       <main id="continut">
         <Hero />

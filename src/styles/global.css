@@ -53,6 +53,107 @@ a {
   padding-inline: var(--edge);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Sticlă: panourile de peste scenă lasă macheta să se ghicească prin ele. */
+.glass {
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Supratitlu: litere romane mici, rare, în bronz. */
+.overline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  color: var(--bronze);
+}
+
+/* Buton rotund cu pictogramă: ținta de atingere e de 44 px. */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform var(--t-1) var(--spring),
+    background-color var(--t-1) var(--ease);
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-btn:hover {
+  background: rgb(23 25 29 / 0.09);
+}
+
+.icon-btn:active {
+  transform: scale(0.94);
+}
+
+.icon-btn[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Control segmentat: două vederi ale aceleiași săli. */
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.segmented button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: 500 var(--size-small) / 1 var(--font-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--t-1) var(--ease),
+    color var(--t-1) var(--ease),
+    transform var(--t-1) var(--spring);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgb(23 25 29 / 0.18);
+}
+
+.segmented button:active {
+  transform: scale(0.97);
+}
+
 /* Titlurile primesc focus doar din cod, după un salt; nu au nevoie de contur. */
 :is(h1, h2)[tabindex='-1']:focus {
   outline: none;
@@ -102,7 +203,7 @@ main {
   pointer-events: none;
 }
 
-main :is(a, button, .panel, .hero__text, .facts) {
+main :is(a, button, .panel, .facts) {
   pointer-events: auto;
 }
 
@@ -121,8 +222,9 @@ main :is(a, button, .panel, .hero__text, .facts) {
   inset: 0 0 auto 0;
   z-index: 5;
   height: var(--bar);
-  background: rgb(242 240 235 / 0.84);
-  backdrop-filter: blur(14px);
+  background: rgb(242 240 235 / 0.72);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid rgb(23 25 29 / 0.07);
 }
 
@@ -139,10 +241,9 @@ main :is(a, button, .panel, .hero__text, .facts) {
   gap: 10px;
   min-height: 44px;
   font-family: var(--font-display);
-  font-stretch: 108%;
   font-weight: 600;
-  font-size: 1rem;
-  letter-spacing: -0.005em;
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
   text-decoration: none;
 }
 
@@ -182,42 +283,104 @@ main :is(a, button, .panel, .hero__text, .facts) {
 
 /* ——— Hero ——— */
 
+/* Titlul sus, macheta la mijloc, butonul și cifrele jos: o singură idee pe ecran. */
 .hero__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: 1fr auto;
-  gap: 32px;
-  align-items: start;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  text-align: center;
 }
 
-.hero__text {
-  max-width: 34rem;
-  padding-top: clamp(8px, 5svh, 64px);
+.hero__head {
+  display: grid;
+  justify-items: center;
+  padding-top: clamp(4px, 3svh, 36px);
+}
+
+.hero__head .overline {
+  margin-bottom: 14px;
+}
+
+.meander {
+  display: block;
+  overflow: visible;
+}
+
+.meander path {
+  fill: none;
+  stroke: var(--bronze);
+  stroke-width: 1.2;
+  stroke-linecap: square;
+}
+
+.meander[data-draw] path {
+  stroke-dasharray: 100;
+  animation: meander-draw 1.6s var(--ease) infinite;
+}
+
+@keyframes meander-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  60%,
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hero__head .meander {
+  margin-top: 18px;
+}
+
+.hero__foot {
+  grid-row: 3;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+}
+
+/* La plecarea din hero, titlul și butoanele se sting ușor în loc să fie tăiate de bara de sus. */
+@supports (animation-timeline: view()) {
+  .hero__head,
+  .hero__foot {
+    animation: hero-out linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 70%;
+  }
+}
+
+@keyframes hero-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
 
 h1 {
   font-family: var(--font-display);
-  font-stretch: 112%;
-  font-weight: 640;
+  font-weight: 500;
   font-size: var(--size-h1);
-  line-height: 1.02;
-  letter-spacing: -0.028em;
+  line-height: 1.04;
+  letter-spacing: 0.012em;
   text-wrap: balance;
 }
 
 .lead {
-  max-width: 30rem;
-  margin-top: 22px;
+  max-width: 46rem;
+  margin-top: 16px;
+  font-family: var(--font-serif);
   font-size: var(--size-lead);
-  line-height: 1.5;
+  line-height: 1.42;
   color: var(--ink-2);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 24px;
 }
 
 .btn {
@@ -226,33 +389,33 @@ h1 {
   justify-content: center;
   min-height: 48px;
   padding: 0 22px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-small);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
   background: transparent;
   color: var(--ink);
   font: 500 1rem/1 var(--font-text);
   text-decoration: none;
   cursor: pointer;
   transition:
-    transform 0.18s var(--ease),
-    background-color 0.18s var(--ease),
-    color 0.18s var(--ease),
-    box-shadow 0.18s var(--ease);
+    transform var(--t-1) var(--spring),
+    background-color var(--t-1) var(--ease),
+    color var(--t-1) var(--ease),
+    box-shadow var(--t-1) var(--ease);
 }
 
 .btn:hover {
-  transform: translateY(-2px);
   background: var(--ink);
   color: var(--paper);
   box-shadow: 0 10px 20px -12px rgb(23 25 29 / 0.55);
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
   box-shadow: none;
 }
 
 .btn--primary {
+  min-width: 200px;
   background: var(--ink);
   color: var(--paper);
 }
@@ -282,27 +445,30 @@ h1 {
 }
 
 .fact dd {
-  font-family: var(--font-display);
-  font-stretch: 108%;
-  font-weight: 600;
-  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1.3rem;
   line-height: 1.15;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .hero__facts {
-  align-self: end;
-  padding-top: 18px;
+  justify-content: center;
+  gap: 8px 44px;
+  padding-top: 16px;
   border-top: 1px solid var(--line-strong);
-  width: fit-content;
-  max-width: 100%;
+  text-align: left;
+}
+
+.hero__facts .fact dd {
+  font-size: 1.0625rem;
 }
 
 .hint {
   position: absolute;
-  right: calc(var(--edge) + 56px);
-  bottom: 40px;
+  right: calc(var(--edge) + 40px);
+  bottom: 44px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -335,36 +501,53 @@ h1 {
 
 .panel {
   width: min(100%, var(--panel));
-  padding: 26px 28px 28px;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--accent);
+  position: relative;
+  padding: 26px 26px 24px;
+  border: 1px solid var(--glass-edge);
   border-radius: var(--radius);
-  background: rgb(251 250 247 / 0.92);
+  background: var(--glass);
   box-shadow: var(--shadow-panel);
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Accentul sălii: o liniuță scurtă, nu o margine întreagă. */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 26px;
+  width: 36px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--accent);
 }
 
 .panel__index {
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  color: var(--muted);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  color: var(--bronze);
 }
 
 h2 {
-  margin-top: 6px;
+  margin-top: 8px;
   font-family: var(--font-display);
-  font-stretch: 110%;
-  font-weight: 620;
+  font-weight: 500;
   font-size: var(--size-h2);
-  line-height: 1.06;
-  letter-spacing: -0.022em;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
   text-wrap: balance;
 }
 
 .panel__note {
-  margin-top: 8px;
-  font-size: var(--size-small);
-  color: var(--muted);
+  margin-top: 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.125rem;
+  line-height: 1.3;
+  color: var(--ink-2);
 }
 
 .panel > p:not([class]) {
@@ -443,7 +626,8 @@ h2 {
   border-radius: 50%;
   background: var(--accent);
   color: #fff;
-  font: 600 0.8125rem / 1 var(--font-text);
+  font: 600 0.6875rem / 1 var(--font-display);
+  letter-spacing: 0.02em;
 }
 
 .legend__name {
@@ -460,33 +644,17 @@ h2 {
 
 .stage__status {
   position: absolute;
-  left: 64%;
-  top: 50%;
+  left: 50%;
+  top: 54%;
   display: grid;
-  gap: 10px;
+  gap: 14px;
   justify-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  color: var(--muted);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  color: var(--bronze);
   transform: translate(-50%, -50%);
-  transition: opacity 0.5s var(--ease);
-}
-
-.stage__status::after {
-  content: '';
-  width: 120px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--ink) 40%, var(--line) 40%) 0 0 / 250% 100%;
-  animation: loading 1.4s linear infinite;
-}
-
-@keyframes loading {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: -66% 0;
-  }
 }
 
 .notice {
@@ -635,6 +803,7 @@ h2 {
   border: 0;
   border-radius: var(--radius);
   background: var(--surface);
+  color: var(--ink);
 }
 
 .lightbox::backdrop {
@@ -677,11 +846,12 @@ h2 {
   bottom: 0;
   width: min(400px, 33vw);
   padding: 18px 20px 14px;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--accent);
+  border: 1px solid var(--glass-edge);
   border-radius: var(--radius);
-  background: rgb(251 250 247 / 0.94);
+  background: var(--glass);
   box-shadow: var(--shadow-panel);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   pointer-events: auto;
   touch-action: pan-y;
   user-select: none;
@@ -714,11 +884,10 @@ h2 {
 .recording h3 {
   margin: 8px 0 0;
   font-family: var(--font-display);
-  font-stretch: 108%;
-  font-weight: 620;
-  font-size: 1.25rem;
-  line-height: 1.15;
-  letter-spacing: -0.012em;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
 }
 
 .recording__media {
@@ -726,7 +895,7 @@ h2 {
   width: 100%;
   max-height: 220px;
   margin-top: 10px;
-  border-radius: var(--radius-small);
+  border-radius: var(--radius-m);
   background: var(--ink);
   object-fit: contain;
 }
@@ -738,8 +907,11 @@ h2 {
 }
 
 .recording__text {
-  margin-top: 10px;
-  font-size: 0.9375rem;
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.125rem;
+  line-height: 1.35;
   color: var(--ink-2);
 }
 
@@ -884,9 +1056,17 @@ h2 {
     background-color 0.2s var(--ease);
 }
 
+.stopnav__dot {
+  transition:
+    height var(--t-2) var(--spring),
+    background-color var(--t-1) var(--ease),
+    transform var(--t-1) var(--ease);
+}
+
 .stopnav__item[aria-current] .stopnav__dot {
+  height: 24px;
+  border-radius: 5px;
   background: var(--ink);
-  transform: scale(1.45);
 }
 
 .stopnav__item:hover .stopnav__dot {
@@ -939,9 +1119,9 @@ h2 {
 
 .footer__brand {
   font-family: var(--font-display);
-  font-stretch: 108%;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
   color: var(--ink);
 }
 
@@ -960,46 +1140,56 @@ h2 {
     padding-block: calc(var(--bar) + 12px) 20px;
   }
 
-  /* Titlul sus, macheta la mijloc, butoanele și cifrele jos. */
-  .hero__grid {
-    grid-template-rows: auto auto minmax(120px, 1fr) auto auto;
-    gap: 0;
+  .brand {
+    gap: 8px;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
   }
 
-  .hero__text {
-    display: contents;
+  .topbar__nav a {
+    padding-inline: 10px;
   }
 
-  .hero__text h1 {
-    grid-row: 1;
-    padding-top: 4px;
+  .hero__head {
+    padding-top: 2px;
   }
 
-  .lead {
-    grid-row: 2;
+  .hero__head .overline {
+    margin-bottom: 8px;
+  }
+
+  .hero__head .meander {
     margin-top: 12px;
   }
 
-  .actions {
-    grid-row: 4;
-    margin-top: 0;
+  .lead {
+    margin-top: 10px;
+    font-size: 1.125rem;
+  }
+
+  .hero__foot {
+    gap: 14px;
+    width: 100%;
   }
 
   .actions .btn {
-    flex: 1 1 calc(50% - 6px);
-    padding-inline: 12px;
+    flex: 1 1 100%;
   }
 
   .hero__facts {
-    grid-row: 5;
     width: 100%;
-    margin-top: 18px;
-    padding-top: 14px;
-    gap: 10px 24px;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding-top: 12px;
   }
 
-  .fact dd {
-    font-size: 1.2rem;
+  .hero__facts .fact dd {
+    font-size: 0.9375rem;
+  }
+
+  .hero__facts .fact dt {
+    font-size: 0.6875rem;
   }
 
   .hint {
@@ -1040,10 +1230,6 @@ h2 {
     display: none;
   }
 
-  .stage__status {
-    left: 50%;
-  }
-
   /* Harta e mică pe telefon: pinurile arată numărul sălii, numele rămâne în legendă. */
   .pin__label {
     justify-content: center;
@@ -1074,31 +1260,36 @@ h2 {
 
 @media (min-width: 761px) and (max-height: 760px) {
   :root {
-    --size-h1: clamp(2.3rem, 8.2svh, 3.6rem);
+    --size-h1: clamp(2rem, 7.4svh, 3.2rem);
   }
 
   .stop {
     padding-block: calc(var(--bar) + 12px) 22px;
   }
 
-  .hero__grid {
-    gap: 18px;
-  }
-
-  .hero__text {
+  .hero__head {
     padding-top: 0;
   }
 
-  .lead {
-    margin-top: 14px;
+  .hero__head .overline {
+    margin-bottom: 6px;
   }
 
-  .actions {
-    margin-top: 18px;
+  .hero__head .meander {
+    margin-top: 10px;
+  }
+
+  .lead {
+    margin-top: 8px;
+    font-size: 1.125rem;
+  }
+
+  .hero__foot {
+    gap: 12px;
   }
 
   .hero__facts {
-    padding-top: 12px;
+    padding-top: 10px;
   }
 
   .hint {
@@ -1118,5 +1309,32 @@ h2 {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .hero__head,
+  .hero__foot {
+    animation: none;
+  }
+}
+
+/* Cine cere mai puțină transparență, sau un browser fără filtru de fundal, primește panouri pline. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass: var(--surface);
+    --glass-blur: none;
+  }
+
+  .topbar {
+    background: var(--paper);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass: rgb(251 250 247 / 0.95);
+  }
+
+  .topbar {
+    background: rgb(242 240 235 / 0.95);
   }
 }

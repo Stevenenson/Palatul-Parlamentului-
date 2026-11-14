@@ -1,32 +1,52 @@
-/* Direcția „machetă arhitecturală”: hârtie caldă, cerneală, un singur accent pe sală. */
+/*
+ * Direcția „machetă arhitecturală”: hârtie caldă, cerneală, un singur accent pe sală.
+ * Faza 2 adaugă litere romane (Cinzel), text de lectură în Garamond și panouri de sticlă.
+ */
 :root {
   --paper: #f2f0eb; /* aceeași valoare ca PAPER din src/three/Scene.tsx */
   --paper-2: #e8e5dd;
   --surface: #fbfaf7;
+  --stone: #e3ded3;
   --ink: #17191d;
   --ink-2: #41454c;
-  --muted: #5e6269;
+  --muted: #555a61; /* 4,8:1 și pe sticla de peste covorul albastru */
   --line: #d4d0c6;
   --line-strong: #b9b4a8;
   --accent: #c8452b;
+  --bronze: #7d5f27; /* text mic pe hârtie, 5,2:1 */
+  --gold: #d9c28c; /* doar pe fundal închis */
+  --night: #101216;
 
-  --font-display: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  /* Cinzel are doar majuscule și majuscule mici: se folosește numai la titluri scurte. */
+  --font-display: 'Cinzel Variable', 'Cinzel', Georgia, 'Times New Roman', serif;
+  --font-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, 'Times New Roman', serif;
   --font-text: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --size-h1: clamp(2.3rem, 1.05rem + 4.1vw, 4.4rem);
-  --size-h2: clamp(1.75rem, 1.3rem + 1.5vw, 2.5rem);
-  --size-lead: clamp(1.05rem, 0.98rem + 0.3vw, 1.2rem);
+  --size-h1: clamp(2.1rem, 0.9rem + 4.4vw, 4.75rem);
+  --size-h2: clamp(1.45rem, 1.2rem + 0.9vw, 2rem);
+  --size-lead: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
   --size-text: 1rem;
   --size-small: 0.875rem;
   --size-label: 0.8125rem;
 
   --edge: clamp(16px, 4.2vw, 64px);
   --bar: 64px;
-  --radius: 10px;
-  --radius-small: 6px;
-  --panel: 400px;
+  /* Raze concentrice: panou, element din panou, detaliu. */
+  --radius: 22px;
+  --radius-m: 14px;
+  --radius-small: 8px;
+  --panel: 380px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 18px 40px -24px rgb(23 25 29 / 0.35);
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --t-1: 0.18s;
+  --t-2: 0.32s;
+  --t-3: 0.52s;
+
+  /* Sticla: destul de plină cât textul să rămână la peste 4,5:1 pe orice fundal al scenei. */
+  --glass: rgb(251 250 247 / 0.78);
+  --glass-edge: rgb(255 255 255 / 0.55);
+  --glass-blur: blur(24px) saturate(1.6);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 24px 48px -28px rgb(23 25 29 / 0.4);
 }

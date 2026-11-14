@@ -17,7 +17,7 @@ function roomPose(room: RoomSpec): Pose {
   }
 }
 
-const EXTERIOR: Pose = { position: v(-392, 126, 646), target: v(0, 27, 8), fov: 30 }
+const EXTERIOR: Pose = { position: v(-337, 112, 556), target: v(0, 27, 8), fov: 30 }
 const MAP: Pose = { position: v(-320, 430, 500), target: v(0, 10, 20), fov: 30 }
 
 /** Opririle turului, cu poziția camerei pe fiecare. */
@@ -89,16 +89,17 @@ export function fovForAspect(fov: number, aspect: number): number {
 export const NARROW_WIDTH = 760
 
 /**
- * Unde stă subiectul pe ecran (0..1): spre dreapta pe ecrane late, ca să lase loc
- * textului din stânga; pe ecrane înguste, la mijloc pe exterior și mai sus în săli și pe
- * hartă, unde panoul de text ocupă partea de jos.
+ * Unde stă subiectul pe ecran (0..1). Pe ecrane late: la mijloc pe exterior, sub titlu, apoi
+ * spre dreapta în săli și pe hartă, ca să lase loc panoului din stânga. Pe ecrane înguste: la
+ * mijloc pe exterior și mai sus în săli și pe hartă, unde panoul de text ocupă partea de jos.
  */
 export function framingAt(t: number, width: number, out: { cx: number; cy: number }) {
+  const inside = MathUtils.smoothstep(t, 0.15, 0.85)
   if (width > NARROW_WIDTH) {
-    out.cx = 0.64
-    out.cy = 0.5
+    out.cx = MathUtils.lerp(0.5, 0.64, inside)
+    out.cy = MathUtils.lerp(0.55, 0.5, inside)
     return
   }
   out.cx = 0.5
-  out.cy = MathUtils.lerp(0.5, 0.3, MathUtils.smoothstep(t, 0.15, 0.85))
+  out.cy = MathUtils.lerp(0.5, 0.3, inside)
 }

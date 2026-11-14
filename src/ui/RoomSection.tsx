@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { ROOMS, type RoomSpec } from '../content/rooms'
+import { toRoman } from '../content/roman'
 import { stopLink } from './links'
 import { PhotoStrip } from './PhotoStrip'
 import { RecordingCard } from './RecordingCard'
@@ -17,7 +18,12 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
       <div className="wrap room__grid">
         <article className="panel">
           <p className="panel__index">
-            Sala {index + 1} din {ROOMS.length}
+            <span aria-hidden="true">
+              Sala {toRoman(index + 1)} din {toRoman(ROOMS.length)}
+            </span>
+            <span className="sr-only">
+              Sala {index + 1} din {ROOMS.length}
+            </span>
           </p>
           <h2 id={titleId} tabIndex={-1}>
             {room.name}

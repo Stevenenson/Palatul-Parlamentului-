@@ -135,7 +135,7 @@ try {
   await check('Tab duce turul pe secțiunea elementului focusat', async () => {
     await page.evaluate(() => window.scrollTo(0, 0))
     await waitForCamera(page)
-    await page.focus('.hero .btn:last-of-type')
+    await page.focus('.hero .actions a:last-of-type')
     await page.keyboard.press('Tab')
     const focused = await page.evaluate(() => document.activeElement?.closest('main > section')?.id)
     expect(focused === 'galeria-de-onoare', `focusul e în ${focused}`)

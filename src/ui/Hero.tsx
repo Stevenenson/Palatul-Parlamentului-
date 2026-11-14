@@ -1,6 +1,7 @@
 import { PALACE_FACTS, ROOMS } from '../content/rooms'
 import { useTour } from '../state/tour'
 import { stopLink } from './links'
+import { Meander } from './Meander'
 
 export function Hero() {
   const hasOrbited = useTour((s) => s.hasOrbited)
@@ -9,37 +10,41 @@ export function Hero() {
   return (
     <section id="palat" className="stop hero" aria-labelledby="titlu">
       <div className="wrap hero__grid">
-        <div className="hero__text">
+        <div className="hero__head">
+          <p className="overline">București · tur 3D</p>
           <h1 id="titlu" tabIndex={-1}>
-            Palatul Parlamentului din București, în 3D
+            Palatul Parlamentului
+            <span className="sr-only"> din București, în 3D</span>
           </h1>
+          <Meander units={7} />
           <p className="lead">
-            Trage de machetă ca să o rotești. Derulează ca să intri pe rând în patru săli și să vezi
-            filmările din fiecare.
+            Rotește macheta, apoi coboară prin patru săli și ascultă oamenii din fiecare.
           </p>
           {failed && (
             <p className="notice">
               Browserul acesta nu poate desena macheta 3D. Textele despre săli și lista lor rămân mai jos.
             </p>
           )}
-          <div className="actions">
-            <a className="btn btn--primary" {...stopLink(ROOMS[0].id)}>
-              Începe turul sălilor
-            </a>
-            <a className="btn" {...stopLink('harta')}>
-              Vezi harta sălilor
-            </a>
-          </div>
         </div>
 
-        <dl className="facts hero__facts">
-          {PALACE_FACTS.map((fact) => (
-            <div key={fact.label} className="fact">
-              <dt>{fact.label}</dt>
-              <dd>{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
+        <div className="hero__foot">
+          <div className="actions">
+            <a className="btn btn--primary" {...stopLink(ROOMS[0].id)}>
+              Începe turul
+            </a>
+            <a className="link" {...stopLink('harta')}>
+              Harta sălilor
+            </a>
+          </div>
+          <dl className="facts hero__facts">
+            {PALACE_FACTS.map((fact) => (
+              <div key={fact.label} className="fact">
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
 
         <p className="hint" data-done={hasOrbited || failed || undefined}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
