@@ -11,7 +11,7 @@ Capturile de ecran folosite la review stau în `review/shots/` (nu intră în gi
 
 **Verificări rulate:** build ok (JS 1.157,85 kB, 318,35 kB gzip; CSS 20,12 kB; avertisment Vite pentru chunk peste 500 kB),
 lint ok (0 probleme), teste 11 din 11, capturi 17 în `review/shots/pas-0-review/` (11 desktop 1440 × 900, 6 mobil 390 × 844),
-fără erori în consolă. Commit verificat: `b54ca25`.
+fără erori în consolă. Commit verificat: `2a6caab`.
 
 Cum am verificat, ca să se știe cât de sigură e fiecare observație:
 - **în browser** (o sondă Playwright rulată din afara proiectului, pe build-ul de producție): Tab prin pagină, Enter pe
@@ -195,7 +195,7 @@ Amânate, cu motiv:
 
 **Verificări rulate:** build ok (JS 1.389,30 kB, 421,23 kB gzip; CSS 20,43 kB; același avertisment Vite pentru chunk peste
 500 kB), lint ok (0 probleme), teste 22 din 22, capturi 26 (12 desktop 1440 × 900, 7 laptop 1366 × 650, 7 mobil 390 × 844),
-fără erori în consolă, GPU „ANGLE Metal, Apple M5 Pro”. Commit verificat: `dd15dc5`, pe un instantaneu al lui; capturile au
+fără erori în consolă, GPU „ANGLE Metal, Apple M5 Pro”. Commit verificat: `5651210`, pe un instantaneu al lui; capturile au
 rămas în instantaneu (`review-pas-1/review/shots/pas-1-review/` din scratchpad), nu în `review/shots/` din proiect.
 
 Verdictul vine dintr-un singur criteriu, cel de aspect. Funcțional nu am găsit nimic stricat, iar cele două blocante sunt
@@ -407,7 +407,7 @@ socotit închis până nu se rezolvă cele două ale lui. Cele două blocante de
 `Effects` 214,56 kB, 97,52 kB gzip; bucata comună three/fiber `events` 930,62 kB, 247,97 kB gzip; CSS 25,88 kB, 5,26 kB gzip;
 același avertisment Vite pentru chunk peste 500 kB), lint ok (0 probleme), teste 27 din 27, capturi 26 (10 desktop
 1440 × 900, 6 laptop 1366 × 650, 6 mobil 390 × 844, din care 4 cadre de tranzit pe desktop), fără erori în consolă,
-60 de cadre pe secundă pe exterior pe „ANGLE Metal, Apple M5 Pro”. Commit verificat: `7dffa71`, pe un instantaneu al lui;
+60 de cadre pe secundă pe exterior pe „ANGLE Metal, Apple M5 Pro”. Commit verificat: `4404c74`, pe un instantaneu al lui;
 capturile au rămas în instantaneu (`review-final/review/shots/final-review/` din scratchpad), nu în `review/shots/` din proiect.
 
 Cât de sigură e fiecare observație:
