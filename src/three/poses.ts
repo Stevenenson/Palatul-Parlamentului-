@@ -17,7 +17,7 @@ function roomPose(room: RoomSpec): Pose {
   }
 }
 
-const EXTERIOR: Pose = { position: v(-361, 118, 595), target: v(0, 27, 8), fov: 30 }
+const EXTERIOR: Pose = { position: v(-380, 123, 627), target: v(0, 27, 8), fov: 30 }
 const MAP: Pose = { position: v(-320, 430, 500), target: v(0, 10, 20), fov: 30 }
 
 /** Opririle turului, cu poziția camerei pe fiecare. */
@@ -97,7 +97,7 @@ export function framingAt(t: number, width: number, out: { cx: number; cy: numbe
   const inside = MathUtils.smoothstep(t, 0.15, 0.85)
   if (width > NARROW_WIDTH) {
     out.cx = MathUtils.lerp(0.5, 0.64, inside)
-    out.cy = MathUtils.lerp(0.515, 0.5, inside)
+    out.cy = MathUtils.lerp(0.52, 0.5, inside)
     return
   }
   out.cx = 0.5

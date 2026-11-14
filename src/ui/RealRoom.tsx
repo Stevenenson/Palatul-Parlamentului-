@@ -3,7 +3,7 @@ import { ROOMS } from '../content/rooms'
 import { toRoman } from '../content/roman'
 import { embedUrl } from '../content/streetView'
 import { recordingVideos } from '../state/media'
-import { useTour, wrapIndex } from '../state/tour'
+import { live, useTour, wrapIndex } from '../state/tour'
 
 /**
  * „Sala reală 360°”: panorama Google Street View a sălii, pe tot ecranul, cu filmările alături.
@@ -14,7 +14,31 @@ export function RealRoom() {
   const real = useTour((s) => s.real)
   const position = useTour((s) => (s.real === null ? 0 : s.recording[s.real]))
   const dialog = useRef<HTMLDialogElement>(null)
+  const inHistory = useRef(false)
   const { set, stepRecording } = useTour.getState()
+
+  // Foaia are o intrare proprie în istoric, ca butonul Înapoi (gestul firesc pe telefon) să o închidă.
+  useEffect(() => {
+    if (real !== null && !inHistory.current) {
+      window.history.pushState({ ...window.history.state, real: true }, '')
+      inHistory.current = true
+    } else if (real === null && inHistory.current) {
+      // Închisă din buton sau cu Esc: scoatem intrarea, fără ca turul să se mute.
+      inHistory.current = false
+      live.skipPop = true
+      window.history.back()
+    }
+  }, [real])
+
+  useEffect(() => {
+    const onPop = () => {
+      if (!inHistory.current) return
+      inHistory.current = false
+      useTour.getState().set({ real: null })
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   useEffect(() => {
     const el = dialog.current
@@ -61,6 +85,7 @@ export function RealRoom() {
             <button
               type="button"
               className="icon-btn real__close"
+              autoFocus
               aria-label="Închide vederea 360° și revino la machetă"
               onClick={() => set({ real: null })}
             >
@@ -76,33 +101,13 @@ export function RealRoom() {
               src={embedUrl(view)}
               title={`Vedere 360° din ${room.name}, Google Street View`}
               allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
             />
 
             <section className="real__side" aria-label={`Filmări din ${room.name}`}>
-              <p className="real__count">
-                Filmarea {current + 1} din {count}
-                {recording.demo && <span className="tag">Conținut de test</span>}
-              </p>
-              {recording.media.kind === 'video' ? (
-                <video
-                  key={recording.id}
-                  className="real__media"
-                  src={recording.media.src}
-                  poster={recording.media.poster}
-                  controls
-                  playsInline
-                  preload="metadata"
-                />
-              ) : (
-                <img className="real__media" src={recording.media.src} alt="" />
-              )}
-              <div aria-live="polite">
-                <h3>{recording.title}</h3>
-                <p className="real__who">{recording.who}</p>
-                <p className="real__text">{recording.text}</p>
-              </div>
-              <div className="real__controls">
+              <div className="real__top">
+                <p className="real__count">
+                  Filmarea {current + 1} din {count}
+                </p>
                 <button
                   type="button"
                   className="icon-btn"
@@ -123,6 +128,27 @@ export function RealRoom() {
                     <path d="M9.5 5.5 16 12l-6.5 6.5" />
                   </svg>
                 </button>
+              </div>
+              <div className="real__item">
+                {recording.media.kind === 'video' ? (
+                  <video
+                    key={recording.id}
+                    className="real__media"
+                    src={recording.media.src}
+                    poster={recording.media.poster}
+                    controls
+                    playsInline
+                    preload="metadata"
+                  />
+                ) : (
+                  <img className="real__media" src={recording.media.src} alt="" />
+                )}
+                <div aria-live="polite">
+                  {recording.demo && <p className="tag">Conținut de test</p>}
+                  <h3>{recording.title}</h3>
+                  <p className="real__who">{recording.who}</p>
+                  <p className="real__text">{recording.text}</p>
+                </div>
               </div>
             </section>
           </div>

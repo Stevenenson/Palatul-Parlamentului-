@@ -137,7 +137,7 @@ a {
 }
 
 .segmented button {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 16px;
   border: 0;
   border-radius: 999px;
@@ -1158,11 +1158,29 @@ h2 {
   overflow-y: auto;
 }
 
-.real__count {
+/* Numărul filmării și săgețile stau pe același rând, sus: se văd fără derulare și pe telefon. */
+.real__top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 4px;
+}
+
+.real__top .icon-btn {
+  color: #f2f0eb;
+  border: 1px solid rgb(255 255 255 / 0.22);
+}
+
+.real__top .icon-btn:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.real .tag {
+  display: inline-block;
+  margin-top: 14px;
+}
+
+.real__count {
+  margin-right: auto;
   font-family: var(--font-mono);
   font-size: var(--size-label);
   color: rgb(242 240 235 / 0.72);
@@ -1205,22 +1223,6 @@ h2 {
   line-height: 1.35;
 }
 
-.real__controls {
-  display: flex;
-  gap: 4px;
-  margin-top: auto;
-  padding-top: 12px;
-}
-
-.real__controls .icon-btn {
-  color: #f2f0eb;
-  border: 1px solid rgb(255 255 255 / 0.22);
-}
-
-.real__controls .icon-btn:hover {
-  background: rgb(255 255 255 / 0.14);
-}
-
 .real__credit {
   padding: 8px 20px 12px;
   font-size: 0.8125rem;
@@ -1252,13 +1254,26 @@ h2 {
     padding: 12px;
   }
 
-  .real__media {
-    max-height: 16vh;
+  /* Pe telefon imaginea stă lângă text, nu deasupra lui, ca totul să încapă fără derulare. */
+  .real__item {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
     margin-top: 8px;
   }
 
+  .real__media {
+    max-height: 128px;
+    margin-top: 0;
+  }
+
+  .real .tag {
+    margin-top: 0;
+  }
+
   .real__side h3 {
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   .real__text {

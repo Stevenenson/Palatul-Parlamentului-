@@ -26,6 +26,8 @@ export const live = {
   reducedMotion: false,
   /** Pagina a fost deschisă cu `?debug`: fără legănare, ca două capturi la fel să iasă identice. */
   debug: false,
+  /** Următorul `popstate` vine din închiderea foii 360° și nu trebuie să mute turul. */
+  skipPop: false,
   /** Cadre desenate de la pornire; scripturile de test așteaptă după el. */
   frames: 0,
 }

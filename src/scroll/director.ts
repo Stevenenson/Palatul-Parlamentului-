@@ -322,6 +322,11 @@ export function initDirector(): () => void {
   }
 
   const onPopState = () => {
+    // Înapoi cu foaia 360° deschisă doar o închide; turul rămâne în sala lui.
+    if (live.skipPop || useTour.getState().real !== null) {
+      live.skipPop = false
+      return
+    }
     const i = stopFromHash() ?? 0
     travel(i, sections[i].top)
   }

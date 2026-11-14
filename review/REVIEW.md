@@ -766,3 +766,79 @@ măsurat pe pixelii capturilor. Abaterea de ordine (Pasul 8 înaintea Pasului 7)
   restanțele de machetă.
 - **Trei suprafețe de sticlă în săli** (bară, panou, player): am păstrat-o; bara de sus e subțire și fixă.
 
+
+## Faza 2 — Pașii 7, 9 și 10 · runda 1 (și Pașii 6 și 8 · runda 2) · 2026-11-14
+
+**Verdict:** APROBAT CU OBSERVAȚII — nicio problemă blocantă; trei majore, mici ca efort, de rezolvat înainte de publicare.
+
+**Verificări rulate** (instantaneul `591f820`): build ok — `index` 250,91 kB / 79,51 kB gzip, CSS 36,39 kB / 7,02 kB gzip, `Scene` 955,25 kB / 256,27 kB gzip, `Effects` 214,58 kB / 97,52 kB gzip; lint ok, 0 probleme; teste 31 din 31; capturi 29, în `review/shots/f2-final-review/` (am deschis 7), fără erori în consolă, 60 cadre/s pe exterior. În plus am măsurat, într-un Chrome fără fereastră, pe versiunea construită: dreptunghiurile panourilor, comenzile, contrastul și foaia 360°.
+
+**Neverificat:** cadrul Google adevărat (în teste și capturi e înlocuit): atribuirea întreagă la cele trei mărimi, direcția de pornire și dacă cele două panorame chiar sunt Galeria de Onoare și Sala Drepturilor Omului — trebuie văzute de un om, într-un browser. Tot neverificate: cadrele pe secundă în săli (scriptul măsoară doar exteriorul), Safari, telefon real. Capturile `laptop-jos` și subsolul le-am judecat din măsurători și din cod, nu din imagine.
+
+### Runda 2 — Pașii 6 și 8
+- **Contrastul supratitlului: rezolvat.** Cu `--bronze` #6b5020, pe pixelii reali din spatele textului: minimum 6,17:1 (Sala Drepturilor Omului, 1366×650), 6,44–6,54:1 pe telefon. Pragul e 4,5:1.
+- **Estomparea în `dist`: rezolvată.** CSS-ul construit are 5 declarații `backdrop-filter` fără prefix și 5 cu; valoarea calculată e `blur(24px) saturate(1.6)` pe `.panel`, `.recording` și `.segmented` la toate cele trei mărimi; există test. În capturi, muchia covorului nu mai trece netă pe sub text.
+- **Butonul peste esplanadă: rezolvat la 1440×900, la limită la 1366×650.** Deasupra butonului sunt 23 px liberi pe desktop, dar numai 4 px pe laptopul jos (măsurat pe pixeli; nu se suprapun, dar aproape se ating).
+
+### Criteriile pașilor
+- [x] Pas 7: nicio imagine Google în repo (`git ls-files public`: favicon și două fișiere de test proprii); în `src` există doar trei adrese Google (`maps/embed`, `maps/embed/v1/streetview`, `maps/@`), nicio adresă de plăci de imagine.
+- [x] Pas 7: 0 cereri către Google înainte de clic, 1 după (adresa cadrului); la închidere cadrul dispare din DOM.
+- [x] Pas 7: nimic peste cadru (86 de puncte verificate cu `elementFromPoint`, 0 acoperite), colțuri de 6 px, `title` corect, Esc închide și focusul revine pe „Sala reală 360°”, scena nu mai desenează (test), `html` are `overflow: hidden` cât e deschisă foaia, Tab rămâne în foaie.
+- [x] Pas 7: butonul apare doar la sălile I și III (cele cu `streetView`); legenda hărții are semnul „360°” la aceleași două.
+- [ ] Pas 7: „filmările se schimbă din foaie” — pe desktop da; pe telefon săgețile sunt ascunse sub marginea coloanei (problema 1).
+- [ ] Pas 7: testul cerut de plan pentru `fromArtsLink` pe varianta „CAIS” lipsește (problema 3).
+- [x] Pas 9: panourile acoperă 15,9–18,6% din ecran la 1440×900 (20,6–24,5% la 1366×650; pe telefon 43–50%, în afara criteriului).
+- [x] Pas 9: comenzile filmării stau pe un rând la toate cele trei mărimi (0 px diferență între centre); niciun buton fără nume accesibil; butonul de sunet e condiționat de `silent` (`RecordingCard.tsx:154`). Toate filmările de test sunt mute, deci ramura cu sunet nu a rulat niciodată.
+- [x] Pas 9: holograma din Sala Unirii are 568 px cu ramă, adică 39,4% din 1440; imaginea singură are 535 px (37,2%). Trece, la limită.
+- [ ] Pas 9: 55 de cadre pe secundă cu sticla activă — nemăsurat în săli.
+- [x] Pas 10: pinurile și legenda au cifre romane; subsolul numește Google Street View, Cinzel și EB Garamond (licența SIL Open Font).
+
+### Ce e bine
+- Respectarea regulilor Google e făcută serios: se păstrează doar identificatorul și direcția, cadrul se creează la cerere și se distruge la închidere, capturile folosesc un înlocuitor, iar subsolul spune clar că imaginile nu sunt copiate.
+- Foaia 360° e curată pe desktop: o bară, cadrul, o coloană, un rând de sursă; nimic de-al nostru nu atinge cadrul.
+- Sălile respiră: panourile au scăzut sub 19% din ecran, „Despre sală” e pliat, playerul e un singur rând. Hero-ul și harta arată a produs lucrat; pastilele cu cifre romane se citesc dintr-o privire.
+
+### Probleme
+- [ ] **(major)** `src/styles/global.css:1244-1258` — pe telefon, în foaia 360°, săgețile de schimbat filmarea sunt cu 67 px sub marginea coloanei, care se derulează fără niciun semn; ultimul rând de text e tăiat de margine (`mobil-360.png`). Vizitatorul nu are de unde ști că filmarea se poate schimba. Reparație: mută săgețile pe rândul cu „Filmarea 1 din 3” și pune imaginea lângă text (96 px lată) în loc de deasupra.
+- [ ] **(major)** `src/ui/RealRoom.tsx:19-29` — cu foaia deschisă, butonul Înapoi al browserului nu o închide: pagina de dedesubt sare la hero (ancora dispare, `scrollY` 0), foaia rămâne pe „Galeria de Onoare”, iar la Esc vizitatorul se trezește în altă parte. Pe telefon, Înapoi e gestul firesc de închidere. Reparație: `history.pushState` la deschidere și închidere pe `popstate` (sau măcar `set({ real: null })` la `popstate`), plus un test.
+- [ ] **(major)** `src/content/streetView.ts:27-32, 39` și `src/content/rooms.ts:117, 167` — `fromArtsLink` rulează la încărcarea modulului, deci un link greșit lipit pentru sălile II și IV lasă pagina albă. Cazuri găsite: link fără `https://` aruncă „Invalid URL”, nu eroarea clară cerută; un `sv_pid` „CAIS” cu octeți după identificator îi păstrează în `pano` (`slice(4)` ignoră lungimea din antet); `startsWith('CAIS')` fără verificarea lungimii strică un identificator brut care începe așa; `atob` aruncă o eroare fără legătură cu linkul. Testul „CAIS” din plan nu există. Reparație: `slice(4, 4 + lungime)`, despachetare doar dacă `id.length > 22`, validare `/^[\w-]{22}$/` cu mesaj clar, `try/catch` în `rooms.ts` care doar scoate butonul, și testul cerut.
+- [ ] **(minor)** `src/content/streetView.ts:43, 46-47` — `searchParams.get` decodează deja, deci `decodeURIComponent` e a doua decodare (aruncă pe un „%” rămas); fără `sv_lat`/`sv_lng` adresa primește `!1d0!2d0`. `zoom` din plan nu e întors, iar `loading="lazy"` lipsește de pe cadru (fără efect, cadrul se creează la cerere): notează abaterile în `PLAN.md`.
+- [ ] **(minor)** `src/ui/RealRoom.tsx:79` — `referrerPolicy="no-referrer-when-downgrade"` trimite la Google adresa completă a paginii; fără atribut, browserul trimite doar originea, destul și pentru o cheie restricționată pe domeniu.
+- [ ] **(minor)** `src/styles/global.css:140, 999-1003` — ținte sub 44 px: „Machetă” și „Sala reală 360°” au 38 px înălțime, punctele filmărilor 28 px lățime. Planul cerea „1 / 3” în loc de puncte pe telefon; punctele au rămas și dublează „Filmarea 1 din 3”.
+- [ ] **(minor)** `mobil-2-sala-unirii.png` — pe telefon playerul stă deasupra panoului sălii: întâi citești „Filmare de test 1”, apoi afli în ce sală ești; ordinea vizuală e inversă față de cea din DOM (și de focus), iar panoul e tăiat de marginea de jos după cifre.
+- [ ] **(minor)** `desktop-0-palat.png` — catargul de pe acoperiș urcă până în rândul subtitlului, între „săli” și „și”; la 1366×650 macheta ajunge la 4 px de buton. Coboară macheta cu 10–12 px pe desktop și micșoreaz-o puțin pe laptopul jos (`src/three/poses.ts`, `framingAt`).
+- [ ] **(minor)** `desktop-5-harta.png` — linia pinului „Sala Unirii” trece pe sub pastila „Sala Alexandru Ioan Cuza”, iar punctul albastru iese de sub ea: trei etichete în 120 px. Pune eticheta Sălii Unirii în stânga pinului.
+- [ ] **(minor)** `src/ui/Footer.tsx:19` — IBM Plex Sans și IBM Plex Mono (tot SIL Open Font) nu sunt numite printre fonturi.
+
+### Îmbunătățiri propuse
+- [ ] **Aspect 1, holograma.** În galerie e un dreptunghi roz, translucid, cu dungi, de 18% din lățime: silueta se vede tulbure și e lucrul cel mai „ieftin” din cadru. Dungi la cel mult 8% opacitate, imagine opacă în mijloc cu margine luminoasă subțire, un reflex slab pe pardoseală și lățime de circa 26%. La ecranul din Sala Unirii, ramă mai subțire și fără marginea interioară neclară.
+- [ ] **Aspect 2, sălile pe telefon.** O singură foaie de sticlă jos: numele sălii și nota pe primul rând, playerul dedesubt, „Despre sală” care o ridică. Scade acoperirea de la 43–50% spre 35%, rămân două suprafețe de sticlă în loc de trei și sala se vede.
+- [ ] **Aspect 3, coloana din foaia 360°.** Filmarea verticală stă într-o cutie neagră cu benzi laterale, iar săgețile sunt singure în colțul de jos, sub un gol mare. Fundal transparent și cutie pe proporția filmării, număr și săgeți pe același rând sus, textul imediat sub.
+- [ ] Covoarele pline (roz, lila) ocupă încă o treime din cadru: o bordură mai închisă de 30 cm și o saturație cu 20% mai mică le-ar face să arate a covor, nu a suprafață colorată.
+- [ ] Focusul inițial în foaie cade pe „Machetă” (un Enter în plus o închide); mai firesc pe butonul de închidere, ca pe telefon.
+- [ ] Un test care deschide foaia la 390×844 și verifică faptul că săgețile filmării sunt în fereastră; un test cu o filmare cu sunet, ca butonul de sunet să fie văzut măcar o dată.
+
+### De reluat mai târziu
+- [ ] Verificare de mână cu cadrul Google adevărat, la 1440×900, 1366×650 și 390×844: atribuirea întreagă, direcția din link, sala corectă.
+- [ ] Linkurile pentru Sala Unirii și Sala Alexandru Ioan Cuza; filmările reale; cadrele pe secundă în săli pe un telefon adevărat.
+
+### Ce am aplicat (runda 1)
+
+- [x] **Major, săgețile filmării ascunse pe telefon în foaia 360°:** numărul filmării și săgețile stau acum pe același
+  rând, sus; pe telefon imaginea stă lângă text. Test nou: săgeata e în fereastră la 390×844.
+- [x] **Major, butonul Înapoi nu închidea foaia:** foaia are intrare proprie în istoric; Înapoi o închide și turul
+  rămâne în sală (`RealRoom.tsx`, `director.ts`). Test nou.
+- [x] **Major, un link greșit lăsa pagina albă:** `rooms.ts` folosește `artsView`, care doar scoate butonul și scrie
+  motivul în consolă; despachetarea „CAIS” respectă lungimea din antet, identificatorul e validat, linkul fără
+  `https://` primește un mesaj clar, a doua decodare a dispărut. Test nou pe modul, cu varianta „CAIS”.
+- [x] **Minore:** `referrerPolicy` scos; comutatorul are 44 px înălțime; subsolul numește și IBM Plex; focusul inițial
+  în foaie cade pe butonul de închidere; camera de exterior e puțin mai departe, deci catargul nu mai intră în
+  subtitlu și butonul are loc și la 1366×650.
+- [x] **Verificat de mine cu cadrul Google adevărat** (fără capturi, prin DOM, la 1440×900, 1366×650 și 390×844):
+  0 cereri către Google înainte de clic, cadrul întreg în fereastră, niciun element peste el, textul de atribuire
+  „© Google” și „Condiții” prezent în cadru.
+- [ ] **Amânate:** punctele filmărilor de 28 px lățime și „1 / 3” pe telefon; ordinea player–panou pe telefon și foaia
+  unică de sticlă; eticheta Sălii Unirii pe hartă; aspectul hologramei (dungi, margine luminoasă) și bordura
+  covoarelor; test cu o filmare cu sunet. Sunt îmbunătățiri de aspect care cer o rundă separată pe imagine.
+- [ ] **De confirmat de utilizator:** că cele două panorame sunt Galeria de Onoare și Sala Drepturilor Omului.
+

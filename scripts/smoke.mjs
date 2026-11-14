@@ -256,6 +256,14 @@ try {
     await page.waitForFunction(() => !document.querySelector('dialog.real[open]'), null, { timeout: 3000 })
     const focused = await page.evaluate(() => document.activeElement?.className)
     expect(String(focused).includes('view__real'), `focusul a rămas pe „${focused}”`)
+    // Butonul Înapoi închide foaia și lasă turul în aceeași sală.
+    await page.waitForTimeout(300)
+    await page.click('#galeria-de-onoare .view__real')
+    await page.waitForSelector('dialog.real[open] iframe', { timeout: 3000 })
+    await page.goBack()
+    await page.waitForFunction(() => !document.querySelector('dialog.real[open]'), null, { timeout: 3000 })
+    await page.waitForTimeout(600)
+    expect(Math.abs((await page.evaluate(() => window.scrollY)) - anchors[1]) < 2, 'Înapoi a mutat turul din sală')
     const again = await page.evaluate(() => window.__tour.live.frames)
     await page.waitForFunction((n) => window.__tour.live.frames > n + 4, again, { timeout: 5000 })
   })
@@ -366,6 +374,15 @@ try {
     )
   })
 
+  await check('pe telefon, în foaia 360° săgețile filmării se văd fără derulare', async () => {
+    await phone.page.click('#galeria-de-onoare .view__real')
+    await phone.page.waitForSelector('dialog.real[open] iframe', { timeout: 3000 })
+    const box = await phone.page.locator('dialog.real .icon-btn[aria-label="Filmarea următoare"]').boundingBox()
+    expect(box && box.y >= 0 && box.y + box.height <= 844, `săgeata e la y=${box?.y}`)
+    await phone.page.goBack()
+    await phone.page.waitForFunction(() => !document.querySelector('dialog.real[open]'), null, { timeout: 3000 })
+  })
+
   await check('pe telefon, nimic nu iese în lateral', async () => {
     const overflow = await phone.page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -422,6 +439,27 @@ try {
   await browser.close()
   await site.close()
 }
+
+// Citirea linkurilor Arts & Culture, verificată direct pe modul.
+const { fromArtsLink, artsView } = await import('../src/content/streetView.ts')
+const base = 'https://artsandculture.google.com/streetview/x/zQEC7KIv69LFug'
+await check('fromArtsLink citește panorama, direcția și varianta împachetată „CAIS”', async () => {
+  const plain = fromArtsLink(`${base}?sv_lng=26.08&sv_lat=44.42&sv_h=94.72&sv_p=-4.15&sv_pid=2yqLqyAzT6SFvYy_IOh52A&sv_z=0.30l`)
+  expect(plain.pano === '2yqLqyAzT6SFvYy_IOh52A' && plain.heading === 94.72 && plain.pitch === -4.15, JSON.stringify(plain))
+  const wrapped = fromArtsLink(`${base}?sv_pid=CAISFnpUaG5MZzloYm1HVkJoTEJkLXV1amc%3D&sv_h=1`)
+  expect(wrapped.pano === 'zThnLg9hbmGVBhLBd-uujg', `varianta CAIS a dat „${wrapped.pano}”`)
+  let message = ''
+  try {
+    fromArtsLink('artsandculture.google.com/streetview/x')
+  } catch (error) {
+    message = error.message
+  }
+  expect(message.includes('https://'), `un link fără https:// a dat „${message}”`)
+  const warn = console.warn
+  console.warn = () => {}
+  expect(artsView(`${base}?sv_h=1`) === undefined, 'un link fără sv_pid nu a fost respins')
+  console.warn = warn
+})
 
 let failed = 0
 for (const result of results) {

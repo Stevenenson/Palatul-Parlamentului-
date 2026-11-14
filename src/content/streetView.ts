@@ -23,12 +23,21 @@ const number = (value: string | null, fallback = 0) => {
   return Number.isFinite(parsed) ? parsed : fallback
 }
 
-/** `sv_pid` vine uneori împachetat în base64 (începe cu „CAIS”): 4 octeți de antet, apoi identificatorul. */
+const PANO = /^[\w-]{22}$/
+
+/**
+ * `sv_pid` vine uneori împachetat în base64 (începe cu „CAIS”): 3 octeți de antet, un octet
+ * cu lungimea, apoi identificatorul. Un identificator simplu are exact 22 de caractere.
+ */
 function unwrapPano(id: string): string {
-  if (!id.startsWith('CAIS')) return id
-  const base64 = id.replace(/-/g, '+').replace(/_/g, '/')
-  const bytes = atob(base64 + '='.repeat((4 - (base64.length % 4)) % 4))
-  return bytes.slice(4)
+  if (PANO.test(id) || !id.startsWith('CAIS')) return id
+  const base64 = id.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, '')
+  try {
+    const bytes = atob(base64 + '='.repeat((4 - (base64.length % 4)) % 4))
+    return bytes.slice(4, 4 + bytes.charCodeAt(3))
+  } catch {
+    return id
+  }
 }
 
 /**
@@ -36,11 +45,18 @@ function unwrapPano(id: string): string {
  * unghiul dorit și copiezi adresa din bara browserului.
  */
 export function fromArtsLink(url: string): StreetView {
-  const params = new URL(url).searchParams
+  let params: URLSearchParams
+  try {
+    params = new URL(url).searchParams
+  } catch {
+    throw new Error(`Linkul nu e o adresă întreagă (trebuie să înceapă cu https://): ${url}`)
+  }
   const id = params.get('sv_pid')
   if (!id) throw new Error(`Linkul nu are parametrul sv_pid: ${url}`)
+  const pano = unwrapPano(id)
+  if (!PANO.test(pano)) throw new Error(`Parametrul sv_pid nu e un identificator de panoramă: ${id}`)
   return {
-    pano: unwrapPano(decodeURIComponent(id)),
+    pano,
     heading: number(params.get('sv_h')),
     pitch: number(params.get('sv_p')),
     lat: number(params.get('sv_lat')),
@@ -74,6 +90,19 @@ export function embedUrl(view: StreetView): string {
     `!1s${encodeURIComponent(view.pano)}!2m2!1d${view.lat}!2d${view.lng}` +
     `!3f${round(view.heading)}!4f${round(view.pitch)}!5f0.7820865974627469`
   )
+}
+
+/**
+ * Varianta pentru `rooms.ts`: un link greșit nu oprește pagina, doar lasă sala fără vederea 360°
+ * și scrie motivul în consolă.
+ */
+export function artsView(url: string): StreetView | undefined {
+  try {
+    return fromArtsLink(url)
+  } catch (error) {
+    console.warn(error instanceof Error ? error.message : error)
+    return undefined
+  }
 }
 
 /** Aceeași vedere, deschisă direct în Google Maps. */
