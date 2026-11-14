@@ -92,6 +92,10 @@ care scrie în `review/REVIEW.md`. Observațiile se aplică înainte de pasul ur
   postprocesare; `prefers-reduced-motion` respectat în scroll, cameră și hologramă; orice filmare se poate deschide
   mare, cu comenzile browserului; cifrele au sursa, cu link și dată, în subsol. Restanțele sunt în `review/REVIEW.md`.
 
+## Faza 2
+
+Săli reale în 360°, design nou și fonturi cu aer roman: pașii 6–11 sunt în `PLAN-FAZA-2.md`.
+
 ## După test
 
 Filmările și pozele reale, mai multe săli, versiune în engleză, publicare online.
