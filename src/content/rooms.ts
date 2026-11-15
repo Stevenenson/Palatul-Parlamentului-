@@ -1,7 +1,7 @@
 /**
  * Tot conținutul editabil al turului stă aici: sălile, textele, filmările și pozele.
  * Ca să înlocuiești o filmare de test, pune fișierul în `public/media/videos/`
- * și schimbă `media` în `{ kind: 'video', src: '/media/videos/nume.mp4' }`.
+ * și schimbă `media` în `{ kind: 'video', src: `${MEDIA}videos/nume.mp4` }`.
  *
  * Coordonatele sunt în metri. Fațada principală a palatului privește spre +Z,
  * iar pozițiile sălilor în clădire sunt aproximative (schematice).
@@ -65,10 +65,13 @@ export type RoomSpec = {
   streetView?: StreetView
 }
 
-const TEST_IMAGE = '/media/placeholders/filmare-test.svg'
+/** Folderul `public/media/`, cu tot cu subfolderul în care e publicat site-ul. */
+const MEDIA = `${import.meta.env.BASE_URL}media/`
+
+const TEST_IMAGE = `${MEDIA}placeholders/filmare-test.svg`
 
 /** Generată cu `node scripts/make-test-video.mjs`; arată că și calea video funcționează. */
-const TEST_VIDEO = '/media/videos/filmare-test.mp4'
+const TEST_VIDEO = `${MEDIA}videos/filmare-test.mp4`
 
 function testRecordings(
   roomId: string,
