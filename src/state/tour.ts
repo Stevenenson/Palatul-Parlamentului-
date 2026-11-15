@@ -20,6 +20,8 @@ export const live = {
   city: 1,
   /** Macheta orașului s-a încărcat și s-a ridicat; scripturile de capturi așteaptă după ea. */
   cityReady: false,
+  /** Datele orașului nu au putut fi descărcate: prima oprire arată doar palatul. */
+  cityFailed: false,
   /** Utilizatorul trage cu mouse-ul sau cu degetul pe scenă. */
   dragging: false,
   /** Poziția cursorului, normalizată la -1..1, pentru privitul în jur din săli. */

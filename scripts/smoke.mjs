@@ -82,7 +82,7 @@ try {
     await page.waitForFunction(() => window.__tour.live.cityReady, null, { timeout: 30000 })
     const shown = () =>
       page.evaluate(() => [...document.querySelectorAll('.citylabel')].filter((el) => getComputedStyle(el).visibility === 'visible').length)
-    await page.waitForFunction(() => document.querySelector('.citylabel')?.style.opacity === '1', null, { timeout: 5000 })
+    await page.waitForFunction(() => Number(document.querySelector('.citylabel')?.style.opacity) > 0.99, null, { timeout: 5000 })
     expect((await shown()) === 5, `se văd ${await shown()} etichete din 5`)
     const boxes = await page.evaluate(() =>
       [...document.querySelectorAll('.citylabel__name')].map((el) => {
@@ -427,6 +427,41 @@ try {
     expect(overflow <= 0, `pagina e cu ${overflow} px mai lată decât ecranul`)
   })
   await phone.context.close()
+
+  // Juriul deschide pagina pe telefon: reperele orașului trebuie să încapă și pe cel mai îngust ecran.
+  for (const width of [390, 360]) {
+    const narrow = await openTour(browser, site.url, { width, height: 780, scale: 2, mobile: true })
+    await check(`pe telefon, la ${width} px, cele trei repere ale orașului se văd întregi`, async () => {
+      await narrow.page.waitForFunction(() => window.__tour.live.cityReady, null, { timeout: 30000 })
+      await waitForCamera(narrow.page)
+      await narrow.page.waitForFunction(
+        () => [...document.querySelectorAll('.citylabel')].filter((el) => Number(el.style.opacity) > 0.99).length === 3,
+        null,
+        { timeout: 5000 },
+      )
+      const boxes = await narrow.page.evaluate(() =>
+        [...document.querySelectorAll('.citylabel')]
+          .filter((el) => getComputedStyle(el).visibility === 'visible')
+          .map((el) => {
+            const r = el.querySelector('.citylabel__name').getBoundingClientRect()
+            return { name: el.textContent, inside: r.left >= 0 && r.right <= innerWidth, left: r.left, right: r.right }
+          }),
+      )
+      expect(boxes.length === 3, `se văd ${boxes.length} repere`)
+      for (const box of boxes) expect(box.inside, `„${box.name}” iese din ecran (${box.left.toFixed(0)}–${box.right.toFixed(0)} px)`)
+      // Punctele stau departe de margine, ca legănarea machetei să nu le scoată din cadru.
+      const margins = await narrow.page.evaluate(() =>
+        [...document.querySelectorAll('.citylabel')]
+          .filter((el) => getComputedStyle(el).visibility === 'visible')
+          .map((el) => {
+            const x = new DOMMatrix(getComputedStyle(el).transform).m41
+            return Math.min(x, innerWidth - x)
+          }),
+      )
+      expect(Math.min(...margins) > 40, `un reper e la ${Math.min(...margins).toFixed(0)} px de margine`)
+    })
+    await narrow.context.close()
+  }
 
   // Fără WebGL: pagina trebuie să rămână întreagă, cu filmările mutate în carduri.
   const plain = await browser.newContext({ viewport: { width: 1280, height: 800 } })

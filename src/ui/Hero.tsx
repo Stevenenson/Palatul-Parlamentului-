@@ -40,6 +40,10 @@ export function Hero() {
         </div>
       </div>
 
+      <a className="osm" href="https://www.openstreetmap.org/copyright">
+        © OpenStreetMap
+      </a>
+
       <div className="citylabels" aria-hidden="true">
         {CITY_LABELS.map((label, i) => (
           <span

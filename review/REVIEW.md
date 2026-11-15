@@ -931,3 +931,82 @@ celor două imagini prin API-ul Commons.
 - [x] Terasele (III) și dealul (I) au cadre mai largi, nu mai sunt tăiate de margine.
 - Amânat: linii de cotă mai groase și capete oblice (cer `Line2`), vederea de sus mai înclinată în VII, cota de înălțime
   lângă text în V, cartierul Uranus (sursă în engleză). Creșterea de 2 kB a pornirii turului e notată în `PLAN.md`.
+
+## Review — Pașii 13–14 (publicarea și orașul) · runda 1 · 15 noiembrie 2026
+
+**Verdict:** APROBAT CU OBSERVAȚII
+
+**Verificări rulate** (instantaneul `3dbbf23`, fiecare o singură dată): build ok — pornirea turului `main` 16,76 kB +
+`jsx-runtime` 19,13 kB + `preload-helper` 219,30 kB = 255,19 kB (82,20 kB gzip; la Pasul 12 erau 253,15 / 81,56), CSS
+comun 39,13 kB (7,57 gzip); `Scene` 26,16 kB (10,59 gzip), `Effects` 214,61 kB (97,56 gzip), `buildPalace` 935,91 kB
+(249,07 gzip), `istorie` 17,74 kB (7,39 gzip); `public/data/oras.json` 353 kB, 147 kB gzip; același avertisment Vite
+pentru chunk peste 500 kB. Lint ok, 0 probleme. Teste 44 din 44. Capturi: 63 în `review/shots/pas-14-review/`, am
+deschis 7 (`mobil-0-oras`, `mobil-1-palat`, `mobil-2-galeria-de-onoare`, `desktop-0-oras`, `desktop-tranzit-0_5`,
+`desktop-1-palat`, `laptop-jos-0-oras`). Scriptul raportează 60 de cadre pe secundă în oraș, dar pe un Mac, nu pe telefon.
+
+**Ce n-am verificat:** n-am accesat rețeaua, deci nu știu dacă fluxul GitHub Actions a rulat cu succes și dacă adresa
+publică răspunde. N-am făcut un build cu `BASE_PATH` (o singură rulare de build), deci subfolderul e judecat doar din
+cod. Problemele 1 și 2 sunt deduse din cod și din captură, nu reproduse în browser. Cifrele noi din `e32f809` nu le-am
+comparat cu articolele (fără internet în acest review).
+
+### Criteriile pașilor
+- [x] Pas 13, publicare la fiecare push pe `main` — `.github/workflows/pages.yml` construiește cu `BASE_PATH=/<repo>/` și publică `dist`. În cod nu rămâne nicio cale absolută: media (`rooms.ts:69`), `oras.json` (`City.tsx:11`), linkurile dintre pagini (`pages.ts:5`), imaginile de istorie (`HistoryPage.tsx:23`); `href="/favicon.svg"` din HTML îl rescrie Vite. Rularea propriu-zisă pe GitHub n-am văzut-o.
+- [x] Cod QR — am generat din nou codul cu aceleași opțiuni și iese identic cu `public/qr.svg`, deci conține `https://stevenenson.github.io/Palatul-Parlamentului-/`. Nescanat cu un telefon.
+- [x] Pas 14, oprire nouă la început, din date OSM — `oras.json` are 3.477 de clădiri, 167 de parcuri, 442 de străzi; un mesh pentru clădiri, unul pentru teren, unul pentru catedrală.
+- [x] Cinci repere, axa cu roșu, catedrala — toate cinci se văd și nu se suprapun pe desktop și pe laptop jos; pe telefon trei, dar vezi problema 1.
+- [x] La scroll, camera coboară și orașul se retrage — `desktop-1-palat` și `mobil-1-palat` sunt curate, ca înainte: nicio clădire de oraș, nicio etichetă (și testul verifică `live.city === 0`).
+- [~] Trecerea oraș → palat — camera și retragerea clădirilor merg, dar textul trece peste machetă (problema 3).
+- [x] Indicii decalați — `PALACE_STOP` și `FIRST_ROOM_STOP` sunt folosiți în `solidAt`, `framingAt`, `swipe.ts:13`, `Holograms.tsx:116`; n-am găsit niciun `stop - 1` sau `index + 1` rămas. `mobil-2-galeria-de-onoare` arată sala corectă, „Sala I din IV”.
+- [x] `e32f809`, bara de sus — pe telefon: semnul siglei, linia, „Istorie”, apoi „Săli” și „Hartă” în dreapta, toate în ecran (test la 360 px).
+
+### Ce e bine
+- Orașul se citește din prima: peluza palatului ca o pată verde limpede, axa roșie care duce privirea la fațadă, Dâmbovița care închide cadrul pe desktop. Pe telefon, cadrul din axul bulevardului e alegerea bună: axa urcă pe diagonală direct în trepte.
+- Marginea machetei se topește în hârtie (elipsa `reach` și vălul de sub titlu), fără muchie tăiată; titlul rămâne curat în toate cele trei mărimi.
+- Oprirea „Palatul” n-a pierdut nimic: aceeași machetă, aceleași cifre, iar împărțirea în două ecrane a scos textul de pe primul. Pagina e mai aerisită decât înainte.
+- Tot orașul costă trei apeluri de desen, se ascunde complet când `live.city` e 0 și nu depinde de niciun serviciu extern la rulare. Fără `oras.json`, turul merge mai departe.
+- Subsolul spune cinstit ce e estimat (înălțimile) și ce e schematic (catedrala).
+
+### Probleme
+- [x] **(major)** `src/content/city.ts:22` și `src/three/city/City.tsx:82` — pe telefon, „Parcul Izvor” stă chiar pe marginea de la care eticheta se ascunde. În `mobil-0-oras`, punctul e la 379 px din 390, iar pragul e `x > lățime − 10`, adică 380. Captura e făcută fără legănare; pe un telefon adevărat macheta se leagănă ±0,2 rad până la prima atingere (`CameraRig.tsx:248`), deci eticheta apare și dispare brusc, fără estompare, la fiecare trecere. „Bulevardul Unirii” e la 68% din lățime, aproape de pragul de 60% la care numele sare de pe o parte pe alta (`City.tsx:87`). Reparație: `phoneAt` pentru Izvor mai aproape de palat (de exemplu `[300, 0, 40]`); la margine, opacitate care scade pe ultimii 24 px în loc de `visibility`; pragul de parte cu histerezis. Plus un test la 390 și 360 px: trei etichete vizibile, în ecran, la ambele capete ale legănării.
+- [x] **(major)** `src/three/CameraRig.tsx:258-261` — cadrul de telefon al orașului se aplică peste poza de zbor, nu doar peste traseul de scroll. La pornirea unui zbor, `r.from` e poziția reală a camerei (cu legănarea sau cu rotirea utilizatorului, linia 199), dar imediat după, `r.pose.position.lerp(CITY_NARROW.position, live.city)` cu `live.city = 1` o înlocuiește cu poza fixă. Rezultatul: pe telefon, din oraș, la atingerea „Săli” sau „Hartă”, camera sare într-un cadru cu până la 11° (sau cu cât a rotit omul macheta). La un zbor întrerupt la jumătate, saltul e parțial. Pe ecrane late nu se întâmplă. Reparație: poza îngustă devine capăt adevărat de traseu, de exemplu `stopPose(i, narrow)` folosit în `poseAt` și ca țintă în `blendPose`, iar amestecul de după se șterge; sau amestecul se face doar când `r.flight` e `null` și ținta zborului spre oraș e `CITY_NARROW`.
+- [x] **(minor)** `src/styles/global.css:409-418` — comentariul spune că textul celui de-al doilea ecran „nu urcă peste clădiri”, dar în `desktop-tranzit-0_5` „Palatul, de aproape” stă cu opacitate plină peste fațadă, „Macheta” nu se mai citește, iar „Coboară spre palat” plutește la mijlocul ecranului. Cauza: `animation-timeline: view()` e al blocului de titlu, înalt de circa 150 px, deci `entry 55% → 100%` se termină după primii 150 px de scroll. Pe Safari mai vechi de versiunea 26 nu există deloc `animation-timeline`, deci pe multe iPhone-uri nu se estompează nimic. Reparație: opacitatea legată de starea scenei, nu de scroll-ul CSS: `live.city` scris într-o variabilă `--city` pe `main`, cu `.hero--palace` la `opacity: clamp(0, (0.3 − var(--city)) / 0.3, 1)` și `.descend` invers. Merge la fel în toate browserele și în zboruri.
+- [x] **(minor)** `src/ui/Footer.tsx:35-42` — textul atribuirii e corect și complet (©, colaboratorii, ODbL, link la pagina de drepturi), iar `oras.json` își poartă sursa în câmpul `source`. Dar stă în subsol, la șapte ecrane de machetă; ghidul fundației OSM cere mențiunea lângă hartă. Reparație: un rând mic pe primul ecran, în colțul de jos („© OpenStreetMap”, 11 px, în `--ink-2`, link spre aceeași pagină), care se stinge odată cu etichetele. Un singur rând nu încarcă pagina.
+- [x] **(minor)** `src/three/city/buildCathedral.ts:55-62` — catedrala e singurul lucru din cadru care arată ieftin: în ambele capturi se citește ca un grup de silozuri. Cilindrii netezi, cu 24 de fețe și normale rotunjite, primesc o umbră în degrade între sute de volume cu fețe plane; absidele cu raza de 14–19 m pornesc de la sol și domină; crucile de 1 m nu se văd. Reparație: tambure cu 8 laturi și fețe plane; turla mare mai zveltă (rază 9–10 m în loc de 14) ca să iasă ierarhia de înălțimi; acoperiș în două ape pe navă în loc de cutie; absidele mai joase decât nava. Aceeași culoare ca restul orașului e în regulă.
+- [x] **(minor)** `.github/workflows/pages.yml:27-28` — orice push pe `main` ajunge direct la juriu: fluxul nu rulează nici lint, nici teste, iar testele locale rulează doar cu baza `/`. O greșeală de cale în subfolder s-ar vedea abia pe telefonul cuiva. Reparație: `npm run lint` înainte de build și un pas scurt care servește `dist` sub `/<repo>/` și cere `index.html`, `istorie/`, `data/oras.json` și un fișier media (sau `smoke.mjs` cu `BASE_PATH`; `ubuntu-latest` are Chrome). De verificat de mână, o dată: Pages are sursa „GitHub Actions” în setările repo-ului, iar codul QR scanat deschide turul.
+- [x] **(minor)** `src/content/history.ts:200` — „15.000 de candelabre” pare mult prea mare: cifra citată de obicei e de 480 de candelabre și 1.409 plafoniere, din 3.500 de tone de cristal, iar Galeria de Onoare, cea mai lungă sală, are 67. De verificat în articolul-sursă; dacă nu apare exact așa, de scos. Tot de verificat, din același commit: `history.ts:216-217`, ordinea „din 1994 … după ce vechiul sediu a fost donat” (din ce știu, Palatul Camerei Deputaților a trecut la Patriarhie mai târziu), și `history.ts:192`, clasamentul ArchDaily, care are nevoie de an.
+- [x] **(minor)** `src/three/city/City.tsx:70-92` — bucla etichetelor verifică doar marginile laterale, nu și pe cele de sus și de jos. `.citylabels` vine în pagină după `.wrap`, deci se desenează peste văl și peste titlu: dacă vizitatorul rotește orașul, „Bulevardul Unirii” poate ajunge peste titlu. Reparație: eticheta se stinge când `y` intră în zona vălului (`min(46svh, 420px)`). Tot aici, la fiecare cadru se creează o funcție (`forEach`), două șiruri `toFixed` și un `transform` nou pentru fiecare etichetă, chiar când nimic nu s-a mișcat; de ținut minte ultimul `x`/`y` și de scris doar la o diferență de peste 0,5 px.
+- [x] **(minor)** `src/three/city/City.tsx:35-46` — `oras.json` (147 kB gzip) se cere abia după ce s-au descărcat și au pornit `Scene` și `buildPalace`, deci pe date mobile primul ecran arată întâi un palat mic pe hârtie goală, apoi orașul. Dacă cererea eșuează, rămâne așa, cu textul despre bulevard deasupra, fără altă încercare. Reparație: cererea pornită din `main.tsx`, în paralel cu scena (o promisiune la nivel de modul, pe care `City` o așteaptă); la eșec, oprirea „Orașul” folosește poza `EXTERIOR`, ca macheta să nu rămână un punct.
+
+### Îmbunătățiri propuse
+- [x] **Cadrul de telefon** (`src/three/poses.ts`, `CITY_NARROW`). În `mobil-0-oras`, palatul ocupă circa 42% din lățime, iar blocurile din prim-plan, din jumătatea de jos, sunt mai mari decât el și au pereții cei mai întunecați din cadru. Camera cu 10–15% mai aproape și puțin mai sus (de exemplu `(-280, 540, 1000)`), ca palatul să treacă de jumătate din lățime, și elipsa `EXTENT` mai strânsă spre cameră, ca prim-planul să scadă în înălțime. Etichetele de la 10 px la 11 px (`global.css:1644`); la 10 px, cu majuscule spațiate, sunt la limită pentru un juriu care citește de pe telefon.
+- [x] **Clădirile fără umbre** (`src/three/city/buildCity.ts:88-112`). Volumele stau lipite de teren doar prin tonul pereților. O culoare pe vârfuri la pereți, 0,86 la bază și 1 sus, dă o umbră de contact falsă, fără hartă de umbre și fără alt apel de desen; orașul ar sta pe planșă ca o machetă, nu ca niște cutii așezate pe ea.
+
+### De reluat mai târziu
+- [ ] Un telefon adevărat, înainte de prezentare: Safari pe iPhone (estomparea din problema 3, `backdrop-filter` pe „Coboară spre palat”), cadrele pe secundă în oraș (circa 77.000 de triunghiuri neindexate, construite pe firul principal la sosirea datelor) și codul QR scanat de pe un ecran proiectat. Rămân valabile restanțele vechi: macheta mică la oprirea „Palatul” pe telefon (`mobil-1-palat` are hârtie goală deasupra și dedesubt) și fallback-ul de font.
+
+### Ce am aplicat (după runda 1)
+- [x] Etichetele pe telefon: „Parcul Izvor” și „Bulevardul Unirii” au loc propriu în cadrul de telefon (`phoneAt`),
+  la peste 40 px de margine. Spre margini și spre titlu etichetele se sting treptat în loc să dispară, iar partea pe
+  care stă numele are praguri diferite la dus și la întors. Stilul se scrie doar când s-a mișcat ceva. Teste noi la
+  390 și 360 px: trei repere, întregi, departe de margine (46 din 46).
+- [x] Saltul de cameră la zbor, pe telefon: cadrul îngust nu mai e amestecat peste poză, ci e chiar capătul traseului
+  (`setCityFrame` în `poses.ts`, ales în `CameraRig` după lățime). Scroll-ul și zborurile pleacă din el și ajung în el.
+- [x] Textele celor două ecrane de început urmează scena: `City.tsx` scrie `--city`, iar „Palatul, de aproape”,
+  butoanele lui, „Coboară spre palat” și creditul OSM își iau opacitatea din ea. Merge la fel în toate browserele
+  și în zboruri; `hero-in` cu `animation-timeline` a fost scos.
+- [x] „© OpenStreetMap”, cu link, pe primul ecran, lângă hartă; atribuirea completă rămâne în subsol.
+- [x] Catedrala: turle cu opt laturi și fețe plane, turla mare mai zveltă, navă și transept cu acoperiș în două ape,
+  abside mai joase decât nava, cruci care se văd.
+- [x] Fluxul de publicare rulează lint și verifică, după build, că fișierele publicate există și pornesc din
+  subfolder. Testele din browser rămân locale (rulate și cu `BASE_PATH`), ca un test instabil să nu blocheze
+  publicarea înaintea prezentării. Verificat de mână: Pages are sursa „GitHub Actions”, iar adresa publică răspunde
+  (turul, `istorie/`, un fișier media, `qr.svg`).
+- [x] Cifrele din `e32f809`, comparate cu articolul „Palatul Parlamentului” (versiunea din 29 mai 2026): „15 000 de
+  candelabre” apare exact așa în lista de resurse; „din 1994 … după ce sediul inițial … a fost donat” e formularea
+  articolului; clasamentul ArchDaily e dat acolo fără an. Au rămas cum erau.
+- [x] `oras.json` se cere de la pornirea paginii, în paralel cu scena (`state/cityData.ts`). Dacă cererea eșuează,
+  prima oprire folosește vederea palatului (`live.cityFailed`).
+- [x] Cadrul de telefon e mai aproape (palatul trece de jumătate din lățime), iar etichetele au 11 px și pe telefon.
+- [x] Pereții clădirilor orașului sunt mai închiși la bază (culoare pe vârfuri), ca o umbră de contact.
+- Amânat: elipsa machetei mai strânsă spre cameră pe telefon; testul cu legănarea pornită (în teste, `?debug` o
+  oprește); telefonul adevărat și Safari pe iPhone, care rămân de încercat de utilizator, din codul QR.

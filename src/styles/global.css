@@ -405,23 +405,19 @@ main :is(a, button, .panel, .facts) {
   }
 }
 
-/* Al doilea ecran apare abia când orașul s-a retras: textul lui nu urcă peste clădiri. */
-@supports (animation-timeline: view()) {
-  .hero--palace :is(.hero__head, .hero__foot) {
-    animation:
-      hero-in linear both,
-      hero-out linear both;
-    animation-timeline: view();
-    animation-range:
-      entry 55% entry 100%,
-      exit 0% exit 70%;
-  }
+/*
+ * Textele celor două ecrane de început urmează scena, nu scroll-ul: `--city` (scrisă de
+ * `three/city/City.tsx`) e 1 cât orașul e ridicat și 0 după ce s-a retras. Ecranul palatului
+ * apare abia atunci, deci textul lui nu urcă peste clădiri. Fără scenă, variabila lipsește și
+ * totul rămâne vizibil.
+ */
+.hero--palace :is(.hero__head, .hero__foot) {
+  opacity: calc((0.3 - var(--city, 0)) / 0.3);
 }
 
-@keyframes hero-in {
-  from {
-    opacity: 0;
-  }
+.descend,
+.osm {
+  opacity: calc((var(--city, 1) - 0.4) / 0.4);
 }
 
 h1 {
@@ -608,6 +604,23 @@ h1 {
   75% {
     transform: translateY(3px);
   }
+}
+
+/* Sursa datelor hărții stă lângă hartă, cum cere licența: un rând mic, în colțul ecranului. */
+.osm {
+  position: absolute;
+  left: var(--edge);
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.6875rem;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.osm:hover {
+  text-decoration: underline;
 }
 
 /* Etichetele reperelor: nume mic, ca pe o planșă, cu un punct pe locul lui. Le așază scena 3D. */
@@ -1646,8 +1659,11 @@ h2 {
 
   .citylabel__name {
     left: 9px;
-    font-size: 0.625rem;
     letter-spacing: 0.06em;
+  }
+
+  .osm {
+    bottom: 64px;
   }
 
   .room__grid {

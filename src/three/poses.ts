@@ -97,7 +97,19 @@ export function fovForAspect(fov: number, aspect: number): number {
  * Orașul pe ecrane înguste: mai de aproape și aproape din axul bulevardului, care urcă pe
  * verticala ecranului până la fațadă, cu catedrala în spatele palatului.
  */
-export const CITY_NARROW: Pose = { position: v(-330, 560, 1150), target: v(-20, 10, 20), fov: 30 }
+const CITY_NARROW: Pose = { position: v(-285, 545, 1010), target: v(-20, 10, 20), fov: 30 }
+
+export type CityFrame = 'wide' | 'narrow' | 'none'
+
+/**
+ * Alege cadrul opririi „Orașul”: cel lat, cel de telefon sau, dacă macheta orașului nu s-a putut
+ * încărca, vederea palatului. Poza aleasă e capătul adevărat al traseului, deci scroll-ul și
+ * zborurile pleacă din ea și ajung în ea fără salturi.
+ */
+export function setCityFrame(frame: CityFrame) {
+  const stop = STOPS.find((candidate) => candidate.kind === 'city')
+  if (stop) stop.pose = frame === 'narrow' ? CITY_NARROW : frame === 'none' ? EXTERIOR : CITY
+}
 
 /** Același prag ca în CSS (`@media (max-width: 760px)`): sub el, panoul de text stă jos. */
 export const NARROW_WIDTH = 760

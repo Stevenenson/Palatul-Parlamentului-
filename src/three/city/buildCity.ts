@@ -84,9 +84,16 @@ function triangles(outer: Vector2[], holes: Vector2[][], each: (a: Vector2, b: V
   }
 }
 
+/** Cât de închis e peretele la bază: o umbră de contact falsă, fără hartă de umbre. */
+const FOOT = 0.84
+
 function buildBuildings(data: CityData) {
   const positions: number[] = []
   const normals: number[] = []
+  const colors: number[] = []
+  const shade = (...levels: number[]) => {
+    for (const level of levels) colors.push(level, level, level)
+  }
 
   const walls = (ring: Ring, top: number, hole: boolean) => {
     const sign = (signedArea(ring) > 0 ? 1 : -1) * (hole ? -1 : 1)
@@ -103,8 +110,10 @@ function buildBuildings(data: CityData) {
       const nz = (-dx / length) * sign
       if (sign > 0) {
         positions.push(ax, 0, az, bx, top, bz, bx, 0, bz, ax, 0, az, ax, top, az, bx, top, bz)
+        shade(FOOT, 1, FOOT, FOOT, 1, 1)
       } else {
         positions.push(ax, 0, az, bx, 0, bz, bx, top, bz, ax, 0, az, bx, top, bz, ax, top, az)
+        shade(FOOT, FOOT, 1, FOOT, 1, 1)
       }
       for (let k = 0; k < 6; k++) normals.push(nx, 0, nz)
     }
@@ -119,12 +128,14 @@ function buildBuildings(data: CityData) {
     triangles(toPoints(outer), holes.map(toPoints), (a, b, c) => {
       positions.push(a.x, top, a.y, b.x, top, b.y, c.x, top, c.y)
       normals.push(0, 1, 0, 0, 1, 0, 0, 1, 0)
+      shade(1, 1, 1)
     })
   }
 
   const geometry = new BufferGeometry()
   geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
   geometry.setAttribute('normal', new Float32BufferAttribute(normals, 3))
+  geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
   return geometry
 }
 
@@ -228,6 +239,7 @@ export function buildCity(data: CityData): City {
   group.position.y = PALACE.ground
 
   const wall = new MeshLambertMaterial({ color: WALL, transparent: true })
+  const shaded = new MeshLambertMaterial({ color: WALL, transparent: true, vertexColors: true })
   const flat = new MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: DoubleSide })
 
   const ground = new Mesh(buildGround(data), flat)
@@ -236,7 +248,7 @@ export function buildCity(data: CityData): City {
 
   // Clădirile se ridică și coboară împreună, într-un grup scalat pe verticală.
   const risen = new Group()
-  const buildings = new Mesh(buildBuildings(data), wall)
+  const buildings = new Mesh(buildBuildings(data), shaded)
   buildings.renderOrder = 1
   risen.add(buildings)
   if (data.cathedral) {
@@ -256,12 +268,13 @@ export function buildCity(data: CityData): City {
       group.visible = amount > 0.004
       if (!group.visible) return
       risen.scale.y = Math.max(0.001, amount)
-      wall.opacity = MathUtils.smoothstep(amount, 0, 0.3)
+      wall.opacity = shaded.opacity = MathUtils.smoothstep(amount, 0, 0.3)
       flat.opacity = MathUtils.smoothstep(amount, 0, 0.45)
     },
     dispose() {
       for (const child of [ground, ...risen.children] as Mesh[]) child.geometry.dispose()
       wall.dispose()
+      shaded.dispose()
       flat.dispose()
     },
   }

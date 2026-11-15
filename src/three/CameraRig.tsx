@@ -4,7 +4,7 @@ import { MathUtils, type PerspectiveCamera, Spherical, Vector3 } from 'three'
 import { activeRoom, swipeCancel, swipeEnd, swipeMove, swipeStart } from '../state/swipe'
 import { live, useTour } from '../state/tour'
 import {
-  CITY_NARROW,
+  type CityFrame,
   NARROW_WIDTH,
   STOPS,
   blendPose,
@@ -15,6 +15,7 @@ import {
   makePose,
   mapAt,
   poseAt,
+  setCityFrame,
   solidAt,
 } from './poses'
 
@@ -62,6 +63,7 @@ export function CameraRig() {
     fov: 0,
     near: 0,
     far: 0,
+    frame: null as CityFrame | null,
     cx: 0.5,
     cy: 0.5,
     view: [0, 0, 0, 0],
@@ -189,6 +191,13 @@ export function CameraRig() {
     const dt = Math.min(delta, 0.1)
     const instant = live.reducedMotion
     live.frames += 1
+
+    // Cadrul orașului depinde de lățimea ferestrei și de faptul că macheta lui există.
+    const frame: CityFrame = live.cityFailed ? 'none' : size.width <= NARROW_WIDTH ? 'narrow' : 'wide'
+    if (frame !== r.frame) {
+      r.frame = frame
+      setCityFrame(frame)
+    }
     if (live.frames === 3) useTour.getState().set({ scene: 'ready' })
 
     // 1. Unde suntem în tur: fie într-un zbor pornit de un salt, fie pe traseul dat de scroll.
@@ -254,11 +263,6 @@ export function CameraRig() {
     r.lookYaw = MathUtils.damp(r.lookYaw, -live.pointerX * 0.1 * look, 3.5, dt)
     r.lookPitch = MathUtils.damp(r.lookPitch, live.pointerY * 0.035 * look, 3.5, dt)
 
-    // Pe ecrane înguste, orașul are cadrul lui; se topește în traseul obișnuit odată cu macheta orașului.
-    if (size.width <= NARROW_WIDTH && live.city > 0) {
-      r.pose.position.lerp(CITY_NARROW.position, live.city)
-      r.pose.target.lerp(CITY_NARROW.target, live.city)
-    }
     r.offset.subVectors(r.pose.position, r.pose.target)
     r.spherical.setFromVector3(r.offset)
     r.spherical.theta += r.yaw + sway + r.lookYaw
