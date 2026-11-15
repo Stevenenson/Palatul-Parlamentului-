@@ -8,3 +8,7 @@ review/shots
 # fotografii de referință (drepturi de autor ale fotografilor) și starea pipeline-ului de modelare
 reference
 .img2threejs
+
+# Note locale pentru Claude Code, nu se urcă pe GitHub
+PROGRES.md
+CLAUDE.md
