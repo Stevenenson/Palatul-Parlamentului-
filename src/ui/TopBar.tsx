@@ -19,7 +19,7 @@ export function TopBar({ page = 'tur' }: { page?: Page }) {
           <svg className="brand__mark" viewBox="0 0 28 20" aria-hidden="true">
             <path d="M1 19h26v-6h-4V8h-5V3h-8v5H5v5H1z" />
           </svg>
-          Palatul Parlamentului
+          <span className="brand__text">Palatul Parlamentului</span>
         </a>
         <nav className="topbar__nav" aria-label="Principal">
           <a href={HISTORY_URL} aria-current={onTour ? undefined : 'page'}>

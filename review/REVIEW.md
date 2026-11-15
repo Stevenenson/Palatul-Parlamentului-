@@ -842,3 +842,92 @@ măsurat pe pixelii capturilor. Abaterea de ordine (Pasul 8 înaintea Pasului 7)
   covoarelor; test cu o filmare cu sunet. Sunt îmbunătățiri de aspect care cer o rundă separată pe imagine.
 - [ ] **De confirmat de utilizator:** că cele două panorame sunt Galeria de Onoare și Sala Drepturilor Omului.
 
+
+## Pas 12 — Pagina de istorie · runda 1 · 15 noiembrie 2026
+
+**Verdict:** NECESITĂ MODIFICĂRI
+
+**Verificări rulate** (instantaneul `4d35f65`, cu cele două imagini necomise copiate): build ok — pornirea turului
+`main` 15,24 kB + `jsx-runtime` 19,10 kB + `preload-helper` 218,81 kB = 253,15 kB (81,56 kB gzip; la Pasul 10 erau
+250,91 kB / 79,51 kB gzip), CSS comun 36,54 kB; pagina de istorie: `istorie` 15,23 kB + CSS 6,88 kB, macheta
+`HistoryStage` 8,48 kB și `buildPalace` 935,64 kB / 249,00 kB gzip, încărcate lazy; același avertisment Vite pentru chunk
+peste 500 kB. Lint ok, 0 probleme. Teste 41 din 41 (rulate de mine). Capturi: n-am refăcut, am deschis 7 din
+`review/shots/pas-12/` (desktop: început, dealul, demolările, șantierul la jumătate, cifrele; mobil: concursul,
+demolările; laptop jos: azi). În plus, o sondă proprie în Chrome fără fereastră, pe versiunea construită: apeluri de desen
+WebGL cât pagina stă, link direct cu ancoră, derulare rapidă dus-întors, ordinea Tab, bara de sus la 360/375/390 px,
+mișcare redusă. Am comparat cifrele cu textul articolelor ro.wikipedia descărcat azi (`action=raw`) și am citit licențele
+celor două imagini prin API-ul Commons.
+
+### Criteriile pasului
+- [x] Pagină separată `istorie/` cu link „Istorie” sus — `vite.config.ts` cu două intrări, `dist/istorie/index.html`; pe istorie „Istorie” are `aria-current="page"`, iar „Săli”/„Hartă” duc la tur cu ancoră (test).
+- [x] Opt capitole pe un fir care se umple la citire, cu cuprins — firul se umple până la linia de citire (45% din fereastră pe desktop, de ex. y=405 la 900 px; 66% pe telefon). Cuprinsul e în introducere, nu în nodurile firului (vezi problemele).
+- [x] Macheta stă fixă și urmează povestea — văzut în capturi: palatul coboară, apar dealul cu curbe de nivel și biserica (`desktop-istorie-dealul`), conturul punctat (`mobil-istorie-concursul`), terasele, mutarea bisericii, ridicarea cu tăietură colorată (`desktop-istorie-santierul-jumatate`), cotele 270/240 m (`desktop-istorie-cifrele`).
+- [x] Desen în cerneală pentru mutarea bisericii — `MihaiVoda.tsx`, cu `aria-label` complet. L-am văzut doar parțial, la marginea de jos a unei capturi.
+- [x] Două imagini vechi în domeniul public — API-ul Commons dă pentru amândouă `LicenseShortName: Public domain`, `Copyrighted: False`. Gravura: Ciceri/Bouquet, 1841, 2704×844 (aici 1920×599). Fotografia: Alexandru Antoniu, „Album general al României”, 1901–1904, 800×600 pe Commons; aici e decupată la 526×600, iar decupajul nu e menționat.
+- [~] Text după trei articole, listate pe pagină — sursele și notele cu valorile divergente sunt pe pagină. Am verificat circa 45 de cifre și date: aproape toate se regăsesc exact. Excepțiile sunt la „Probleme”.
+- [~] „Bundle-ul de pornire al turului nu crește” — crește cu 2,24 kB (2,05 kB gzip), din `TopBar`/`pages`/`webgl`/`Lights`. E puțin, dar e o abatere nenotată.
+- [x] `frameloop="demand"` se oprește — **0 apeluri de desen în 2 s** de stat, la început, după derularea la Șantier, după derularea rapidă jos-sus, pe desktop, pe telefon și cu mișcare redusă. După derularea rapidă, capitolul revine corect la 0.
+- [x] Fără erori în consolă: 0 în toate cele trei rulări. Fără derulare orizontală la 390 px (`scrollWidth` 390).
+- [ ] Telefon: bara de sus nu încape — vezi problema 3.
+- [~] Mișcare redusă: camera sare direct la poză, desenele nu se mai animă, dar etichetele cotelor rămân în locul greșit (problema 5).
+
+### Ce e bine
+- Tăietura cu capace citește exact ca o machetă secționată (`desktop-istorie-santierul-jumatate`). Capacul în piatră, curțile interioare goale și cornișele tăiate fac din capitolul V momentul cel mai bun al paginii.
+- Scena chiar stă când nu se mișcă nimic. Lumina își refă harta de umbre doar când tăietura se schimbă (`rise.ts:72-82`, `needsUpdate`). Pagina de istorie nu încarcă nimic din tur: nici săli, nici holograme, nici hartă.
+- Sursele sunt tratate serios: trei articole cu data ultimei modificări, valorile divergente explicate (240/245 m, 84/86 m, 1983/1984), autorul și licența la fiecare imagine, iar desenul spune „schematic, fără scară”.
+- Anul mare cu contur se citește bine: contur de 1 px în `--ink-2` pe Cinzel la 95 px pe desktop, iar pe telefon, la circa 54 px, încă e clar. E `aria-hidden`, deci nu dublează titlul. Diacriticele în Cinzel ies corect („Demolările”, „Șantierul”, „Cât de mare e”).
+- Tastatura merge: „Sari la conținut”, bara, cele opt intrări din cuprins, „Sursa”, „Intră în tur”, toate cu contur de focus de 2 px; un singur `h1`, capitolele și „Surse și imagini” sunt `h2`.
+
+### Probleme
+- [ ] **(major)** `src/content/history.ts:203-207` și `src/history/HistoryPage.tsx:125` — „a doua clădire administrativă din lume, după Pentagon” e depășit chiar după sursa citată. Articolul „Palatul Parlamentului” spune că recordul World Records Academy „din 2021 a fost depășit ca suprafață de clădirea parlamentului din Bangkok, ambele fiind surclasate de [...] Pentagonul”. Fraza apare de două ori: în capitolul VII și în textul de deschidere. Reparație: „În 2012, World Record Academy l-a numit a doua clădire administrativă din lume, după Pentagon; din 2021, clădirea parlamentului din Bangkok e mai mare.” În deschidere, o formulă fără clasament.
+- [ ] **(major)** `src/history/stage/oldSite.ts:38-40` — biserica pornește din interiorul amprentei palatului (`FROM = (70, 0, -22)`), deci macheta spune că palatul stă pe locul bisericii. După coordonatele din articole, palatul e la 44°25′39″N 26°05′15″E, iar biserica, azi, la 44°25′54″N 26°05′35″E, la circa 640 m de centrul palatului, spre nord-est. Cu un drum de 289 m, locul inițial era la cel puțin circa 350 m de centru, adică în afara conturului de 270×240 m, spre nord-est (pe Dealul Mihai Vodă, „fosta stradă a Arhivelor nr. 2”). Și textul trebuie nuanțat: „Pe deal se afla Mănăstirea Mihai Vodă” e susținut de articolul „Dealul Arsenalului”, dar articolul despre mănăstire numește locul „Dealul Mihai Vodă”. Reparație: `FROM` în afara conturului, în fața colțului dinspre +X+Z (fațada e spre est, deci +X e nordul), drumul de circa 290 m mai departe în aceeași direcție, cu poza IV ajustată. În text: „Pe un pinten al dealului, numit Dealul Mihai Vodă, se afla...”. Comentariul de la `oldSite.ts:117` („Altarul privește spre est (+X)”) e greșit: cu fațada spre +Z = est, +X e nordul.
+- [ ] **(major)** `src/ui/TopBar.tsx:25-30` și stilurile `.topbar` — cu „Istorie” adăugat, bara nu mai încape pe telefon, pe **ambele** pagini. Măsurat: la 390 px, sigla se termină la 225 px, exact unde începe „Istorie” (0 px între ele), iar „Hartă” se termină la 395 px, adică 5 px în afara ecranului. La 375 și 360 px, „Hartă” se termină tot la 394 px, deci e tăiat pe jumătate (`rev12/bar-360.png`). E o regresie a turului pe cele mai comune lățimi de telefon. Reparație: sub 420 px sigla rămâne doar semnul (numele în `sr-only`) sau numele trece pe două rânduri mai mici; linkurile cu `padding-inline` mai mic, păstrând 44 px înălțime. Plus un test la 360 px care verifică faptul că ultimul link e în fereastră.
+- [ ] **(major)** `src/history/stage/states.ts:32-33` (poza IV) — în „Demolările” macheta e împinsă spre stânga și tăiată drept de marginea canvasului: terasele și bulevardul se opresc brusc la x≈662 pe desktop (`desktop-istorie-demolarile`), iar pe telefon jumătate din model iese din bandă (`mobil-istorie-demolarile`). Restul cadrului e hârtie goală. E capitolul cu cea mai „ieftină” imagine: o placă bej goală, tăiată, cu o bisericuță pe ea. Reparație: ținta pozei IV mai spre centrul drumului bisericii (de exemplu x≈150) și camera mai departe; verificat la 1440×900, 1366×650 și 390×844. Pe terase, conturul punctat al viitoarei clădiri ar putea rămâne vizibil în IV (`OUTLINE` până la 4,9), ca placa să citească drept șantier, nu drept gol.
+- [ ] **(minor)** `src/history/stage/HistoryStage.tsx:75-82` — etichetele cotelor se calculează cu `camera.matrixWorldInverse` din cadrul anterior. Cu mișcare redusă, camera sare dintr-un cadru și nu mai urmează altul, deci la `#capitol-cifrele` etichetele „270 m”/„240 m” ajung la y=2153 px și y=1505 px, în afara ecranului. Cu mișcare normală, eroarea e de câțiva pixeli și dispare. Reparație: `camera.updateMatrixWorld()` imediat după `camera.lookAt(...)`.
+- [ ] **(minor)** `src/content/history.ts:154-161` — capitolul V are semnul „7 ani” și intervalul „1984–1989”, care face 5 ani. Sursa spune „3 schimburi timp de 7 ani”, fără ani de capăt. Reparație: semnul „1984”, iar „timp de șapte ani” rămâne în text; sau intervalul „1984–anii ’90”, dacă se găsește o sursă.
+- [ ] **(minor)** `src/content/history.ts:157` — „5.000 de soldați și voluntari” schimbă sensul sursei: „5000 soldați, 700 arhitecți, o armată de așa-ziși «voluntari»”, iar mai sus „munca forțată a militarilor în termen”. Reparație: „20.000 de muncitori, 5.000 de soldați în termen și mulți așa-ziși «voluntari», în trei schimburi...”.
+- [ ] **(minor)** `src/content/history.ts:110-112` — „Pentru clădirea principală s-a ținut un concurs național de arhitectură”: sursa spune „un concurs la nivel național pentru reconstruirea Bucureștiului”, în 1978–1979, care „a durat aproape 4 ani”. Reparație: „Pentru noul centru al orașului s-a ținut un concurs național, care a durat aproape patru ani.”
+- [ ] **(minor)** `src/content/history.ts:181` — „Lucrările principale s-au încheiat în 1997” omite ce spune articolul: aripa vestică, o parte din aripa de est și subsolurile „urmează a fi terminate” (marcat „necesită citare”). O jumătate de frază ar face textul cinstit.
+- [ ] **(minor)** `src/content/history.ts:61` — „Gravura se numește «Curtea Arsă, Dealul Arsenalului»”: ăsta e titlul fișierului de pe Commons, nu al gravurii. Pe aceeași pagină scrie că numele „Dealul Arsenalului” apare din 1848, deci în 1841 nu putea fi în titlu. Reparație: „Pe Commons, imaginea se numește...” sau titlul original din „Voyage illustré...”. Pentru fotografia lui Antoniu, de notat „decupată” în sursă.
+- [ ] **(minor)** `src/history/HistoryPage.tsx:160` — planul cerea ca nodurile firului să fie linkuri („firul e și cuprins”). Nodurile sunt `span` `aria-hidden`, iar cuprinsul e o listă separată, care dispare după introducere. Ori nodurile devin linkuri (44×44 px zonă de atingere), ori abaterea se notează în `PLAN.md`.
+- [ ] **(minor)** `src/history/stage/HistoryStage.tsx:13, 47` — `reducedMotion()` apelează `matchMedia` la fiecare cadru, deci o alocare pe cadru. Un `MediaQueryList` creat o dată, cu `.matches` citit în buclă.
+- [ ] **(minor)** `src/history/stage/oldSite.ts:43, 52` — dealul e un plan de 560×500 m în culoarea hârtiei, dar luminat; marginile lui se văd ca o foaie mai deschisă, cu muchie dreaptă (`desktop-istorie-dealul`, diagonala de sus; `mobil-istorie-concursul`, colțul din dreapta sus). Reparație: plan mai mare decât ceața (ex. 2400 m, cu dealul doar în mijloc) sau culoarea înmulțită ca luminanța să egaleze `PAPER`.
+- [ ] **(minor)** `src/styles/history.css:282-292` — în legenda imaginilor, linkul „Sursa” (36×44 px, `.link` cu înălțime minimă) umflă rândul: două rânduri de 14 px stau la circa 32 px distanță (`desktop-istorie-dealul`). „Sursa” are și 36 px lățime, sub 44. Reparație: în legendă, `.link` inline, cu zona de atingere mărită prin `padding` și `margin` negativ.
+- [ ] **(minor)** `src/styles/history.css:228-231` — „2.550.000 m³” se rupe pe două rânduri la 1440 px (`desktop-istorie-cifrele`). Reparație: `white-space: nowrap` pe `dd` sau `minmax(150px, 1fr)`.
+
+### Îmbunătățiri propuse
+- [ ] **Cotele, capitolul VII.** Liniile de 1 px la opacitate 0,85 abia se văd de la 600 m, iar eticheta „270 m” stă peste scările fațadei. Linii mai groase (`Line2`, 1,5 px), capete oblice de cotă în loc de capete drepte, etichetele mutate în afara clădirii (`labels` cu +12 m spre exterior). Efect: arată a planșă, nu a linie rătăcită.
+- [ ] **Vederea de sus, capitolul VII.** Curțile interioare ies ca dreptunghiuri gri-închis, ca niște găuri, iar acoperișurile plate albe arată simplitatea volumelor. Umbra soarelui mai scurtă doar în poza VII (sau `shadow.intensity` ≈ 0,6) și o cameră cu 10–15° mai înclinată decât planul vertical. Efect: se văd fațadele, nu doar capacele.
+- [ ] **Biserica pe deal.** La scara 1,35 e tot un grup de cutii fără ferestre. Incinta mănăstirii (un dreptunghi punctat în jur, „zidul dărâmat în 1985”) ar lega scena de text mai mult decât orice detaliu nou pe clădire.
+- [ ] **Capitolul V pe desktop.** Între faptele de la sfârșitul capitolului și capitolul VI rămân circa 60% din ecran de hârtie goală în coloana de text, cât crește palatul. O cotă de înălțime care urcă lângă text („34 m … 84 m”), legată de `state.clip`, ar umple golul cu informație.
+- [ ] Anii din cuprins, „cifrele” și „azi” în IBM Plex Mono arată ca niște etichete de cod lângă anii adevărați. „—” sau nimic în coloana de ani pentru VII și VIII.
+
+### De reluat mai târziu
+- [ ] Cartierul Uranus lipsește (abatere notată: articolul nu există pe ro.wikipedia). Articolul „Palatul Parlamentului” în engleză îl menționează („Uranus Hill was leveled”), cu sursă (Descoperă.ro, 2014); poate fi o a patra sursă.
+- [ ] Cele două imagini nu sunt încă în repo, așteaptă aprobarea utilizatorului. Licențele sunt în regulă (domeniu public, confirmat pe Commons); de adăugat la commit și mențiunea decupajului.
+- [ ] Nu am verificat cifrele care nu sunt pe pagini de Wikipedia (de exemplu „tururi în mai multe limbi”, din capitolul VIII, care nu are sursă) și nici nu am măsurat cadrele pe secundă în timpul ridicării pe un telefon adevărat.
+
+### Ce am aplicat (după runda 1)
+- [x] Clasamentul: în capitolul VII, „în 2012 … cea mai mare clădire administrativă civilă și cea mai grea; din 2021,
+  clădirea parlamentului din Bangkok e mai mare, iar Pentagonul le întrece pe amândouă”; în deschidere, „una dintre cele
+  mai mari clădiri din lume”.
+- [x] Biserica nu mai pornește din palat: macheta are acum Dealul Arsenalului și un pinten separat, Dealul Mihai Vodă,
+  spre nord-est (+X+Z), în afara conturului, cu incinta mănăstirii punctată; biserica merge 289 m tot spre nord-est
+  (ajunge la circa 615 m de centru) și pintenul dispare după ea. Curbele de nivel se calculează din teren (marching
+  squares), iar marginile terenului se topesc în hârtie (alfa pe vârfuri). Comentariile despre axe sunt corectate
+  (+Z = est, +X = nord); textul spune „Pe un pinten al dealului, numit Dealul Mihai Vodă”.
+- [x] Bara de sus pe telefon: sub 420 px rămâne doar semnul siglei, numele trece în `sr-only`; test nou la 360 px pe
+  ambele pagini (42 din 42).
+- [x] „Demolările” se vede acum ca un plan, de sus: terasele, pintenul și tot drumul bisericii, fără tăieturi la margine.
+  Harta de umbre se reface când biserica se mută sau terenul se schimbă (rămânea o umbră veche pe deal).
+- [x] `camera.updateMatrixWorld()` după `lookAt`; `MediaQueryList` creat o dată.
+- [x] Capitolul V: semnul „20.000”, intervalul „anii ’80”; „5.000 de soldați în termen și mulți așa-ziși «voluntari»”.
+- [x] Concursul: „pentru reconstruirea Bucureștiului … a durat aproape patru ani”; capitolul VI spune că părți din
+  aripi au rămas neterminate; capitolul VIII urmează formularea sursei („programe de vizitare în mai multe limbi”).
+- [x] Legenda gravurii spune că titlul e cel de pe Commons; decupajul fotografiei din 1901 e notat la surse.
+- [x] Nodurile firului sunt linkuri spre capitol (zonă de 44 px, scoase din ordinea Tab, cuprinsul rămâne drumul din tastatură).
+- [x] „Sursa” din legendă e inline, subliniat; cifrele din capitole nu se mai rup pe două rânduri; etichetele cotelor
+  stau în afara clădirii; valorile din desen sunt în Garamond, ca „m” să nu iasă majusculă.
+- [x] Terasele (III) și dealul (I) au cadre mai largi, nu mai sunt tăiate de margine.
+- Amânat: linii de cotă mai groase și capete oblice (cer `Line2`), vederea de sus mai înclinată în VII, cota de înălțime
+  lângă text în V, cartierul Uranus (sursă în engleză). Creșterea de 2 kB a pornirii turului e notată în `PLAN.md`.

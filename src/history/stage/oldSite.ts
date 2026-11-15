@@ -19,78 +19,79 @@ import { PALACE } from '../../three/palace/massing'
 import { FOOTPRINT } from './rise'
 
 /**
- * Locul de dinainte de palat, ca machetă topografică: dealul (cu curbe de nivel) și biserica
- * Mănăstirii Mihai Vodă pe el. Dealul coboară în teren când apar terasele; biserica rămâne
- * și, în capitolul despre demolări, se mută pe lângă palat, ca în 1985.
+ * Locul de dinainte de palat, ca machetă topografică, cu curbe de nivel: Dealul Arsenalului,
+ * pe care stă azi palatul, și pintenul lui dinspre nord-est, Dealul Mihai Vodă, cu biserica
+ * mănăstirii în incinta ei. Dealul mare coboară în terase când începe șantierul; biserica se
+ * mută în 1985 cu aproape 290 m mai departe, spre nord-est, iar pintenul dispare după ea.
  *
- * Totul e schematic: forma dealului, locul și traseul bisericii nu sunt măsurate.
+ * Axele: fațada principală privește spre est (+Z), deci +X e nordul. Totul e schematic: forma
+ * dealurilor și locurile bisericii sunt aproximate din coordonatele de pe Wikipedia, nu măsurate.
  */
 
-const HILL_HEIGHT = 18
-const CENTER = { x: 10, z: 0 }
-const SIGMA = { x: 95, z: 85 }
 const GROUND = PALACE.ground
+const HEIGHT = 18
 
-/** Înălțimea dealului (0..1 din vârf) într-un punct. */
-const bump = (x: number, z: number) =>
-  Math.exp(-(((x - CENTER.x) / SIGMA.x) ** 2 + ((z - CENTER.z) / SIGMA.z) ** 2) / 2)
+const MAIN = { x: 10, z: 0, sx: 95, sz: 85, peak: 1 }
+/** Unde stătea biserica și unde a ajuns: 289 m spre nord-est. */
+const FROM = new Vector3(215, 0, 245)
+const DIRECTION = new Vector3(0.661, 0, 0.751)
+const TO = FROM.clone().addScaledVector(DIRECTION, 289).setY(GROUND)
+const SPUR = { x: FROM.x, z: FROM.z, sx: 62, sz: 56, peak: 0.8 }
 
-/** Unde stătea biserica și unde a ajuns: aproape 290 m spre est, mai jos. */
-const FROM = new Vector3(70, 0, -22)
-const TO = new Vector3(352, GROUND, 12)
+const gauss = (b: typeof MAIN, x: number, z: number) =>
+  b.peak * Math.exp(-(((x - b.x) / b.sx) ** 2 + ((z - b.z) / b.sz) ** 2) / 2)
 
-function buildHill() {
-  const geometry = new PlaneGeometry(560, 500, 96, 96)
-  geometry.rotateX(-Math.PI / 2)
-  const position = geometry.attributes.position
-  for (let i = 0; i < position.count; i++) {
-    const x = position.getX(i) + CENTER.x
-    const z = position.getZ(i) + CENTER.z
-    position.setXYZ(i, x, HILL_HEIGHT * bump(x, z), z)
-  }
-  geometry.computeVertexNormals()
-  const mesh = new Mesh(geometry, new MeshStandardMaterial({ color: '#f2f0eb', roughness: 1 }))
-  mesh.castShadow = true
-  mesh.receiveShadow = true
+/** Cât din fiecare deal mai există (0..1). */
+const amounts = { main: 1, spur: 1 }
 
-  // Curbele de nivel, din 3 în 3 metri: elipsele pe care funcția dealului are aceeași înălțime.
-  const positions: number[] = []
-  for (let level = 3; level < HILL_HEIGHT; level += 3) {
-    const r = Math.sqrt(2 * Math.log(HILL_HEIGHT / level))
-    const steps = 96
-    for (let s = 0; s < steps; s++) {
-      const a0 = (s / steps) * Math.PI * 2
-      const a1 = ((s + 1) / steps) * Math.PI * 2
-      positions.push(
-        CENTER.x + Math.cos(a0) * r * SIGMA.x, level + 0.12, CENTER.z + Math.sin(a0) * r * SIGMA.z,
-        CENTER.x + Math.cos(a1) * r * SIGMA.x, level + 0.12, CENTER.z + Math.sin(a1) * r * SIGMA.z,
-      )
+/** Înălțimea terenului deasupra solului într-un punct, în metri. */
+const heightAt = (x: number, z: number) =>
+  HEIGHT * Math.max(gauss(MAIN, x, z) * amounts.main, gauss(SPUR, x, z) * amounts.spur)
+
+/** Zona în care calculăm curbele de nivel. */
+const AREA = { x0: -260, x1: 420, z0: -260, z1: 460, n: 136 }
+
+/**
+ * Curbele de nivel, din 3 în 3 metri, prin „marching squares” pe o grilă: în fiecare celulă,
+ * segmentul trece pe unde muchiile ei traversează nivelul.
+ */
+function contourPositions(): number[] {
+  const { x0, x1, z0, z1, n } = AREA
+  const dx = (x1 - x0) / n
+  const dz = (z1 - z0) / n
+  const grid = new Float32Array((n + 1) * (n + 1))
+  for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) grid[j * (n + 1) + i] = heightAt(x0 + i * dx, z0 + j * dz)
+  const out: number[] = []
+  for (let level = 3; level < HEIGHT; level += 3) {
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const a = grid[j * (n + 1) + i]
+        const b = grid[j * (n + 1) + i + 1]
+        const c = grid[(j + 1) * (n + 1) + i + 1]
+        const d = grid[(j + 1) * (n + 1) + i]
+        const points: number[] = []
+        const edge = (h0: number, h1: number, ax: number, az: number, bx: number, bz: number) => {
+          if ((h0 < level) === (h1 < level)) return
+          const f = (level - h0) / (h1 - h0)
+          points.push(x0 + (ax + (bx - ax) * f) * dx, z0 + (az + (bz - az) * f) * dz)
+        }
+        edge(a, b, i, j, i + 1, j)
+        edge(b, c, i + 1, j, i + 1, j + 1)
+        edge(c, d, i + 1, j + 1, i, j + 1)
+        edge(d, a, i, j + 1, i, j)
+        for (let p = 0; p + 3 < points.length; p += 4) {
+          out.push(points[p], level + 0.15, points[p + 1], points[p + 2], level + 0.15, points[p + 3])
+        }
+      }
     }
   }
-  const lines = new BufferGeometry()
-  lines.setAttribute('position', new Float32BufferAttribute(positions, 3))
-  const contours = new LineSegments(
-    lines,
-    new LineBasicMaterial({ color: '#8d877b', transparent: true, opacity: 0.55 }),
-  )
-
-  // Conturul viitoarei clădiri, trasat pe deal cu linie punctată, ca pe un plan de concurs.
-  const outline = new LineSegments(
-    draped([FOOTPRINT, { x0: -50, x1: 50, z0: 120, z1: 126 }]),
-    new LineDashedMaterial({ color: '#2b2d31', dashSize: 4, gapSize: 3, transparent: true, opacity: 0 }),
-  )
-  outline.computeLineDistances()
-  outline.visible = false
-
-  const group = new Group()
-  group.add(mesh, contours, outline)
-  return { group, outline }
+  return out
 }
 
-/** Contururile unor dreptunghiuri, așezate pe suprafața dealului. */
+/** Contururi de dreptunghiuri, așezate pe suprafața terenului. */
 function draped(rects: { x0: number; x1: number; z0: number; z1: number }[]) {
   const positions: number[] = []
-  const at = (x: number, z: number) => [x, HILL_HEIGHT * bump(x, z) + 0.35, z]
+  const at = (x: number, z: number) => [x, heightAt(x, z) + 0.35, z]
   for (const r of rects) {
     const corners = [
       [r.x0, r.z0],
@@ -98,14 +99,15 @@ function draped(rects: { x0: number; x1: number; z0: number; z1: number }[]) {
       [r.x1, r.z1],
       [r.x0, r.z1],
     ]
-    for (let i = 0; i < 4; i++) {
-      const [ax, az] = corners[i]
-      const [bx, bz] = corners[(i + 1) % 4]
+    for (let k = 0; k < 4; k++) {
+      const [ax, az] = corners[k]
+      const [bx, bz] = corners[(k + 1) % 4]
       const steps = Math.max(1, Math.round(Math.hypot(bx - ax, bz - az) / 6))
       for (let s = 0; s < steps; s++) {
-        const p0 = at(MathUtils.lerp(ax, bx, s / steps), MathUtils.lerp(az, bz, s / steps))
-        const p1 = at(MathUtils.lerp(ax, bx, (s + 1) / steps), MathUtils.lerp(az, bz, (s + 1) / steps))
-        positions.push(...p0, ...p1)
+        positions.push(
+          ...at(MathUtils.lerp(ax, bx, s / steps), MathUtils.lerp(az, bz, s / steps)),
+          ...at(MathUtils.lerp(ax, bx, (s + 1) / steps), MathUtils.lerp(az, bz, (s + 1) / steps)),
+        )
       }
     }
   }
@@ -114,30 +116,37 @@ function draped(rects: { x0: number; x1: number; z0: number; z1: number }[]) {
   return geometry
 }
 
-/** Biserica triconcă, cu turla pe naos, și clopotnița de la intrare. Altarul privește spre est (+X). */
+function dashed(geometry: BufferGeometry) {
+  const lines = new LineSegments(
+    geometry,
+    new LineDashedMaterial({ color: '#2b2d31', dashSize: 4, gapSize: 3, transparent: true, opacity: 0 }),
+  )
+  lines.computeLineDistances()
+  lines.visible = false
+  return lines
+}
+
+/** Biserica triconcă, cu turla pe naos și clopotnița la vest. Altarul privește spre est. */
 function buildChurch() {
+  // Construită cu altarul spre +X, apoi rotită: estul e +Z.
   const walls = mergeGeometries([
     box(26, 10, 10, -3, 5, 0),
     half(5.2, 9, 0, -5, Math.PI / 2),
     half(5.2, 9, 0, 5, -Math.PI / 2),
     half(5.6, 9, 10, 0, 0),
     box(6, 14, 6, 0, 7, 0),
-    // Clopotnița, la vest.
     box(6, 16, 6, -26, 8, 0),
   ])
-  const roofs = mergeGeometries([
-    roof(28, 12, 3.2, -3, 10),
-    cone(5.2, 5, 0, 14, 0),
-    cone(4.4, 4, -26, 18, 0),
-  ])
-  const group = new Group()
+  const roofs = mergeGeometries([roof(28, 12, 3.2, -3, 10), cone(5.2, 5, 0, 14, 0), cone(4.4, 4, -26, 18, 0)])
   const wall = new Mesh(walls, new MeshStandardMaterial({ color: '#f5f3ee', roughness: 0.93 }))
   const top = new Mesh(roofs, new MeshStandardMaterial({ color: '#b9b1a2', roughness: 0.9 }))
   for (const mesh of [wall, top]) {
     mesh.castShadow = true
     mesh.receiveShadow = true
   }
+  const group = new Group()
   group.add(wall, top)
+  group.rotation.y = -Math.PI / 2
   // Puțin mai mare decât în realitate, ca să se vadă de la înălțimea de la care privim dealul.
   group.scale.setScalar(1.35)
   return group
@@ -163,7 +172,7 @@ function cone(radius: number, height: number, x: number, y: number, z: number) {
   return g
 }
 
-/** Acoperișul în două ape al naosului. */
+/** Acoperișul naosului, în patru ape. */
 function roof(length: number, width: number, height: number, x: number, y: number) {
   const g = new CylinderGeometry(0.01, width / 2, height, 4, 1)
   g.rotateY(Math.PI / 4)
@@ -172,32 +181,99 @@ function roof(length: number, width: number, height: number, x: number, y: numbe
   return g
 }
 
+export type OldSiteState = {
+  /** 0..1: cât din Dealul Arsenalului mai există. */
+  main: number
+  /** 0..1: cât din pintenul cu mănăstirea mai există. */
+  spur: number
+  /** 0..1: cât din drum a făcut biserica. */
+  move: number
+  /** 0..1: conturul punctat al viitoarei clădiri. */
+  outline: number
+  /** Biserica se vede (se ascunde cât sare de la locul nou la cel vechi). */
+  church: boolean
+}
+
 export function buildOldSite() {
-  const { group: hill, outline } = buildHill()
-  hill.position.y = GROUND - 0.04
+  // Terenul: o foaie mare, opacă doar unde se ridică, ca marginile să nu se vadă pe hârtie.
+  const terrain = new PlaneGeometry(AREA.x1 - AREA.x0, AREA.z1 - AREA.z0, 120, 120)
+  terrain.rotateX(-Math.PI / 2)
+  terrain.translate((AREA.x0 + AREA.x1) / 2, 0, (AREA.z0 + AREA.z1) / 2)
+  const count = terrain.attributes.position.count
+  terrain.setAttribute('color', new Float32BufferAttribute(new Float32Array(count * 4).fill(1), 4))
+  const hill = new Mesh(
+    terrain,
+    new MeshStandardMaterial({ color: '#f2f0eb', roughness: 1, vertexColors: true, transparent: true }),
+  )
+  hill.castShadow = true
+  hill.receiveShadow = true
+
+  const contours = new LineSegments(
+    new BufferGeometry(),
+    new LineBasicMaterial({ color: '#8d877b', transparent: true, opacity: 0.55 }),
+  )
+
+  // Conturul viitoarei clădiri, trasat cu linie punctată ca pe un plan de concurs.
+  const outline = dashed(draped([FOOTPRINT, { x0: -50, x1: 50, z0: 120, z1: 126 }]))
+  // Incinta mănăstirii, cu zidul dărâmat în 1985.
+  const precinct = dashed(draped([{ x0: FROM.x - 34, x1: FROM.x + 34, z0: FROM.z - 30, z1: FROM.z + 30 }]))
+
+  const land = new Group()
+  land.position.y = GROUND - 0.04
+  land.add(hill, contours, outline, precinct)
+
   const church = buildChurch()
   const group = new Group()
-  group.add(hill, church)
+  group.add(land, church)
 
-  const place = new Vector3()
+  const reshape = () => {
+    const position = terrain.attributes.position
+    const color = terrain.attributes.color
+    for (let i = 0; i < count; i++) {
+      const h = heightAt(position.getX(i), position.getZ(i))
+      position.setY(i, h)
+      color.setW(i, MathUtils.smoothstep(h, 0.05, 2.2))
+    }
+    position.needsUpdate = true
+    color.needsUpdate = true
+    terrain.computeVertexNormals()
+    contours.geometry.dispose()
+    const lines = new BufferGeometry()
+    lines.setAttribute('position', new Float32BufferAttribute(contourPositions(), 3))
+    contours.geometry = lines
+  }
 
-  /**
-   * `hill`: 0..1, cât din deal mai există. `move`: 0..1, cât din drum a făcut biserica.
-   * `floor`: înălțimea teraselor deja ridicate sub biserică (sub teren cât nu există).
-   */
-  const set = (amount: { hill: number; move: number; floor: number; outline: number; visible: boolean }) => {
-    group.visible = amount.visible
-    ;(outline.material as LineDashedMaterial).opacity = 0.8 * amount.outline
-    outline.visible = amount.outline > 0.005
-    hill.visible = amount.hill > 0.002
-    hill.scale.y = Math.max(0.002, amount.hill)
-    const onHill = GROUND + HILL_HEIGHT * bump(FROM.x, FROM.z) * amount.hill
-    const start = Math.max(onHill, Math.min(amount.floor, 0))
-    const m = MathUtils.smootherstep(amount.move, 0, 1)
-    place.lerpVectors(FROM, TO, m)
-    // Coboară abia la capătul drumului, după ce iese de pe terase.
-    place.y = MathUtils.lerp(start, TO.y, MathUtils.smoothstep(m, 0.55, 0.85))
-    church.position.copy(place)
+  let last = { main: -1, spur: -1 }
+
+  const before = new Vector3()
+
+  /** Întoarce `true` dacă s-a schimbat ceva care aruncă umbră (terenul sau locul bisericii). */
+  const set = (state: OldSiteState) => {
+    let changed = church.visible !== state.church
+    church.visible = state.church
+    before.copy(church.position)
+    // Terenul se recalculează doar când se schimbă, nu la fiecare cadru.
+    if (Math.abs(state.main - last.main) > 0.002 || Math.abs(state.spur - last.spur) > 0.002) {
+      amounts.main = state.main
+      amounts.spur = state.spur
+      last = { main: state.main, spur: state.spur }
+      reshape()
+      changed = true
+    }
+    land.visible = state.main > 0.002 || state.spur > 0.002
+    const outlineMaterial = outline.material as LineDashedMaterial
+    outlineMaterial.opacity = 0.8 * state.outline
+    outline.visible = state.outline > 0.005
+    const wall = 1 - MathUtils.smoothstep(state.move, 0, 0.12)
+    ;(precinct.material as LineDashedMaterial).opacity = 0.7 * wall * Math.min(1, state.spur)
+    precinct.visible = wall > 0.005
+
+    const m = MathUtils.smootherstep(state.move, 0, 1)
+    church.position.lerpVectors(FROM, TO, m)
+    // Biserica stă pe vârful pintenului și coboară pe drum până la nivelul străzii.
+    const start = GROUND + heightAt(FROM.x, FROM.z)
+    church.position.y = MathUtils.lerp(start, TO.y, m)
+    return changed || before.distanceToSquared(church.position) > 1e-4
   }
 
   return {
@@ -207,8 +283,7 @@ export function buildOldSite() {
       group.traverse((object) => {
         const mesh = object as Mesh
         mesh.geometry?.dispose()
-        const material = mesh.material as MeshStandardMaterial | undefined
-        material?.dispose()
+        ;(mesh.material as MeshStandardMaterial | undefined)?.dispose()
       })
     },
   }

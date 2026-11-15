@@ -119,7 +119,8 @@ Abateri față de `PLAN-FAZA-2.md`: Pasul 8 a fost făcut odată cu Pasul 6; sti
 
 Abateri față de planul Pasului 12: fără WebGL, capitolele nu primesc un desen al fațadei, ci textul trece la mijloc;
 dealul și biserica din scenă sunt schematice; cartierul Uranus nu apare, fiindcă articolul despre el nu există pe
-Wikipedia în limba română și nu l-am putut verifica.
+Wikipedia în limba română și nu l-am putut verifica. Pornirea turului a crescut cu circa 2 kB (bara de sus și verificarea WebGL, comune
+acum celor două pagini). Bara de sus arată pe telefoanele sub 420 px doar semnul siglei, ca să încapă „Istorie”.
 
 ## După test
 

@@ -122,8 +122,8 @@ export function HistoryPage() {
             <h1 id="titlu">Povestea palatului</h1>
             <Meander units={9} />
             <p className="lead">
-              De la o mănăstire pe un deal la a doua clădire administrativă din lume. Macheta urmează povestea
-              pe măsură ce citești.
+              De la o mănăstire pe un deal la una dintre cele mai mari clădiri din lume. Macheta urmează
+              povestea pe măsură ce citești.
             </p>
             <nav className="toc" aria-label="Capitole">
               <ol>
@@ -134,7 +134,7 @@ export function HistoryPage() {
                         {toRoman(i + 1)}
                       </span>
                       <span className="toc__title">{c.title}</span>
-                      <span className="toc__years">{c.years}</span>
+                      {/\d/.test(c.years) && <span className="toc__years">{c.years}</span>}
                     </a>
                   </li>
                 ))}
@@ -157,7 +157,8 @@ export function HistoryPage() {
                       chapters.current[i] = el
                     }}
                   >
-                    <span className="chapter__node" aria-hidden="true" />
+                    {/* Nodul firului duce la începutul capitolului; din tastatură, același drum e în cuprins. */}
+                    <a className="chapter__node" href={`#${c.id}`} aria-hidden="true" tabIndex={-1} />
                     <p className="overline">
                       <span aria-hidden="true">Capitolul {toRoman(index)}</span>
                       <span className="sr-only">Capitolul {index}</span> · {c.years}
@@ -221,7 +222,8 @@ export function HistoryPage() {
             <ul>
               {HISTORY_PHOTOS.map((photo) => (
                 <li key={photo.src}>
-                  {photo.author}, {photo.year}, {photo.license}.{' '}
+                  {photo.author}, {photo.year}, {photo.license}
+                  {photo.edit ? `; ${photo.edit}` : ''}.{' '}
                   <a className="link" href={photo.source}>
                     Pagina imaginii pe Wikimedia Commons
                   </a>

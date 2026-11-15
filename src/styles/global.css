@@ -288,6 +288,22 @@ main :is(a, button, .panel, .facts) {
   transform: translateY(1px);
 }
 
+/* Pe telefoanele înguste, numele din siglă rămâne doar pentru cititoarele de ecran: bara are trei linkuri. */
+@media (max-width: 420px) {
+  .brand__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .brand {
+    min-width: 44px;
+  }
+}
+
 /* Pagina pe care ești, marcată ca o pastilă plină. */
 .topbar__nav a[aria-current='page'] {
   background: rgb(23 25 29 / 0.08);

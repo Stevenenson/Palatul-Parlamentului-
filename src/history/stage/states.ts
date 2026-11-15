@@ -23,14 +23,14 @@ export const CLIP_TERRACES = 0.06
 export const POSES: Pose[] = [
   // Începutul paginii: palatul întreg, ca în tur.
   pose(v(-400, 150, 640), v(0, 24, 4)),
-  // I. Dealul de dinainte: dealul cu biserica pe el.
-  pose(v(-170, 175, 310), v(45, 0, -12)),
+  // I. Dealul de dinainte: dealul și pintenul cu mănăstirea, dinspre sud-est.
+  pose(v(-300, 300, 700), v(100, 0, 125)),
   // II. Cutremurul și concursul: conturul viitoarei clădiri, aproape de plan.
   pose(v(-150, 470, 330), v(0, -9, 10)),
   // III. Piatra de temelie: terasele, mai de jos.
-  pose(v(-330, 150, 430), v(0, -6, 40)),
-  // IV. Demolările: din cealaltă parte, cu drumul bisericii spre est.
-  pose(v(180, 430, 800), v(95, -6, 10)),
+  pose(v(-420, 200, 560), v(0, -6, 40)),
+  // IV. Demolările: ca un plan, de sus, cu terasele și drumul bisericii spre nord-est.
+  pose(v(120, 1300, 520), v(120, -6, 160)),
   // V. Șantierul: trei sferturi, cât să se vadă clădirea crescând.
   pose(v(-430, 190, 600), v(0, 26, 0)),
   // VI. După revoluție: fațada, de jos, din axul bulevardului.
@@ -68,12 +68,20 @@ const CLIP: Keys = [
   [5.9, CLIP_TOP],
 ]
 
-/** Dealul de dinainte: apare când palatul coboară în teren și se topește în terase. */
+/** Dealul Arsenalului: apare când palatul coboară în teren și se topește în terase. */
 const HILL: Keys = [
   [0.55, 0],
   [0.95, 1],
   [3.05, 1],
   [3.6, 0],
+]
+
+/** Pintenul cu mănăstirea: rămâne până după mutarea bisericii, în 1985. */
+const SPUR: Keys = [
+  [0.55, 0],
+  [0.95, 1],
+  [4.9, 1],
+  [5.15, 0],
 ]
 
 /** Drumul bisericii Mihai Vodă, în capitolul despre demolări. */
@@ -111,8 +119,11 @@ export type StageState = {
   outline: number
   dimensions: number
   hill: number
+  spur: number
   move: number
   site: number
+  /** Biserica se ascunde cât palatul coboară în teren, ca să nu sară dintr-un loc în altul. */
+  church: boolean
 }
 
 export const makeState = (pose: Pose): StageState => ({
@@ -121,8 +132,10 @@ export const makeState = (pose: Pose): StageState => ({
   outline: 0,
   dimensions: 0,
   hill: 0,
+  spur: 0,
   move: 1,
   site: 1,
+  church: true,
 })
 
 export function stateAt(t: number, still: boolean, out: StageState) {
@@ -138,7 +151,9 @@ export function stateAt(t: number, still: boolean, out: StageState) {
     out.outline = i === 2 ? 1 : 0
     out.dimensions = i === 7 ? 1 : 0
     out.hill = i >= 1 && i <= 2 ? 1 : 0
-    out.move = i >= 4 ? 1 : 0
+    out.spur = i >= 1 && i <= 3 ? 1 : 0
+    out.move = i >= 4 || i === 0 ? 1 : 0
+    out.church = true
     out.site = i >= 3 || i === 0 ? 1 : 0
     return out
   }
@@ -150,7 +165,10 @@ export function stateAt(t: number, still: boolean, out: StageState) {
   out.outline = at(OUTLINE, tc)
   out.dimensions = at(DIMENSIONS, tc)
   out.hill = at(HILL, tc)
-  out.move = at(MOVE, tc)
+  out.spur = at(SPUR, tc)
+  // Azi biserica e la locul nou: la începutul paginii o arătăm acolo.
+  out.move = tc < 0.75 ? 1 : at(MOVE, tc)
+  out.church = tc < 0.5 || tc > 0.92
   // La începutul paginii palatul e întreg, cu tot cu piață.
   out.site = tc < 0.75 ? 1 : at(SITE, tc)
   return out

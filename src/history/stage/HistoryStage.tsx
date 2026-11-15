@@ -10,7 +10,7 @@ import { makeState, stateAt } from './states'
 
 const Effects = lazy(() => import('../../three/Effects'))
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)')
 
 /** Etichetele cotelor (capitolul despre dimensiuni), ca text HTML peste scenă. */
 const LABELS = ['270 m', '240 m']
@@ -44,7 +44,7 @@ function Story({ labels }: Props) {
   useEffect(() => onReading(() => invalidate()), [invalidate])
 
   useFrame((_, delta) => {
-    const still = reducedMotion()
+    const still = REDUCED_MOTION.matches
     const goal = reading.target
     const k = still ? 1 : 1 - Math.exp(-Math.min(delta, 0.1) * 5)
     t.current += (goal - t.current) * k
@@ -54,6 +54,8 @@ function Story({ labels }: Props) {
     const { pose } = state
     camera.position.copy(pose.position)
     camera.lookAt(pose.target)
+    // Etichetele cotelor se proiectează cu poziția de acum, nu cu cea din cadrul trecut.
+    camera.updateMatrixWorld()
     const fov = fovForAspect(pose.fov, size.width / Math.max(1, size.height))
     if (Math.abs(camera.fov - fov) > 1e-3) {
       camera.fov = fov
@@ -63,13 +65,14 @@ function Story({ labels }: Props) {
     if (rising.setClip(state.clip)) gl.shadowMap.needsUpdate = true
     rising.setSite(state.site > 0.5)
     dimensions.set(state.dimensions)
-    oldSite.set({
-      hill: state.hill,
+    const moved = oldSite.set({
+      main: state.hill,
+      spur: state.spur,
       move: state.move,
-      floor: state.clip,
       outline: state.outline,
-      visible: state.clip < 60 || state.move > 0.5,
+      church: state.church,
     })
+    if (moved) gl.shadowMap.needsUpdate = true
 
     // Etichetele cotelor urmează capetele liniilor pe ecran.
     labels.current?.forEach((label, i) => {

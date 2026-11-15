@@ -512,6 +512,22 @@ try {
   })
   await histPhone.close()
 
+  const narrow = await browser.newContext({ viewport: { width: 360, height: 760 }, isMobile: true, hasTouch: true })
+  const np = await narrow.newPage()
+  await check('pe 360 px, bara de sus încape pe ambele pagini', async () => {
+    for (const url of [site.url, historyUrl]) {
+      await np.goto(url, { waitUntil: 'load' })
+      const bar = await np.evaluate(() => {
+        const box = (el) => el.getBoundingClientRect()
+        const links = [...document.querySelectorAll('.topbar__nav a')].map(box)
+        return { brand: box(document.querySelector('.brand')).right, first: links[0].left, last: links.at(-1).right }
+      })
+      expect(bar.last <= 360, `${url}: ultimul link se termină la ${bar.last} px`)
+      expect(bar.brand <= bar.first, `${url}: sigla atinge meniul (${bar.brand} > ${bar.first})`)
+    }
+  })
+  await narrow.close()
+
   const histPlain = await browser.newContext({ viewport: { width: 1280, height: 800 } })
   await histPlain.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext

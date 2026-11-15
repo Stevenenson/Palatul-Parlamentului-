@@ -16,6 +16,8 @@ export type HistoryPhoto = {
   license: string
   /** Pagina fișierului pe Wikimedia Commons, cu licența. */
   source: string
+  /** Ce am schimbat la imagine, dacă am schimbat ceva. */
+  edit?: string
   /** Proporția imaginii, ca locul ei să fie rezervat înainte să se încarce. */
   ratio: number
 }
@@ -56,7 +58,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
           kind: 'photo',
           src: 'media/history/curtea-arsa-1841.jpg',
           alt: 'Gravură: orașul văzut de pe deal, cu o mănăstire cu clopotniță în stânga, o căruță cu coviltir și oameni lângă un foc.',
-          caption: 'Bucureștiul văzut de pe deal, în 1841. Gravura se numește „Curtea Arsă, Dealul Arsenalului”.',
+          caption: 'Bucureștiul văzut de pe deal, în 1841. Pe Wikimedia Commons, gravura apare ca „Curtea Arsă, Dealul Arsenalului”.',
           author: 'Eugène Cicéri, după Michel Bouquet',
           year: '1841',
           license: 'domeniu public',
@@ -66,7 +68,8 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Pe deal se afla Mănăstirea Mihai Vodă, ridicată în 1594 de Mihai Viteazul, pe când era ban al Olteniei.',
+          'Pe un pinten al dealului, numit Dealul Mihai Vodă, se afla mănăstirea ridicată în 1594 ' +
+          'de Mihai Viteazul, pe când era ban al Olteniei.',
         figure: {
           kind: 'photo',
           src: 'media/history/mihai-voda-1901.jpg',
@@ -76,6 +79,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
           year: '1901–1904',
           license: 'domeniu public',
           source: `${COMMONS}Antoniu_-_L%27Eglise_Michaiu_Voda.jpg`,
+          edit: 'decupată: fără benzile negre de pe margini',
           ratio: 526 / 600,
         },
       },
@@ -99,8 +103,9 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Pentru clădirea principală s-a ținut un concurs național de arhitectură. L-a câștigat Anca Petrescu, o ' +
-          'arhitectă de numai 28 de ani, numită apoi arhitect-șef. Sub coordonarea ei au lucrat 700 de arhitecți.',
+          'Pentru reconstruirea Bucureștiului s-a ținut un concurs național, care a durat aproape patru ani. Pentru ' +
+          'clădirea principală a fost aleasă Anca Petrescu, o arhitectă de numai 28 de ani, numită apoi arhitect-șef. ' +
+          'Sub coordonarea ei au lucrat 700 de arhitecți.',
       },
     ],
   },
@@ -148,14 +153,14 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
   },
   {
     id: 'capitol-santierul',
-    mark: '7 ani',
-    years: '1984–1989',
+    mark: '20.000',
+    years: 'anii ’80',
     title: 'Șantierul',
     blocks: [
       {
         text:
-          'Pe șantier au lucrat 20.000 de muncitori, 5.000 de soldați și voluntari, în trei schimburi, timp de ' +
-          'șapte ani. Câți au murit acolo a rămas un subiect evitat; estimările vorbesc de sute de morți.',
+          'Pe șantier au lucrat 20.000 de muncitori, 5.000 de soldați în termen și mulți așa-ziși „voluntari”, în ' +
+          'trei schimburi, timp de șapte ani. Câți au murit acolo a rămas un subiect evitat; estimările vorbesc de sute de morți.',
       },
       {
         text:
@@ -181,8 +186,8 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Din 1995, clădirea găzduiește și sediul Inițiativei de Cooperare Sud-Est Europeană. Lucrările ' +
-          'principale s-au încheiat în 1997.',
+          'Din 1995, clădirea găzduiește și sediul Inițiativei de Cooperare Sud-Est Europeană. Clădirea e socotită ' +
+          'terminată în 1997, deși părți din aripile de vest și de est au rămas neterminate.',
       },
     ],
   },
@@ -194,9 +199,9 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     blocks: [
       {
         text:
-          'După suprafața desfășurată, palatul e a doua clădire administrativă din lume, după Pentagon. În 2012, ' +
-          'World Record Academy l-a numit cea mai grea clădire din lume, iar volumul lui îl depășește cu 2% pe ' +
-          'al piramidei lui Keops.',
+          'În 2012, World Record Academy l-a numit cea mai mare clădire administrativă civilă și cea mai grea ' +
+          'clădire din lume; din 2021, clădirea parlamentului din Bangkok e mai mare, iar Pentagonul le întrece pe ' +
+          'amândouă. Volumul palatului îl depășește cu 2% pe al piramidei lui Keops.',
       },
       {
         text:
@@ -226,7 +231,8 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Clădirea găzduiește conferințe, expoziții și întâlniri și poate fi vizitată, cu tururi în mai multe limbi.',
+          'Clădirea găzduiește evenimente, expoziții și întâlniri și e deschisă vizitatorilor, cu programe de vizitare ' +
+          'în mai multe limbi.',
       },
     ],
   },

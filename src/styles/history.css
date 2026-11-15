@@ -173,6 +173,7 @@
   z-index: 1;
   width: 15px;
   height: 15px;
+  cursor: pointer;
   border: 1px solid var(--ink);
   border-radius: 50%;
   background: var(--paper);
@@ -180,6 +181,13 @@
     transform var(--t-2) var(--spring),
     background-color var(--t-2) var(--ease),
     box-shadow var(--t-2) var(--ease);
+}
+
+/* Zona de atingere a nodului: 44 px, centrată pe cercul de 15 px. */
+.chapter__node::after {
+  content: '';
+  position: absolute;
+  inset: -15px;
 }
 
 .chapter[data-state='past'] .chapter__node {
@@ -231,6 +239,10 @@
   margin-top: 28px;
   padding-top: 16px;
   border-top: 1px solid var(--line-strong);
+}
+
+.chapter__facts dd {
+  white-space: nowrap;
 }
 
 .chapter__actions {
@@ -288,7 +300,15 @@
 }
 
 .figure figcaption .link {
+  display: inline;
+  min-height: 0;
+  padding-block: 12px;
+  margin-block: -12px;
+  background: none;
   color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 /* ——— Desenul în cerneală ——— */
@@ -367,10 +387,9 @@
 }
 
 .drawing .drawing__value {
-  font-family: var(--font-display);
+  font-family: var(--font-serif);
   font-weight: 600;
-  font-size: 18px;
-  letter-spacing: 0.04em;
+  font-size: 20px;
   fill: var(--ink);
 }
 

@@ -122,8 +122,8 @@ export function buildDimensions() {
   lines.renderOrder = 2
   return {
     lines,
-    /** Unde stau etichetele: mijlocul fiecărei linii de cotă. */
-    labels: [new Vector3(0, y, front), new Vector3(side, y, 0)],
+    /** Unde stau etichetele: lângă mijlocul fiecărei linii de cotă, în afara clădirii. */
+    labels: [new Vector3(0, y, front + 9), new Vector3(side + 12, y, 0)],
     set: (amount: number) => {
       material.opacity = 0.85 * amount
       lines.visible = amount > 0.005
