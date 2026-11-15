@@ -18,7 +18,7 @@ npm install
 npm run dev
 ```
 
-Apoi deschide `http://localhost:5173/`.
+Apoi deschide `http://localhost:5173/`. Pagina de istorie e la `http://localhost:5173/istorie/`.
 
 ## Comenzi
 
@@ -43,11 +43,14 @@ accent, poziția camerei, locul hologramei, filmările și pozele.
 - Sala reală în 360°: mergi în sală pe Google Arts & Culture, copiază adresa din browser și pune-o la
   `streetView: fromArtsLink('…')`. Imaginile nu se descarcă: se afișează prin încorporarea Google.
 - O filmare fără sunet primește `silent: true`, ca playerul să nu-i arate butonul de sunet.
+- Pagina de istorie: capitolele, cifrele, imaginile și sursele stau în `src/content/history.ts`, iar ce arată
+  macheta la fiecare capitol, în `src/history/stage/states.ts`. Imaginile vechi stau în `public/media/history/`.
 
 ## Cum e organizat
 
 ```
-src/content/    sălile, opririle turului, textele
+src/content/    sălile, opririle turului, textele, capitolele de istorie
+src/history/    pagina de istorie: firul, capitolele, macheta care urmează lectura
 src/scroll/     directorul de scroll: opriri, tastatură, linkuri directe
 src/state/      starea turului
 src/three/      scena 3D: palatul, sălile, hologramele, harta, camera

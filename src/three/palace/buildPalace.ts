@@ -435,6 +435,8 @@ export function buildPalace(): Palace {
 
   const terraces = buildTerraces()
   const site = buildSite()
+  // Pagina de istorie ridică palatul din teren și lasă planul de sit pe loc: îl găsește după nume.
+  site.name = 'sit'
   group.add(site, terraces, massing, edges, ...facade)
 
   const shell = [wall, trim, pane]

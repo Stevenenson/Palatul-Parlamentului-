@@ -40,6 +40,10 @@ tu îl verifici după fiecare pas și spui cinstit ce e bine și ce nu. Scrii î
   lectură în Garamond + panouri de sticlă”. Verifică și că: diacriticele românești se văd corect în titlurile cu Cinzel;
   atribuirea Google e vizibilă și neacoperită în vederea „Sala reală 360°”; în repo nu există imagini provenite din
   Street View; pagina nu trimite nicio cerere către Google înainte de clicul vizitatorului.
+- **Pagina de istorie** (`istorie/`, `src/history/`, `src/content/history.ts`): fiecare cifră și dată se găsește în
+  sursele listate în `HISTORY_SOURCES` (deschide articolele dacă poți; dacă nu, spune ce n-ai verificat); fiecare
+  fotografie are autor, an, licență liberă sau domeniu public și link spre pagina ei; firul și capitolul curent se
+  citesc ușor; macheta urmează lectura fără sărituri și nu desenează cadre când pagina stă pe loc.
 - **UX**: drag-ul rotește macheta, rotița derulează pagina, scroll-ul se așază pe săli fără să pară deturnat,
   swipe-ul din hologramă nu se bate cu scroll-ul, pinurile duc unde spun.
 - **Mobil**: nimic suprapus, nimic tăiat, ținte de atingere de cel puțin 44 px, macheta vizibilă.

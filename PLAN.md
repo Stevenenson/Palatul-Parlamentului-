@@ -105,11 +105,21 @@ Săli reale în 360°, design nou și fonturi cu aer roman. Planul întreg e în
   covoare mai potolite.
 - [x] **Pas 10 — Hartă și subsol.** Pinuri de sticlă cu cifre romane, sursele imaginilor și ale fonturilor.
 - [ ] **Pas 11 — opțional.** Panoramă proprie în scena 3D, cu holograma în sala reală: cere fotografii 360° proprii.
+- [x] **Pas 12 — Pagina de istorie.** Pagină separată, `istorie/`, cu link „Istorie” în bara de sus. Opt capitole pe
+  un fir cronologic care se umple la citire, cu cuprins; macheta 3D stă fixă alături și urmează povestea: palatul
+  coboară în teren, apare dealul cu biserica Mihai Vodă și conturul viitoarei clădiri, se ridică terasele, biserica
+  se mută spre est, palatul crește etaj cu etaj cu tăietura colorată ca la o machetă secționată, apoi cotele de 270 și
+  240 m. Desen în cerneală pentru mutarea bisericii, două imagini vechi în domeniul public (gravura din 1841, fotografia
+  bisericii din 1901–1904). Textul e scris după trei articole de pe Wikipedia, listate pe pagină.
 
 Abateri față de `PLAN-FAZA-2.md`: Pasul 8 a fost făcut odată cu Pasul 6; sticla e la 82% (nu 72%) și bronzul mai
 închis, pentru contrast; clasa `.pill` nu există, butoanele sunt direct pastile; restanțele de machetă din Pasul 10
 (coronament, arcade, umbre de contact, `frameloop="demand"`) au rămas nefăcute. Două dintre cele patru linkuri primite
 (galeria cu busturi și sala cu marmură roz) nu par să fie din cele patru săli ale turului și nu sunt folosite încă.
+
+Abateri față de planul Pasului 12: fără WebGL, capitolele nu primesc un desen al fațadei, ci textul trece la mijloc;
+dealul și biserica din scenă sunt schematice; cartierul Uranus nu apare, fiindcă articolul despre el nu există pe
+Wikipedia în limba română și nu l-am putut verifica.
 
 ## După test
 

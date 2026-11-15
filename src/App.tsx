@@ -11,20 +11,10 @@ import { RoomSection } from './ui/RoomSection'
 import { SceneBoundary } from './ui/SceneBoundary'
 import { StopNav } from './ui/StopNav'
 import { TopBar } from './ui/TopBar'
+import { hasWebGL } from './ui/webgl'
 
 // Scena 3D e partea grea a paginii: se încarcă separat, după ce textul e deja pe ecran.
 const Scene = lazy(() => import('./three/Scene').then((module) => ({ default: module.Scene })))
-
-function hasWebGL() {
-  try {
-    const gl = document.createElement('canvas').getContext('webgl2')
-    // Contextul de probă se eliberează imediat: browserele țin doar câteva deschise.
-    gl?.getExtension('WEBGL_lose_context')?.loseContext()
-    return Boolean(gl)
-  } catch {
-    return false
-  }
-}
 
 const WEBGL = hasWebGL()
 

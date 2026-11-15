@@ -5,7 +5,9 @@ import { useTour } from '../state/tour'
  * Dacă scena 3D nu poate porni (WebGL oprit, placă video refuzată, eroare la încărcare),
  * pagina rămâne în picioare: textele, legenda și linkurile merg fără machetă.
  */
-export class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+type Props = { children: ReactNode; onError?: () => void }
+
+export class SceneBoundary extends Component<Props, { failed: boolean }> {
   state = { failed: false }
 
   static getDerivedStateFromError() {
@@ -13,7 +15,8 @@ export class SceneBoundary extends Component<{ children: ReactNode }, { failed: 
   }
 
   componentDidCatch() {
-    useTour.getState().set({ scene: 'failed' })
+    if (this.props.onError) this.props.onError()
+    else useTour.getState().set({ scene: 'failed' })
   }
 
   render() {

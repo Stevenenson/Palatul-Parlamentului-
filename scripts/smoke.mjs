@@ -435,6 +435,101 @@ try {
     expect(Math.abs(now - y) < 2, `pagina a fost mutată de la ${y} la ${now}`)
   })
   await reduced.context.close()
+
+  // ——— Pagina de istorie ———
+  const historyUrl = new URL('istorie/', site.url).href
+  const hist = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'ro-RO' })
+  const hp = await hist.newPage()
+  const histErrors = []
+  hp.on('pageerror', (error) => histErrors.push(String(error)))
+  hp.on('console', (message) => message.type() === 'error' && histErrors.push(message.text()))
+  await hp.goto(historyUrl, { waitUntil: 'load' })
+
+  await check('istorie: macheta desenează și capitolele au toate ancora lor', async () => {
+    await hp.waitForSelector('main[data-scene="ready"]', { timeout: 20000 })
+    const ids = await hp.$$eval('.chapter', (els) => els.map((el) => el.id))
+    expect(ids.length === 8 && new Set(ids).size === 8, `capitole: ${ids.join(', ')}`)
+    const toc = await hp.$$eval('.toc a', (els) => els.map((el) => el.getAttribute('href')))
+    expect(toc.join() === ids.map((id) => `#${id}`).join(), 'cuprinsul nu duce la capitole')
+  })
+
+  await check('istorie: derularea schimbă capitolul curent și umple firul', async () => {
+    await hp.evaluate(() => {
+      const el = document.getElementById('capitol-santierul')
+      window.scrollTo(0, el.getBoundingClientRect().top + scrollY + el.offsetHeight * 0.4 - innerHeight * 0.45)
+    })
+    await hp.waitForFunction(() => document.querySelector('main').dataset.chapter === '5', null, { timeout: 3000 })
+    const state = await hp.$eval('#capitol-santierul', (el) => el.dataset.state)
+    expect(state === 'current', `capitolul V e „${state}”`)
+    const fill = await hp.$eval('.thread', (el) => parseFloat(el.style.getPropertyValue('--fill')))
+    expect(fill > 200, `firul e umplut doar ${fill} px`)
+  })
+
+  await check('istorie: cuprinsul duce la capitol', async () => {
+    await hp.evaluate(() => window.scrollTo(0, 0))
+    await hp.click('.toc a[href="#capitol-cifrele"]')
+    await hp.waitForFunction(() => document.querySelector('main').dataset.chapter === '7', null, { timeout: 3000 })
+  })
+
+  await check('istorie: imaginile au text alternativ și sursă', async () => {
+    const images = await hp.$$eval('.history img', (els) => els.map((el) => el.getAttribute('alt') ?? ''))
+    expect(images.length >= 2 && images.every((alt) => alt.length > 20), 'o imagine nu are text alternativ')
+    const sources = await hp.$$eval('.figure--photo figcaption a', (els) => els.map((el) => el.href))
+    expect(sources.length === images.length && sources.every((s) => s.startsWith('https://commons.wikimedia.org/')), 'o fotografie nu are sursa')
+    const loaded = await hp.$$eval('.history img', (els) => els.every((el) => el.complete && el.naturalWidth > 0))
+    expect(loaded, 'o fotografie nu s-a încărcat')
+  })
+
+  await check('istorie: „Hartă” duce la harta din tur, iar „Istorie” din tur înapoi aici', async () => {
+    await hp.click('.topbar__nav a:has-text("Hartă")')
+    await hp.waitForFunction(() => location.hash === '#harta', null, { timeout: 8000 })
+    await hp.waitForFunction(
+      () => document.querySelector('.stopnav__item[aria-current]')?.getAttribute('href') === '#harta',
+      null,
+      { timeout: 8000 },
+    )
+    await hp.click('.topbar__nav a:has-text("Istorie")')
+    await hp.waitForURL(/\/istorie\/$/, { timeout: 8000 })
+    expect((await hp.$eval('.topbar__nav a[aria-current="page"]', (el) => el.textContent)) === 'Istorie', 'pagina curentă nu e marcată')
+  })
+
+  await check('istorie: fără erori în consolă', async () => {
+    expect(histErrors.length === 0, histErrors.join(' | '))
+  })
+  await hist.close()
+
+  const histPhone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
+  const hph = await histPhone.newPage()
+  await hph.goto(historyUrl, { waitUntil: 'load' })
+  await check('istorie: pe telefon, nimic nu iese în lateral', async () => {
+    await hph.waitForSelector('main[data-scene="ready"]', { timeout: 20000 })
+    for (const id of ['capitol-dealul', 'capitol-demolarile', 'capitol-cifrele']) {
+      await hph.evaluate((target) => document.getElementById(target).scrollIntoView(), id)
+      await hph.waitForTimeout(200)
+      const overflow = await hph.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+      expect(overflow <= 0, `la ${id}, pagina e cu ${overflow} px mai lată decât ecranul`)
+    }
+  })
+  await histPhone.close()
+
+  const histPlain = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  await histPlain.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+      return String(type).startsWith('webgl') ? null : original.call(this, type, ...rest)
+    }
+  })
+  const hbare = await histPlain.newPage()
+  const hbareErrors = []
+  hbare.on('pageerror', (error) => hbareErrors.push(String(error)))
+  await hbare.goto(historyUrl, { waitUntil: 'load' })
+  await check('istorie: fără WebGL, textul rămâne întreg, fără machetă', async () => {
+    await hbare.waitForSelector('main[data-scene="failed"]', { timeout: 8000 })
+    expect((await hbare.locator('canvas').count()) === 0, 'scena a fost totuși montată')
+    expect((await hbare.locator('.chapter').count()) === 8, 'lipsesc capitole')
+    expect(hbareErrors.length === 0, hbareErrors.join(' | '))
+  })
+  await histPlain.close()
 } finally {
   await browser.close()
   await site.close()

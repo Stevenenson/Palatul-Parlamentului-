@@ -88,6 +88,39 @@ try {
 
     for (const error of errors) problems.push(`${viewport.name}: ${error}`)
     await context.close()
+
+    // Pagina de istorie: începutul, fiecare capitol și ridicarea palatului la jumătate.
+    const hist = await browser.newContext({
+      viewport: { width: viewport.width, height: viewport.height },
+      deviceScaleFactor: viewport.scale ?? 1,
+      isMobile: Boolean(viewport.mobile),
+      hasTouch: Boolean(viewport.mobile),
+      locale: 'ro-RO',
+    })
+    const hp = await hist.newPage()
+    hp.on('pageerror', (error) => problems.push(`${viewport.name} istorie: ${error}`))
+    hp.on('console', (m) => m.type() === 'error' && problems.push(`${viewport.name} istorie: ${m.text()}`))
+    await hp.goto(new URL('istorie/', site.url).href, { waitUntil: 'load' })
+    await hp.waitForSelector('main[data-scene="ready"]', { timeout: 30000 })
+    const chapters = await hp.$$eval('.chapter', (els) => els.map((el) => el.id))
+    const spots = [['inceput', null, 0], ...chapters.map((id) => [id, id, 0.3]), ['santierul-jumatate', 'capitol-santierul', 0.42]]
+    for (const [name, id, f] of spots) {
+      await hp.evaluate(
+        ([target, frac]) => {
+          if (!target) return window.scrollTo(0, 0)
+          const el = document.getElementById(target)
+          const line = innerWidth <= 760 ? 0.66 : 0.45
+          window.scrollTo(0, el.getBoundingClientRect().top + scrollY + el.offsetHeight * frac - innerHeight * line)
+        },
+        [id, f],
+      )
+      // Macheta se așază lin: așteptăm să termine.
+      await hp.waitForTimeout(2200)
+      const file = `${viewport.name}-istorie-${name.replace('capitol-', '')}.png`
+      await hp.screenshot({ path: path.join(outDir, file) })
+      console.log(`  ${file}`)
+    }
+    await hist.close()
   }
 } finally {
   await browser.close()

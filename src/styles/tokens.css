@@ -3,7 +3,7 @@
  * Faza 2 adaugă litere romane (Cinzel), text de lectură în Garamond și panouri de sticlă.
  */
 :root {
-  --paper: #f2f0eb; /* aceeași valoare ca PAPER din src/three/Scene.tsx */
+  --paper: #f2f0eb; /* aceeași valoare ca PAPER din src/three/Lights.tsx */
   --paper-2: #e8e5dd;
   --surface: #fbfaf7;
   --stone: #e3ded3;

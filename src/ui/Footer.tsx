@@ -1,6 +1,28 @@
 import { stopLink } from './links'
+import { HISTORY_URL, tourUrl } from './pages'
 
-export function Footer() {
+export function Footer({ page = 'tur' }: { page?: 'tur' | 'istorie' }) {
+  if (page === 'istorie') {
+    return (
+      <footer className="footer">
+        <div className="wrap footer__row">
+          <p className="footer__brand">Palatul Parlamentului, tur 3D</p>
+          <p>
+            Textul paginii e scris pentru acest site, după articolele de pe Wikipedia în limba română listate mai
+            sus. Gravura și fotografia veche sunt în domeniul public, de pe Wikimedia Commons. Macheta este
+            schematică, iar ridicarea ei pe etape nu reproduce ordinea reală a lucrărilor.
+          </p>
+          <p>
+            Litere: Cinzel, EB Garamond și IBM Plex, sub licența SIL Open Font.{' '}
+            <a className="link" href={tourUrl()}>
+              Mergi la turul 3D
+            </a>
+          </p>
+        </div>
+      </footer>
+    )
+  }
+
   return (
     <footer className="footer">
       <div className="wrap footer__row">
@@ -17,6 +39,10 @@ export function Footer() {
           </a>
           , citit în noiembrie 2026; unde articolul dă două valori, am folosit-o pe cea din introducere.{' '}
           Litere: Cinzel, EB Garamond și IBM Plex, sub licența SIL Open Font.{' '}
+          <a className="link" href={HISTORY_URL}>
+            Istoria palatului
+          </a>
+          {' · '}
           <a className="link" {...stopLink('palat')}>
             Mergi la începutul turului
           </a>
