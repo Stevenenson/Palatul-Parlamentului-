@@ -15,7 +15,7 @@ const VIEWPORTS = [
 ]
 
 /** Poziții între două opriri, ca să se vadă și drumul camerei. */
-const TRANSITS = [0.5, 1.5, 2.5, 4.5]
+const TRANSITS = [0.5, 1.5, 2.5, 3.5, 5.5]
 
 await mkdir(outDir, { recursive: true })
 const site = await startSite()
@@ -25,6 +25,8 @@ const problems = []
 try {
   for (const viewport of VIEWPORTS) {
     const { context, page, errors } = await openTour(browser, site.url, viewport)
+    // Macheta orașului se descarcă după scenă: prima captură o așteaptă.
+    await page.waitForFunction(() => window.__tour.live.cityReady, null, { timeout: 30000 })
     const info = await page.evaluate(() => {
       const gl = document.querySelector('canvas')?.getContext('webgl2')
       const ext = gl?.getExtension('WEBGL_debug_renderer_info')
@@ -42,7 +44,7 @@ try {
       await page.waitForTimeout(2000)
       return ((await page.evaluate(() => window.__tour.live.frames)) - before) / 2
     }
-    console.log(`  cadre pe secundă pe exterior: ${(await fps()).toFixed(0)}`)
+    console.log(`  cadre pe secundă în oraș: ${(await fps()).toFixed(0)}`)
     for (let i = 0; i < info.anchors.length; i++) {
       await page.evaluate((y) => window.scrollTo(0, y), info.anchors[i])
       await waitForCamera(page)
@@ -54,7 +56,7 @@ try {
     // Foaia „Sala reală 360°”, cu un cadru local în locul celui Google.
     const real = page.locator('.view__real').first()
     if ((await real.count()) > 0) {
-      await page.evaluate((y) => window.scrollTo(0, y), info.anchors[1])
+      await page.evaluate((y) => window.scrollTo(0, y), info.anchors[2])
       await waitForCamera(page)
       await real.click()
       await page.waitForSelector('dialog.real[open] iframe')
@@ -66,11 +68,11 @@ try {
 
     if (viewport.transits) {
       // Fațada văzută din față, pentru comparația cu fotografiile de referință.
-      await page.evaluate(() => window.scrollTo(0, 0))
+      await page.evaluate((y) => window.scrollTo(0, y), info.anchors[1])
       await waitForCamera(page)
       for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft')
       await page.waitForTimeout(300)
-      await page.screenshot({ path: path.join(outDir, `${viewport.name}-0-palat-din-fata.png`) })
+      await page.screenshot({ path: path.join(outDir, `${viewport.name}-1-palat-din-fata.png`) })
       for (const t of TRANSITS) {
         const i = Math.floor(t)
         if (i + 1 >= info.anchors.length) continue

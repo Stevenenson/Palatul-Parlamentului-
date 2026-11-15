@@ -11,12 +11,12 @@ type Page = 'tur' | 'istorie'
  */
 export function TopBar({ page = 'tur' }: { page?: Page }) {
   const onTour = page === 'tur'
-  const toStop = (id: string) => (onTour ? stopLink(id) : { href: tourUrl(id === 'palat' ? undefined : id) })
+  const toStop = (id: string) => (onTour ? stopLink(id) : { href: tourUrl(id === 'oras' ? undefined : id) })
 
   return (
     <header className="topbar">
       <div className="wrap topbar__row">
-        <a className="brand" {...toStop('palat')}>
+        <a className="brand" {...toStop('oras')}>
           <svg className="brand__mark" viewBox="0 0 28 20" aria-hidden="true">
             <path d="M1 19h26v-6h-4V8h-5V3h-8v5H5v5H1z" />
           </svg>

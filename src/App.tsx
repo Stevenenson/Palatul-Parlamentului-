@@ -3,7 +3,7 @@ import { ROOMS } from './content/rooms'
 import { initDirector } from './scroll/director'
 import { useTour } from './state/tour'
 import { Footer } from './ui/Footer'
-import { Hero } from './ui/Hero'
+import { Hero, PalaceSection } from './ui/Hero'
 import { Meander } from './ui/Meander'
 import { MapSection } from './ui/MapSection'
 import { RealRoom } from './ui/RealRoom'
@@ -49,6 +49,7 @@ export function App() {
       </div>
       <main id="continut">
         <Hero />
+        <PalaceSection />
         {ROOMS.map((room, i) => (
           <RoomSection key={room.id} room={room} index={i} />
         ))}

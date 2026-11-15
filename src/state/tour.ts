@@ -6,7 +6,7 @@ import { ROOMS } from '../content/rooms'
  * redeseneze interfața la fiecare pixel de scroll; scena le citește în `useFrame`.
  */
 export const live = {
-  /** Poziția în tur cerută de scroll: 0 = exterior, 1..n = săli, ultima = hartă. */
+  /** Poziția în tur cerută de scroll: 0 = orașul, 1 = palatul, apoi sălile, ultima = harta. */
   tTarget: 0,
   /** Aceeași poziție, netezită; după ea se mișcă efectiv camera. */
   t: 0,
@@ -16,6 +16,10 @@ export const live = {
   solid: 1,
   /** 0..1: modul hartă. */
   map: 0,
+  /** Macheta orașului: 1 în prima oprire, 0 de la palat încolo. */
+  city: 1,
+  /** Macheta orașului s-a încărcat și s-a ridicat; scripturile de capturi așteaptă după ea. */
+  cityReady: false,
   /** Utilizatorul trage cu mouse-ul sau cu degetul pe scenă. */
   dragging: false,
   /** Poziția cursorului, normalizată la -1..1, pentru privitul în jur din săli. */

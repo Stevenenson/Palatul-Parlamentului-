@@ -13,6 +13,7 @@ import {
   VideoTexture,
 } from 'three'
 import { ROOMS, type Recording, type RoomSpec } from '../../content/rooms'
+import { FIRST_ROOM_STOP } from '../../content/stops'
 import { recordingVideos } from '../../state/media'
 import { live, useTour, wrapIndex } from '../../state/tour'
 import { containFit, createHologramMaterial } from './hologramMaterial'
@@ -112,7 +113,7 @@ function Hologram({ room, index }: { room: RoomSpec; index: number }) {
     const s = state.current
     const dt = Math.min(delta, 0.1)
     const store = useTour.getState()
-    const stop = index + 1
+    const stop = index + FIRST_ROOM_STOP
     const here = store.stop === stop && Math.abs(live.t - stop) < 0.3
     s.power = live.reducedMotion ? (here ? 1 : 0) : MathUtils.damp(s.power, here ? 1 : 0, 4.5, dt)
 

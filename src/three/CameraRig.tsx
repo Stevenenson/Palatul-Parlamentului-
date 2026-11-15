@@ -4,8 +4,11 @@ import { MathUtils, type PerspectiveCamera, Spherical, Vector3 } from 'three'
 import { activeRoom, swipeCancel, swipeEnd, swipeMove, swipeStart } from '../state/swipe'
 import { live, useTour } from '../state/tour'
 import {
+  CITY_NARROW,
+  NARROW_WIDTH,
   STOPS,
   blendPose,
+  cityAt,
   fovForAspect,
   framingAt,
   liftBetween,
@@ -24,8 +27,10 @@ const PITCH_MAX = 0.42
 /** Limitele unghiului față de verticală pentru rotirea făcută de utilizator. */
 const PHI_MIN = 0.2
 const PHI_MAX = 1.5
+const FAR = 4200
+const FAR_CITY = 9000
 
-type Flight = { to: number; from: number; k: number; lift: number; solid: number; map: number }
+type Flight = { to: number; from: number; k: number; lift: number; solid: number; map: number; city: number }
 
 const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a))
 const smooth = (x: number) => x * x * (3 - 2 * x)
@@ -56,6 +61,7 @@ export function CameraRig() {
     framing: { cx: 0.5, cy: 0.5 },
     fov: 0,
     near: 0,
+    far: 0,
     cx: 0.5,
     cy: 0.5,
     view: [0, 0, 0, 0],
@@ -200,6 +206,7 @@ export function CameraRig() {
           lift: liftBetween(r.from, to.pose, nearest.kind === 'room' && to.kind === 'room'),
           solid: live.solid,
           map: live.map,
+          city: live.city,
         }
         // Poziția de plecare conține deja rotirea utilizatorului.
         r.yaw = r.pitch = r.sway = r.lookYaw = r.lookPitch = 0
@@ -211,6 +218,7 @@ export function CameraRig() {
       live.t = MathUtils.lerp(flight.from, flight.to, e)
       live.solid = MathUtils.lerp(flight.solid, solidAt(flight.to), e)
       live.map = MathUtils.lerp(flight.map, mapAt(flight.to), e)
+      live.city = MathUtils.lerp(flight.city, cityAt(flight.to), e)
       if (flight.k >= 1) {
         live.t = flight.to
         live.flightTo = null
@@ -223,6 +231,7 @@ export function CameraRig() {
       poseAt(live.t, r.pose)
       live.solid = solidAt(live.t)
       live.map = mapAt(live.t)
+      live.city = cityAt(live.t)
     }
 
     // 2. Rotirea făcută de utilizator, valabilă doar cât stăm pe o oprire.
@@ -237,7 +246,7 @@ export function CameraRig() {
 
     // Macheta se leagănă încet până când utilizatorul o apucă prima dată.
     const swayOn =
-      atStop && stop.kind === 'exterior' && !instant && !live.debug && !useTour.getState().hasOrbited
+      atStop && (stop.kind === 'exterior' || stop.kind === 'city') && !instant && !live.debug && !useTour.getState().hasOrbited
     r.sway = MathUtils.damp(r.sway, swayOn ? 1 : 0, 3, dt)
     const sway = Math.sin(state.clock.elapsedTime * 0.22) * 0.2 * r.sway
 
@@ -245,6 +254,11 @@ export function CameraRig() {
     r.lookYaw = MathUtils.damp(r.lookYaw, -live.pointerX * 0.1 * look, 3.5, dt)
     r.lookPitch = MathUtils.damp(r.lookPitch, live.pointerY * 0.035 * look, 3.5, dt)
 
+    // Pe ecrane înguste, orașul are cadrul lui; se topește în traseul obișnuit odată cu macheta orașului.
+    if (size.width <= NARROW_WIDTH && live.city > 0) {
+      r.pose.position.lerp(CITY_NARROW.position, live.city)
+      r.pose.target.lerp(CITY_NARROW.target, live.city)
+    }
     r.offset.subVectors(r.pose.position, r.pose.target)
     r.spherical.setFromVector3(r.offset)
     r.spherical.theta += r.yaw + sway + r.lookYaw
@@ -260,12 +274,15 @@ export function CameraRig() {
     const aspect = size.width / size.height
     const fov = fovForAspect(r.pose.fov, aspect)
     const near = MathUtils.clamp(r.offset.length() * 0.02, 0.2, 6)
-    if (Math.abs(fov - r.fov) > 0.01 || Math.abs(near - r.near) > 0.01) {
+    // Orașul se întinde mult mai departe decât palatul; în săli, un plan îndepărtat apropiat ține adâncimea precisă.
+    const far = live.city > 0 ? FAR_CITY : FAR
+    if (Math.abs(fov - r.fov) > 0.01 || Math.abs(near - r.near) > 0.01 || far !== r.far) {
       r.fov = fov
       r.near = near
+      r.far = far
       camera.fov = fov
       camera.near = near
-      camera.far = 4200
+      camera.far = far
       camera.updateProjectionMatrix()
     }
 

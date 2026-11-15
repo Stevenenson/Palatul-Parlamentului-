@@ -1,6 +1,6 @@
 import { MathUtils, Vector3 } from 'three'
 import type { RoomSpec } from '../content/rooms'
-import { LAST_STOP, STOP_LIST, type StopInfo } from '../content/stops'
+import { LAST_STOP, PALACE_STOP, STOP_LIST, type StopInfo } from '../content/stops'
 
 export type Pose = { position: Vector3; target: Vector3; fov: number }
 export type Stop = StopInfo & { pose: Pose }
@@ -17,13 +17,15 @@ function roomPose(room: RoomSpec): Pose {
   }
 }
 
+/** Orașul, de sus, dinspre sud-est: Bulevardul Unirii intră în cadru din dreapta, spre fațadă. */
+const CITY: Pose = { position: v(-1080, 700, 1500), target: v(60, 20, 40), fov: 30 }
 const EXTERIOR: Pose = { position: v(-380, 123, 627), target: v(0, 27, 8), fov: 30 }
 const MAP: Pose = { position: v(-320, 430, 500), target: v(0, 10, 20), fov: 30 }
 
 /** Opririle turului, cu poziția camerei pe fiecare. */
 export const STOPS: Stop[] = STOP_LIST.map((info) => ({
   ...info,
-  pose: info.room ? roomPose(info.room) : info.kind === 'map' ? MAP : EXTERIOR,
+  pose: info.room ? roomPose(info.room) : info.kind === 'map' ? MAP : info.kind === 'city' ? CITY : EXTERIOR,
 }))
 
 export const makePose = (): Pose => ({ position: new Vector3(), target: new Vector3(), fov: 30 })
@@ -61,9 +63,15 @@ export function poseAt(t: number, out: Pose) {
 
 /** 1 = carcasa palatului e opacă (exterior), 0 = transparentă (în săli și pe hartă). */
 export function solidAt(t: number): number {
-  if (t <= 0) return 1
-  if (t >= 1) return 0
-  return 1 - MathUtils.smoothstep(t, 0.22, 0.62)
+  const inside = t - PALACE_STOP
+  if (inside <= 0) return 1
+  if (inside >= 1) return 0
+  return 1 - MathUtils.smoothstep(inside, 0.22, 0.62)
+}
+
+/** 1 = macheta orașului e ridicată (prima oprire), 0 = retrasă în hârtie (de la palat încolo). */
+export function cityAt(t: number): number {
+  return 1 - MathUtils.smoothstep(t, 0.18, PALACE_STOP - 0.12)
 }
 
 /** 0..1: cât de mult suntem în modul hartă. */
@@ -85,21 +93,29 @@ export function fovForAspect(fov: number, aspect: number): number {
   return Math.min(MathUtils.radToDeg(2 * Math.atan(half / aspect)), 84)
 }
 
+/**
+ * Orașul pe ecrane înguste: mai de aproape și aproape din axul bulevardului, care urcă pe
+ * verticala ecranului până la fațadă, cu catedrala în spatele palatului.
+ */
+export const CITY_NARROW: Pose = { position: v(-330, 560, 1150), target: v(-20, 10, 20), fov: 30 }
+
 /** Același prag ca în CSS (`@media (max-width: 760px)`): sub el, panoul de text stă jos. */
 export const NARROW_WIDTH = 760
 
 /**
- * Unde stă subiectul pe ecran (0..1). Pe ecrane late: la mijloc pe exterior, sub titlu, apoi
+ * Unde stă subiectul pe ecran (0..1). Pe ecrane late: la mijloc în oraș și pe exterior, sub titlu, apoi
  * spre dreapta în săli și pe hartă, ca să lase loc panoului din stânga. Pe ecrane înguste: la
  * mijloc pe exterior și mai sus în săli și pe hartă, unde panoul de text ocupă partea de jos.
  */
 export function framingAt(t: number, width: number, out: { cx: number; cy: number }) {
-  const inside = MathUtils.smoothstep(t, 0.15, 0.85)
+  const inside = MathUtils.smoothstep(t - PALACE_STOP, 0.15, 0.85)
+  // În oraș, palatul stă ceva mai jos: deasupra lui rămâne loc pentru titlu.
+  const city = cityAt(t)
   if (width > NARROW_WIDTH) {
     out.cx = MathUtils.lerp(0.5, 0.64, inside)
-    out.cy = MathUtils.lerp(0.52, 0.5, inside)
+    out.cy = MathUtils.lerp(0.52, 0.5, inside) + 0.08 * city
     return
   }
   out.cx = 0.5
-  out.cy = MathUtils.lerp(0.5, 0.3, inside)
+  out.cy = MathUtils.lerp(0.5, 0.3, inside) + 0.04 * city
 }

@@ -1,4 +1,4 @@
-import { STOP_LIST as STOPS } from '../content/stops'
+import { FIRST_ROOM_STOP, STOP_LIST as STOPS } from '../content/stops'
 import { live, useTour } from './tour'
 
 /**
@@ -10,7 +10,7 @@ import { live, useTour } from './tour'
 export function activeRoom(): number | null {
   const { stop, settled, flying } = useTour.getState()
   if (!settled || flying || STOPS[stop].kind !== 'room') return null
-  return stop - 1
+  return stop - FIRST_ROOM_STOP
 }
 
 let room: number | null = null

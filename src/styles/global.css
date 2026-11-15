@@ -405,6 +405,25 @@ main :is(a, button, .panel, .facts) {
   }
 }
 
+/* Al doilea ecran apare abia când orașul s-a retras: textul lui nu urcă peste clădiri. */
+@supports (animation-timeline: view()) {
+  .hero--palace :is(.hero__head, .hero__foot) {
+    animation:
+      hero-in linear both,
+      hero-out linear both;
+    animation-timeline: view();
+    animation-range:
+      entry 55% entry 100%,
+      exit 0% exit 70%;
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+  }
+}
+
 h1 {
   font-family: var(--font-display);
   font-weight: 500;
@@ -537,6 +556,121 @@ h1 {
 
 .hint[data-done] {
   opacity: 0;
+}
+
+/* ——— Primul ecran: orașul. Titlul sus, macheta orașului dedesubt, un singur gest: coboară. ——— */
+
+.hero__title {
+  margin-top: 0;
+  font-size: clamp(1.7rem, 1.1rem + 2.2vw, 3rem);
+  line-height: 1.06;
+}
+
+.descend {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 18px 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  color: var(--ink);
+  font-size: var(--size-small);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 10px 22px -14px rgb(23 25 29 / 0.5);
+  transition: transform 0.18s var(--ease);
+}
+
+.descend:hover {
+  transform: translateY(2px);
+}
+
+.descend svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: descend-nudge 2.4s var(--ease) infinite;
+}
+
+@keyframes descend-nudge {
+  0%,
+  55%,
+  100% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(3px);
+  }
+}
+
+/* Etichetele reperelor: nume mic, ca pe o planșă, cu un punct pe locul lui. Le așază scena 3D. */
+.citylabels {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.citylabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+.citylabel__dot {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px rgb(242 240 235 / 0.85);
+}
+
+.citylabel__name {
+  position: absolute;
+  left: 12px;
+  top: -0.72em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: rgb(242 240 235 / 0.78);
+  color: var(--ink);
+  font: 600 0.6875rem / 1.3 var(--font-text);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.citylabel[data-side='left'] .citylabel__name {
+  left: auto;
+  right: 12px;
+}
+
+/* Un văl de hârtie sub titlu: orașul se pierde spre orizont în loc să treacă pe sub litere. */
+.hero--city::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: min(46svh, 420px);
+  background: linear-gradient(var(--paper) 30%, rgb(242 240 235 / 0.72) 62%, rgb(242 240 235 / 0));
+  pointer-events: none;
+}
+
+.hero--city .wrap {
+  position: relative;
 }
 
 /* ——— Săli și hartă: un panou de text lângă scenă ——— */
@@ -1501,6 +1635,16 @@ h2 {
     display: none;
   }
 
+  .citylabel[data-side='left'] .citylabel__name {
+    right: 9px;
+  }
+
+  .citylabel__name {
+    left: 9px;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
   .room__grid {
     flex-direction: column;
     justify-content: flex-end;
@@ -1524,6 +1668,11 @@ h2 {
   .hero__facts {
     display: grid;
     grid-template-columns: repeat(3, auto);
+  }
+
+  /* O etichetă pe două rânduri nu are voie să ridice cifra de deasupra ei față de vecine. */
+  .hero__facts .fact {
+    justify-content: flex-end;
   }
 
   .recording__text {
@@ -1628,6 +1777,10 @@ h2 {
 
   .hero__head,
   .hero__foot {
+    animation: none;
+  }
+
+  .descend svg {
     animation: none;
   }
 }

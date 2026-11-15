@@ -35,6 +35,10 @@ try {
   const { context, page, errors, google } = await openTour(browser, site.url, { width: 1280, height: 800 })
   const anchors = await page.evaluate(() => window.__tour.anchors())
   const last = anchors.length - 1
+  // Ordinea opririlor: orașul, palatul, apoi sălile (Galeria de Onoare, Sala Unirii, …) și harta.
+  const PALACE = 1
+  const GALLERY = 2
+  const UNIRII = 3
 
   await check('scena 3D desenează', async () => {
     const ok = await page.evaluate(() => {
@@ -45,31 +49,62 @@ try {
   })
 
   await check('fiecare oprire are secțiune și ancoră distinctă', async () => {
-    expect(anchors.length >= 6, `doar ${anchors.length} opriri`)
+    expect(anchors.length >= 7, `doar ${anchors.length} opriri`)
     for (let i = 1; i < anchors.length; i++) {
       expect(anchors[i] > anchors[i - 1], `ancora ${i} nu e sub ancora ${i - 1}`)
     }
   })
 
   await check('scroll-ul schimbă oprirea activă', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[UNIRII])
     await waitForCamera(page)
-    expect((await currentStop(page)) === 2, 'oprirea activă nu e a treia')
+    expect((await currentStop(page)) === UNIRII, 'oprirea activă nu e Sala Unirii')
     const t = await page.evaluate(() => window.__tour.live.t)
-    expect(Math.abs(t - 2) < 0.01, `camera e la t=${t}`)
+    expect(Math.abs(t - UNIRII) < 0.01, `camera e la t=${t}`)
   })
 
   await check('scroll-ul parțial se așază pe oprirea următoare', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[1])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[GALLERY])
     await waitForCamera(page)
     await page.mouse.move(640, 400)
-    await wheelAndSettle(page, (anchors[2] - anchors[1]) * 0.3)
-    expect((await currentStop(page)) === 2, `s-a așezat pe oprirea ${await currentStop(page)}`)
+    await wheelAndSettle(page, (anchors[UNIRII] - anchors[GALLERY]) * 0.3)
+    expect((await currentStop(page)) === UNIRII, `s-a așezat pe oprirea ${await currentStop(page)}`)
   })
 
   await check('un scroll mic revine la oprirea curentă', async () => {
-    await wheelAndSettle(page, (anchors[3] - anchors[2]) * 0.06)
-    expect((await currentStop(page)) === 2, `s-a așezat pe oprirea ${await currentStop(page)}`)
+    await wheelAndSettle(page, (anchors[UNIRII + 1] - anchors[UNIRII]) * 0.06)
+    expect((await currentStop(page)) === UNIRII, `s-a așezat pe oprirea ${await currentStop(page)}`)
+  })
+
+  await check('orașul: macheta se încarcă, iar etichetele se văd doar în prima oprire', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await page.waitForFunction(() => window.__tour.live.cityReady, null, { timeout: 30000 })
+    const shown = () =>
+      page.evaluate(() => [...document.querySelectorAll('.citylabel')].filter((el) => getComputedStyle(el).visibility === 'visible').length)
+    await page.waitForFunction(() => document.querySelector('.citylabel')?.style.opacity === '1', null, { timeout: 5000 })
+    expect((await shown()) === 5, `se văd ${await shown()} etichete din 5`)
+    const boxes = await page.evaluate(() =>
+      [...document.querySelectorAll('.citylabel__name')].map((el) => {
+        const r = el.getBoundingClientRect()
+        return r.left >= 0 && r.right <= innerWidth && r.top >= 64 && r.bottom <= innerHeight
+      }),
+    )
+    expect(boxes.every(Boolean), 'o etichetă iese din ecran')
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[PALACE])
+    await waitForCamera(page)
+    expect((await shown()) === 0, 'o etichetă a orașului a rămas vizibilă la palat')
+    expect((await page.evaluate(() => window.__tour.live.city)) === 0, 'macheta orașului nu s-a retras')
+  })
+
+  await check('„Coboară spre palat” duce la macheta mare și scrie ancora în adresă', async () => {
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await waitForCamera(page)
+    await page.click('.descend')
+    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[PALACE], { timeout: 8000 })
+    await waitForCamera(page)
+    expect((await currentStop(page)) === PALACE, `s-a așezat pe oprirea ${await currentStop(page)}`)
+    expect((await page.evaluate(() => location.hash)) === '#palat', 'ancora din adresă lipsește')
   })
 
   await check('linkul „Hartă” zboară la hartă și scrie ancora în adresă', async () => {
@@ -86,11 +121,11 @@ try {
     await page.click('.legend__item[href="#sala-unirii"]')
     await page.waitForFunction(() => window.__tour.live.flightTo === null, null, { timeout: 15000 })
     await waitForCamera(page)
-    expect((await currentStop(page)) === 2, 'nu a ajuns în Sala Unirii')
+    expect((await currentStop(page)) === UNIRII, 'nu a ajuns în Sala Unirii')
   })
 
   await check('macheta se rotește cu drag și cu săgețile pe exterior', async () => {
-    await page.evaluate(() => window.scrollTo(0, 0))
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[PALACE])
     await waitForCamera(page)
     const cameraX = () => page.evaluate(() => window.__tour.cameraX())
     const start = await cameraX()
@@ -109,7 +144,7 @@ try {
     expect(hidden, 'indiciul de rotire a rămas pe ecran')
   })
 
-  await check('o singură crestătură de rotiță trece la sala următoare', async () => {
+  await check('o singură crestătură de rotiță trece la oprirea următoare', async () => {
     await page.evaluate(() => window.scrollTo(0, 0))
     await waitForCamera(page)
     await wheelAndSettle(page, 100)
@@ -133,13 +168,13 @@ try {
   })
 
   await check('Tab duce turul pe secțiunea elementului focusat', async () => {
-    await page.evaluate(() => window.scrollTo(0, 0))
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[PALACE])
     await waitForCamera(page)
     await page.focus('.hero .actions a:last-of-type')
     await page.keyboard.press('Tab')
     const focused = await page.evaluate(() => document.activeElement?.closest('main > section')?.id)
     expect(focused === 'galeria-de-onoare', `focusul e în ${focused}`)
-    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[1], { timeout: 8000 })
+    await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, anchors[GALLERY], { timeout: 8000 })
     const visible = await page.evaluate(() => {
       const rect = document.activeElement.getBoundingClientRect()
       return rect.top >= 0 && rect.bottom <= window.innerHeight
@@ -174,7 +209,7 @@ try {
   const count = (id) => page.evaluate((room) => document.querySelector(`#${room} .recording__count`).textContent.trim(), id)
 
   await check('filmările se schimbă din săgeți, din puncte, din tastatură și cu swipe', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[1])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[GALLERY])
     await waitForCamera(page)
     const room = 'galeria-de-onoare'
     expect((await count(room)) === 'Filmarea 1 din 3', `pornește cu „${await count(room)}”`)
@@ -193,11 +228,11 @@ try {
     expect(pulled > 0.5, `în timpul gestului, holograma a fost trasă doar ${pulled}`)
     expect((await count(room)) === 'Filmarea 2 din 3', `după swipe: „${await count(room)}”`)
     const y = await page.evaluate(() => window.scrollY)
-    expect(Math.abs(y - anchors[1]) < 2, 'swipe-ul a mișcat pagina')
+    expect(Math.abs(y - anchors[GALLERY]) < 2, 'swipe-ul a mișcat pagina')
   })
 
   await check('o filmare se poate deschide mare, cu comenzile browserului', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[UNIRII])
     await waitForCamera(page)
     await page.click('#sala-unirii .icon-btn[aria-label="Deschide filmarea mare"]')
     await page.waitForSelector('#sala-unirii dialog[open] video[controls]', { timeout: 3000 })
@@ -209,7 +244,7 @@ try {
   })
 
   await check('filmarea video rulează doar cât sala e activă', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[UNIRII])
     await waitForCamera(page)
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 8000 })
     // Filmarea de test nu are pistă audio, deci playerul nu trebuie să-i arate buton de sunet.
@@ -222,13 +257,13 @@ try {
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
     await page.click('#sala-unirii .round[aria-label="Filmarea anterioară"]')
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === true, null, { timeout: 5000 })
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[3])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[UNIRII + 1])
     await waitForCamera(page)
     await page.waitForFunction(() => window.__tour.playing['sala-unirii']()[0] === false, null, { timeout: 5000 })
   })
 
   await check('sala reală 360° se deschide doar la cerere și oprește macheta', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[1])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[GALLERY])
     await waitForCamera(page)
     const withView = await page.evaluate(() =>
       [...document.querySelectorAll('main > section.room')].filter((s) => s.querySelector('.view__real')).map((s) => s.id),
@@ -263,7 +298,7 @@ try {
     await page.goBack()
     await page.waitForFunction(() => !document.querySelector('dialog.real[open]'), null, { timeout: 3000 })
     await page.waitForTimeout(600)
-    expect(Math.abs((await page.evaluate(() => window.scrollY)) - anchors[1]) < 2, 'Înapoi a mutat turul din sală')
+    expect(Math.abs((await page.evaluate(() => window.scrollY)) - anchors[GALLERY]) < 2, 'Înapoi a mutat turul din sală')
     const again = await page.evaluate(() => window.__tour.live.frames)
     await page.waitForFunction((n) => window.__tour.live.frames > n + 4, again, { timeout: 5000 })
   })
@@ -282,17 +317,17 @@ try {
       // De pe hartă, sala vecină se atinge prin derulare, celelalte prin zbor: așteptăm să ajungă pagina.
       await page.waitForFunction(
         (y) => window.__tour.live.flightTo === null && Math.abs(window.scrollY - y) < 2,
-        anchors[i + 1],
+        anchors[GALLERY + i],
         { timeout: 15000 },
       )
       await waitForCamera(page)
-      expect((await currentStop(page)) === i + 1, `pinul ${ids[i]} a dus la oprirea ${await currentStop(page)}`)
+      expect((await currentStop(page)) === GALLERY + i, `pinul ${ids[i]} a dus la oprirea ${await currentStop(page)}`)
       expect((await page.evaluate(() => location.hash)) === ids[i], 'adresa nu are ancora sălii')
     }
   })
 
   await check('pinurile se ascund în afara hărții', async () => {
-    await page.evaluate((y) => window.scrollTo(0, y), anchors[2])
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[UNIRII])
     await waitForCamera(page)
     const visible = await page.evaluate(() => [...document.querySelectorAll('.pin')].some((pin) => getComputedStyle(pin).visibility === 'visible'))
     expect(!visible, 'un pin a rămas vizibil într-o sală')
@@ -325,10 +360,10 @@ try {
     const state = await direct.page.evaluate(() => ({
       t: window.__tour.live.t,
       y: window.scrollY,
-      anchor: window.__tour.anchors()[2],
+      anchor: window.__tour.anchors()[3],
       hash: location.hash,
     }))
-    expect(Math.abs(state.t - 2) < 0.01, `turul e la t=${state.t}`)
+    expect(Math.abs(state.t - 3) < 0.01, `turul e la t=${state.t}`)
     expect(Math.abs(state.y - state.anchor) < 2, `scroll la ${state.y}, ancora la ${state.anchor}`)
     expect(state.hash === '#sala-unirii', `ancora din adresă e „${state.hash}”`)
   })
@@ -341,7 +376,7 @@ try {
     await low.page.waitForTimeout(300)
     const info = await low.page.evaluate(() => {
       const section = document.getElementById('galeria-de-onoare')
-      return { top: window.__tour.anchors()[1], extra: section.offsetHeight - window.innerHeight }
+      return { top: window.__tour.anchors()[2], extra: section.offsetHeight - window.innerHeight }
     })
     expect(info.extra > 20, `secțiunea încape în fereastră (diferență ${info.extra} px); testul nu verifică nimic`)
     const target = info.top + info.extra - 4
@@ -349,16 +384,18 @@ try {
     await low.page.waitForTimeout(700)
     const state = await low.page.evaluate(() => ({ y: window.scrollY, t: window.__tour.live.tTarget }))
     expect(Math.abs(state.y - target) < 3, `pagina a fost mutată la ${state.y}`)
-    expect(Math.abs(state.t - 1) < 0.01, `turul a plecat din sală (t=${state.t})`)
+    expect(Math.abs(state.t - 2) < 0.01, `turul a plecat din sală (t=${state.t})`)
   })
   await low.context.close()
 
   const phone = await openTour(browser, site.url, { width: 390, height: 844, scale: 2, mobile: true })
   await check('pe telefon, un swipe în sus trece la sala următoare', async () => {
     const tops = await phone.page.evaluate(() => window.__tour.anchors())
+    await phone.page.evaluate((y) => window.scrollTo(0, y), tops[1])
+    await waitForCamera(phone.page)
     const session = await phone.context.newCDPSession(phone.page)
     await session.send('Input.synthesizeScrollGesture', { x: 195, y: 600, yDistance: -260, speed: 900 })
-    await phone.page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[1], { timeout: 10000 })
+    await phone.page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[2], { timeout: 10000 })
   })
   await check('pe telefon, un swipe orizontal pe hologramă schimbă filmarea', async () => {
     const session = await phone.context.newCDPSession(phone.page)
@@ -410,9 +447,9 @@ try {
     expect((await bare.locator('#sala-unirii video.recording__media').count()) === 1, 'filmarea video nu are player')
     await bare.click('.topbar__nav a[href="#harta"]')
     const tops = await bare.evaluate(() => window.__tour.anchors())
-    await bare.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[5], { timeout: 8000 })
+    await bare.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[tops.length - 1], { timeout: 8000 })
     await bare.click('.legend__item[href="#sala-unirii"]')
-    await bare.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[2], { timeout: 8000 })
+    await bare.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, tops[3], { timeout: 8000 })
     expect(bareErrors.length === 0, bareErrors.join(' | '))
   })
   await plain.close()
@@ -421,14 +458,14 @@ try {
   await check('cu mișcare redusă, saltul la hartă e instantaneu', async () => {
     await reduced.page.click('.topbar__nav a[href="#harta"]')
     await reduced.page.waitForFunction(
-      () => window.__tour.live.flightTo === null && Math.abs(window.__tour.live.t - 5) < 0.01,
+      () => window.__tour.live.flightTo === null && Math.abs(window.__tour.live.t - (window.__tour.anchors().length - 1)) < 0.01,
       null,
       { timeout: 1500 },
     )
   })
   await check('cu mișcare redusă, pagina nu se așază singură', async () => {
     const tops = await reduced.page.evaluate(() => window.__tour.anchors())
-    const y = tops[1] + (tops[2] - tops[1]) * 0.4
+    const y = tops[2] + (tops[3] - tops[2]) * 0.4
     await reduced.page.evaluate((top) => window.scrollTo(0, top), y)
     await reduced.page.waitForTimeout(600)
     const now = await reduced.page.evaluate(() => window.scrollY)

@@ -122,9 +122,28 @@ dealul și biserica din scenă sunt schematice; cartierul Uranus nu apare, fiind
 Wikipedia în limba română și nu l-am putut verifica. Pornirea turului a crescut cu circa 2 kB (bara de sus și verificarea WebGL, comune
 acum celor două pagini). Bara de sus arată pe telefoanele sub 420 px doar semnul siglei, ca să încapă „Istorie”.
 
+## Faza 3
+
+Site-ul devine suportul unei prezentări de arhitectură: juriul îl deschide pe telefon, dintr-un cod QR.
+
+- [x] **Pas 13 — Publicare.** GitHub Pages, la fiecare push pe `main` (`.github/workflows/pages.yml`), la
+  `https://stevenenson.github.io/Palatul-Parlamentului-/`. Adresa de bază vine din `BASE_PATH`. Codul QR al
+  adresei e în `public/qr.svg` (`npm run qr`).
+- [x] **Pas 14 — Orașul.** Oprire nouă la începutul turului: palatul văzut de sus, în cartier, pe o machetă
+  albă a orașului făcută din date OpenStreetMap (`scripts/fetch-city.mjs` → `public/data/oras.json`, 147 kB
+  comprimat). Cinci repere etichetate, axa Bulevardului Unirii trasă cu roșu și Catedrala Națională ca volum
+  schematic. La scroll, camera coboară la macheta mare, iar clădirile orașului se retrag în hârtie. Pe telefon
+  cadrul e altul: din axul bulevardului, mai de aproape, cu trei etichete.
+- [ ] **Pas 15 — Arhitectura.** Capitole despre compoziție, fațadă, materiale și structură în pagina de istorie.
+
+Abateri față de planul Pasului 14: n-am folosit ArcGIS, ci aceleași date OpenStreetMap, desenate în scena
+noastră, ca trecerea de la oraș la palat să fie o singură mișcare de cameră și ca pagina să nu depindă de un
+serviciu extern. Orașul nu aruncă umbre. Textul primului ecran s-a împărțit în două secțiuni: titlul în oraș,
+cifrele și butonul „Începe turul” la machetă.
+
 ## După test
 
-Filmările și pozele reale, mai multe săli, versiune în engleză, publicare online.
+Filmările și pozele reale, mai multe săli, versiune în engleză.
 
 ## De primit de la tine
 
