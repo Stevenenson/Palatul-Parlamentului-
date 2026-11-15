@@ -52,8 +52,9 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     blocks: [
       {
         text:
-          'Palatul stă pe Dealul Arsenalului, o colină din sudul centrului vechi, locuită încă din neolitic. ' +
-          'Până în 1848 i se spunea Dealul Spirii; numele de azi vine de la Arsenalul Armatei, construit aici în 1860.',
+          'Palatul stă pe Dealul Arsenalului, o colină din sudul centrului vechi. Până în 1848 i se spunea Dealul ' +
+          'Spirii; numele de azi vine de la Arsenalul Armatei, construit aici în 1860, când paraclisul de pe deal a ' +
+          'fost transformat în „Pulberăria Armatei”.',
         figure: {
           kind: 'photo',
           src: 'media/history/curtea-arsa-1841.jpg',
@@ -68,8 +69,15 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Pe un pinten al dealului, numit Dealul Mihai Vodă, se afla mănăstirea ridicată în 1594 ' +
-          'de Mihai Viteazul, pe când era ban al Olteniei.',
+          'Dealul e locuit de foarte mult timp: arheologii au găsit aici urme din neolitic și resturile unei ' +
+          'locuințe dacice din a doua epocă a fierului, cu vatra la mijloc.',
+      },
+      {
+        text:
+          'Pe un pinten al dealului, numit Dealul Mihai Vodă, se afla mănăstirea ridicată în 1594 de Mihai ' +
+          'Viteazul, pe când era ban al Olteniei. Pe frontispiciul bisericii scrie: „La 1594 s-a zidit această ' +
+          'biserică”. Documente din 1696 spun că înainte, pe același loc, ar fi stat o bisericuță din secolul al ' +
+          'XV-lea, probabil de lemn, ridicată de Vlad Dracul.',
         figure: {
           kind: 'photo',
           src: 'media/history/mihai-voda-1901.jpg',
@@ -103,9 +111,14 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Pentru reconstruirea Bucureștiului s-a ținut un concurs național, care a durat aproape patru ani. Pentru ' +
-          'clădirea principală a fost aleasă Anca Petrescu, o arhitectă de numai 28 de ani, numită apoi arhitect-șef. ' +
+          'În 1978–1979 a început un concurs național pentru reconstruirea Bucureștiului, care a durat aproape patru ' +
+          'ani. L-a câștigat Anca Petrescu, o arhitectă de numai 28 de ani, numită apoi arhitect-șef al proiectului. ' +
           'Sub coordonarea ei au lucrat 700 de arhitecți.',
+      },
+      {
+        text:
+          'Palatul, numit atunci Casa Republicii, era doar o parte din proiect. Acesta mai cuprindea și alte clădiri, ' +
+          'între care Ministerul Apărării Naționale și Casa Radio.',
       },
     ],
   },
@@ -121,7 +134,9 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
           'dinspre actualul Bulevard al Libertății a fost înălțată artificial.',
       },
       {
-        text: 'În acei ani, clădirea se numea Casa Republicii sau Casa Poporului.',
+        text:
+          'Șantierul propriu-zis a început cu demolarea unei mari părți din centrul vechi. În acei ani, clădirea se ' +
+          'numea Casa Republicii sau Casa Poporului.',
       },
     ],
   },
@@ -139,7 +154,9 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Între 1977 și 1989 au fost demolate 20 de biserici, iar alte 8 au fost mutate. În ianuarie 1985, ' +
+          'Între 1977 și 1989 au fost demolate 20 de biserici, iar alte 8 au fost mutate. Din ansamblul Mănăstirii ' +
+          'Mihai Vodă făcea parte și Biserica Albă – Postăvari, construită în 1564, care a fost demolată în 1984. ' +
+          'În ianuarie 1985, ' +
           'Mănăstirea Mihai Vodă a fost propusă pentru demolare; anexele și zidul au fost dărâmate, iar protestele ' +
           'intelectualilor au salvat biserica și clopotnița.',
       },
@@ -164,13 +181,23 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Costul nu se cunoaște exact. În 1989 era estimat la 1,75 miliarde de dolari, iar în 2006 la 3 miliarde de euro.',
+          'Sălile arată de unde au venit materialele. În Galeria de Onoare, pardoseala îmbină marmura albă de Rușchița, ' +
+          'pe cea bej de Căprioara și pe cea roșie și neagră de Moneasa. În Sala Nicolae Bălcescu, coloanele sunt din ' +
+          'marmură roz de Rușchița, candelabrele au fost făcute la Mediaș, iar draperiile de mătase au fost țesute la ' +
+          'Sighișoara.',
+      },
+      {
+        text:
+          'Costul nu se cunoaște exact. În 1989 era estimat la 1,75 miliarde de dolari, iar în 2006 la 3 miliarde de ' +
+          'euro. ArchDaily a pus palatul pe locul al doilea între cele mai costisitoare proiecte de arhitectură ' +
+          'făcute vreodată.',
       },
     ],
     facts: [
       { value: '3.500 t', label: 'de cristal' },
       { value: '7.000 t', label: 'de oțel' },
       { value: '220.000 m²', label: 'de covoare' },
+      { value: '15.000', label: 'de candelabre' },
     ],
   },
   {
@@ -181,8 +208,15 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     blocks: [
       {
         text:
-          'Când regimul a căzut, în decembrie 1989, palatul era încă un șantier. Din 1994, aici lucrează Camera ' +
-          'Deputaților, iar Sala Unirii a fost inaugurată pe 22 decembrie 1994, la cinci ani de la revoluție.',
+          'Când regimul a căzut, în decembrie 1989, palatul era încă un șantier. Nicolae și Elena Ceaușescu au fost ' +
+          'executați pe 25 decembrie 1989.',
+      },
+      {
+        text:
+          'Din 1994, aici lucrează Camera Deputaților, după ce vechiul ei sediu, Palatul Camerei Deputaților, a fost ' +
+          'donat de stat Bisericii Ortodoxe Române. Sala Unirii a fost inaugurată pe 22 decembrie 1994, la cinci ani ' +
+          'de la revoluție. Numele sălilor au fost alese tot după 1989: amintesc evenimente din istoria României și ' +
+          'personalități cunoscute.',
       },
       {
         text:
@@ -199,14 +233,15 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     blocks: [
       {
         text:
-          'În 2012, World Record Academy l-a numit cea mai mare clădire administrativă civilă și cea mai grea ' +
-          'clădire din lume; din 2021, clădirea parlamentului din Bangkok e mai mare, iar Pentagonul le întrece pe ' +
+          'În 2012, World Record Academy l-a numit cea mai mare clădire administrativă civilă, cea mai scumpă ' +
+          'clădire administrativă și cea mai grea clădire din lume; din 2021, clădirea parlamentului din Bangkok e mai mare, iar Pentagonul le întrece pe ' +
           'amândouă. Volumul palatului îl depășește cu 2% pe al piramidei lui Keops.',
       },
       {
         text:
-          'Are aproximativ 1.000 de încăperi: 440 de birouri, peste 30 de săli, patru restaurante, trei ' +
-          'biblioteci, două parcări subterane și o sală de concerte.',
+          'Are aproximativ 1.000 de încăperi: 440 de birouri, peste 30 de săli și saloane, patru restaurante, trei ' +
+          'biblioteci, două parcări subterane și o sală de concerte. Potrivit aceluiași articol, circa 70% din ' +
+          'clădire nu e folosită.',
       },
     ],
     facts: [
@@ -214,6 +249,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       { value: '84 m', label: 'deasupra solului' },
       { value: '92 m', label: 'sub pământ' },
       { value: '9 + 9', label: 'niveluri, sus și jos' },
+      { value: '66.000 m²', label: 'construiți la sol' },
       { value: '330.000 m²', label: 'suprafață desfășurată' },
       { value: '2.550.000 m³', label: 'volum' },
     ],
@@ -226,8 +262,14 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     blocks: [
       {
         text:
-          'Din 2004, în palat lucrează și Senatul. Tot în 2004 s-a deschis, în aripa vestică, Muzeul Național de ' +
-          'Artă Contemporană, cu o anexă de sticlă construită pentru el.',
+          'Din 2004, în palat lucrează și Senatul, care stătea până atunci în fosta clădire a Comitetului Central al ' +
+          'Partidului Comunist Român. Tot în 2004 s-a deschis, în aripa vestică, Muzeul Național de Artă ' +
+          'Contemporană, cu o anexă de sticlă construită pentru el.',
+      },
+      {
+        text:
+          'Din vechiul deal a rămas o colină închisă în curtea palatului. La marginea ei, pe locul fostului Stadion ' +
+          'al Republicii, e azi parcarea Parlamentului.',
       },
       {
         text:

@@ -105,7 +105,7 @@ Săli reale în 360°, design nou și fonturi cu aer roman. Planul întreg e în
   covoare mai potolite.
 - [x] **Pas 10 — Hartă și subsol.** Pinuri de sticlă cu cifre romane, sursele imaginilor și ale fonturilor.
 - [ ] **Pas 11 — opțional.** Panoramă proprie în scena 3D, cu holograma în sala reală: cere fotografii 360° proprii.
-- [x] **Pas 12 — Pagina de istorie.** Pagină separată, `istorie/`, cu link „Istorie” în bara de sus. Opt capitole pe
+- [x] **Pas 12 — Pagina de istorie.** Pagină separată, `istorie/`, cu link „Istorie” în bara de sus, lângă siglă. Opt capitole pe
   un fir cronologic care se umple la citire, cu cuprins; macheta 3D stă fixă alături și urmează povestea: palatul
   coboară în teren, apare dealul cu biserica Mihai Vodă și conturul viitoarei clădiri, se ridică terasele, biserica
   se mută spre est, palatul crește etaj cu etaj cu tăietura colorată ca la o machetă secționată, apoi cotele de 270 și

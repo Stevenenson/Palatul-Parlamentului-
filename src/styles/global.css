@@ -238,7 +238,6 @@ main :is(a, button, .panel, .facts) {
 .topbar__row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   height: 100%;
 }
 
@@ -260,9 +259,26 @@ main :is(a, button, .panel, .facts) {
   fill: var(--ink);
 }
 
+/* „Istorie” stă lângă siglă, despărțit de ea printr-o linie fină; „Săli” și „Hartă” rămân în dreapta. */
 .topbar__nav {
   display: flex;
+  flex: 1;
+  align-items: center;
   gap: 4px;
+  margin-left: 12px;
+}
+
+.topbar__nav::before {
+  content: '';
+  flex: none;
+  width: 1px;
+  height: 20px;
+  margin-right: 6px;
+  background: var(--line-strong);
+}
+
+.topbar__history {
+  margin-right: auto;
 }
 
 .topbar__nav a {
@@ -289,7 +305,7 @@ main :is(a, button, .panel, .facts) {
 }
 
 /* Pe telefoanele înguste, numele din siglă rămâne doar pentru cititoarele de ecran: bara are trei linkuri. */
-@media (max-width: 420px) {
+@media (max-width: 460px) {
   .brand__text {
     position: absolute;
     width: 1px;
@@ -301,6 +317,10 @@ main :is(a, button, .panel, .facts) {
 
   .brand {
     min-width: 44px;
+  }
+
+  .topbar__nav {
+    margin-left: 4px;
   }
 }
 
