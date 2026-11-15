@@ -12,6 +12,7 @@ import { RoomSection } from './ui/RoomSection'
 import { SceneBoundary } from './ui/SceneBoundary'
 import { StopNav } from './ui/StopNav'
 import { TopBar } from './ui/TopBar'
+import { ZoomControl } from './ui/ZoomControl'
 import { hasWebGL } from './ui/webgl'
 
 // Scena 3D e partea grea a paginii: se încarcă separat, după ce textul e deja pe ecran.
@@ -61,6 +62,7 @@ export function App() {
       </main>
       <Footer />
       <StopNav />
+      <ZoomControl />
       <RealRoom />
     </>
   )

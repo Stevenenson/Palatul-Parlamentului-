@@ -144,6 +144,37 @@ try {
     expect(hidden, 'indiciul de rotire a rămas pe ecran')
   })
 
+  await check('butoanele + și − apropie și depărtează macheta, iar la plecare cadrul revine', async () => {
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[PALACE])
+    await waitForCamera(page)
+    const distance = () => page.evaluate(() => window.__tour.cameraDistance())
+    const settle = () => page.waitForTimeout(900)
+    const start = await distance()
+    await page.click('.zoom__btn[aria-label="Apropie"]')
+    await settle()
+    const near = await distance()
+    expect(near < start * 0.85, `după „Apropie”, camera e la ${near.toFixed(0)} m față de ${start.toFixed(0)} m`)
+    await page.click('.zoom__btn[aria-label="Depărtează"]')
+    await page.click('.zoom__btn[aria-label="Depărtează"]')
+    await settle()
+    const far = await distance()
+    expect(far > start * 1.15, `după „Depărtează”, camera e la ${far.toFixed(0)} m față de ${start.toFixed(0)} m`)
+    // Tastatura face același lucru.
+    await page.keyboard.press('+')
+    await settle()
+    expect((await distance()) < far * 0.9, 'tasta + nu a apropiat macheta')
+    // Într-o sală butoanele nu se văd, iar la întoarcere palatul are cadrul lui obișnuit.
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[GALLERY])
+    await waitForCamera(page)
+    const hidden = await page.evaluate(() => document.querySelector('.zoom').hasAttribute('data-hidden'))
+    expect(hidden, 'butoanele de apropiere se văd într-o sală')
+    await page.evaluate((y) => window.scrollTo(0, y), anchors[PALACE])
+    await waitForCamera(page)
+    await settle()
+    const back = await distance()
+    expect(Math.abs(back - start) < start * 0.02, `la întoarcere, camera e la ${back.toFixed(0)} m, nu la ${start.toFixed(0)} m`)
+  })
+
   await check('o singură crestătură de rotiță trece la oprirea următoare', async () => {
     await page.evaluate(() => window.scrollTo(0, 0))
     await waitForCamera(page)

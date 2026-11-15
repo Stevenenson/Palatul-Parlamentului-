@@ -33,12 +33,13 @@ export function Footer({ page = 'tur' }: { page?: 'tur' | 'istorie' }) {
           Street View, afișate prin încorporarea Google; nu sunt copiate în acest site.
         </p>
         <p>
-          Macheta orașului: date cartografice ©{' '}
+          Orașul din prima oprire e o scenă ArcGIS (Esri), încărcată de pe serverele Esri, cu clădirile 3D din
+          OpenStreetMap. Dacă scena nu se poate încărca, în locul ei rămâne macheta noastră a orașului: date
+          cartografice ©{' '}
           <a className="link" href="https://www.openstreetmap.org/copyright">
             colaboratorii OpenStreetMap
           </a>
-          , sub licența ODbL. Înălțimile care lipsesc din date sunt estimate, iar Catedrala Națională e un volum
-          schematic.
+          , sub licența ODbL, cu înălțimile lipsă estimate și cu Catedrala Națională ca volum schematic.
         </p>
         <p>
           Cifrele despre clădire vin din articolul{' '}

@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { MathUtils, type PerspectiveCamera, Spherical, Vector3 } from 'three'
 import { activeRoom, swipeCancel, swipeEnd, swipeMove, swipeStart } from '../state/swipe'
 import { live, useTour } from '../state/tour'
+import { ZOOM_STEP, setZoom, zoom, zoomBy } from '../state/zoom'
 import {
   type CityFrame,
   NARROW_WIDTH,
@@ -53,6 +54,7 @@ export function CameraRig() {
     flight: null as Flight | null,
     yaw: 0,
     pitch: 0,
+    zoom: 1,
     turned: 0,
     sway: 1,
     lookYaw: 0,
@@ -78,6 +80,13 @@ export function CameraRig() {
     let swiping: number | null = null
     let x = 0
     let y = 0
+    /** Degetele de pe ecran și ciupirea în curs: distanța și apropierea de la începutul ei. */
+    const touches = new Map<number, { x: number; y: number }>()
+    let pinch: { distance: number; zoom: number } | null = null
+    const spread = () => {
+      const [a, b] = [...touches.values()]
+      return Math.hypot(a.x - b.x, a.y - b.y)
+    }
 
     const canOrbit = () => {
       const { stop, settled, flying } = useTour.getState()
@@ -96,6 +105,15 @@ export function CameraRig() {
     }
     const onDown = (event: PointerEvent) => {
       if (event.button !== 0) return
+      if (event.pointerType === 'touch') {
+        touches.set(event.pointerId, { x: event.clientX, y: event.clientY })
+        // Al doilea deget: rotirea se oprește și începe ciupirea.
+        if (touches.size === 2 && canOrbit()) {
+          if (pointer !== null) release()
+          pinch = { distance: Math.max(1, spread()), zoom: zoom.target }
+          return
+        }
+      }
       if (!canOrbit()) {
         // Într-o sală, drag-ul orizontal pe scenă trece la filmarea vecină.
         if (swipeStart(event.clientX)) {
@@ -115,6 +133,16 @@ export function CameraRig() {
       if (event.pointerType === 'mouse') {
         live.pointerX = (event.clientX / window.innerWidth) * 2 - 1
         live.pointerY = (event.clientY / window.innerHeight) * 2 - 1
+      }
+      const touch = touches.get(event.pointerId)
+      if (touch) {
+        touch.x = event.clientX
+        touch.y = event.clientY
+        if (pinch && touches.size === 2) {
+          // Degetele care se depărtează apropie macheta.
+          setZoom((pinch.zoom * pinch.distance) / Math.max(1, spread()))
+          return
+        }
       }
       if (swiping === event.pointerId) {
         if (event.buttons === 0) {
@@ -140,6 +168,7 @@ export function CameraRig() {
       }
     }
     const onUp = (event: PointerEvent) => {
+      if (touches.delete(event.pointerId) && touches.size < 2) pinch = null
       if (swiping === event.pointerId) {
         swiping = null
         if (event.type === 'pointercancel') swipeCancel()
@@ -147,11 +176,22 @@ export function CameraRig() {
       }
       if (pointer === event.pointerId) release()
     }
+    /** Rotița cu Ctrl e gestul de ciupire de pe trackpad; rotița simplă rămâne a paginii. */
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey || !canOrbit()) return
+      event.preventDefault()
+      zoomBy(Math.exp(MathUtils.clamp(event.deltaY, -60, 60) * 0.012))
+    }
     const onKey = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
       const target = event.target
       if (target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return
+      if ((event.key === '+' || event.key === '=' || event.key === '-') && canOrbit()) {
+        event.preventDefault()
+        zoomBy(event.key === '-' ? 1 / ZOOM_STEP : ZOOM_STEP)
+        return
+      }
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
       if (!canOrbit()) {
         // În săli, săgețile schimbă filmarea.
         const room = activeRoom()
@@ -167,12 +207,14 @@ export function CameraRig() {
     }
 
     el.addEventListener('pointerdown', onDown)
+    el.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
     window.addEventListener('pointercancel', onUp)
     window.addEventListener('keydown', onKey)
     return () => {
       el.removeEventListener('pointerdown', onDown)
+      el.removeEventListener('wheel', onWheel)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)
@@ -183,7 +225,9 @@ export function CameraRig() {
   useEffect(() => {
     if (!live.debug) return
     const tour = (window as unknown as { __tour?: Record<string, unknown> }).__tour
-    if (tour) tour.cameraX = () => camera.position.x
+    if (!tour) return
+    tour.cameraX = () => camera.position.x
+    tour.cameraDistance = () => camera.position.distanceTo(rig.current.pose.target)
   }, [camera])
 
   useFrame((state, delta) => {
@@ -251,7 +295,11 @@ export function CameraRig() {
     if (!orbitable && !live.dragging) {
       r.yaw = MathUtils.damp(r.yaw, 0, 5, dt)
       r.pitch = MathUtils.damp(r.pitch, 0, 5, dt)
+      // Apropierea ține de oprirea pe care a fost cerută: la plecare, cadrul revine la cel al traseului.
+      zoom.target = 1
     }
+    r.zoom = instant ? zoom.target : MathUtils.damp(r.zoom, zoom.target, 7, dt)
+    if (Math.abs(r.zoom - zoom.target) < 1e-4) r.zoom = zoom.target
 
     // Macheta se leagănă încet până când utilizatorul o apucă prima dată.
     const swayOn =
@@ -266,6 +314,7 @@ export function CameraRig() {
     r.offset.subVectors(r.pose.position, r.pose.target)
     r.spherical.setFromVector3(r.offset)
     r.spherical.theta += r.yaw + sway + r.lookYaw
+    r.spherical.radius *= r.zoom
     // Limitele se aplică doar rotirii utilizatorului: unghiul de bază al opririi rămâne cel din date.
     const phi = r.spherical.phi
     r.spherical.phi =

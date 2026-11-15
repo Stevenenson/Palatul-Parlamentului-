@@ -364,7 +364,10 @@ const json = JSON.stringify(out)
 await writeFile(new URL('oras.json', folder), json)
 
 console.log(`palat: ${Math.max(rect.u, rect.v).toFixed(0)} × ${Math.min(rect.u, rect.v).toFixed(0)} m în OSM`)
-console.log(`axa fațadei: ${((east * 180) / Math.PI).toFixed(1)}° față de est`)
+console.log(`axa fațadei: ${((east * 180) / Math.PI).toFixed(3)}° față de est`)
+// Originea machetei pe glob: de aici vine `CITY_GEO` din `src/content/city.ts`.
+console.log(`centrul palatului: ${(LAT0 + origin[1] / M_LAT).toFixed(6)}, ${(LON0 + origin[0] / M_LON).toFixed(6)}`)
+console.log(`metri pe grad: ${M_LAT.toFixed(1)} (latitudine), ${M_LON.toFixed(1)} (longitudine)`)
 console.log(`clădiri ${buildings.length}, parcuri ${parks.length}, ape ${water.length + rivers.length}, străzi ${streets.length}`)
 console.log('catedrala', cathedral)
 console.log('repere', marks)

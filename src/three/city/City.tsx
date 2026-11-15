@@ -81,7 +81,8 @@ export function City() {
       const instant = live.reducedMotion || live.debug
       grown.current = instant ? 1 : Math.min(1, grown.current + Math.min(delta, 0.1) / 1.4)
       const rise = MathUtils.smootherstep(grown.current, 0, 1)
-      city.update(live.city * rise)
+      // Sub scena ArcGIS, odată apărută cu totul, macheta noastră nu se mai desenează.
+      city.update(live.arcgis >= 1 ? 0 : live.city * rise)
       if (grown.current >= 1 && !live.cityReady) live.cityReady = true
     }
 

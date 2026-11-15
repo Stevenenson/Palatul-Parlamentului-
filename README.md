@@ -55,8 +55,12 @@ accent, poziția camerei, locul hologramei, filmările și pozele.
 - Sala reală în 360°: mergi în sală pe Google Arts & Culture, copiază adresa din browser și pune-o la
   `streetView: fromArtsLink('…')`. Imaginile nu se descarcă: se afișează prin încorporarea Google.
 - O filmare fără sunet primește `silent: true`, ca playerul să nu-i arate butonul de sunet.
-- Orașul din prima oprire: etichetele reperelor stau în `src/content/city.ts`, iar clădirile, parcurile, apa
-  și bulevardele vin din OpenStreetMap, prin `scripts/fetch-city.mjs` (© colaboratorii OpenStreetMap, ODbL).
+- Orașul din prima oprire are două straturi. Macheta noastră (`src/three/city/buildCity.ts`) apare prima: clădirile,
+  parcurile, apa și bulevardele vin din OpenStreetMap, prin `scripts/fetch-city.mjs` (© colaboratorii OpenStreetMap,
+  ODbL). Peste ea se așază scena ArcGIS, mai detaliată (`src/three/city/arcgis.ts`, `ArcgisLayer.tsx`), încărcată de
+  pe serverele Esri; camera ei urmează camera turului. `?arcgis=0` în adresă o oprește. Etichetele reperelor și
+  locul machetei pe glob stau în `src/content/city.ts`.
+- Apropierea machetei (butoanele + și −, ciupirea pe ecran, Ctrl + rotiță, tastele + și −): `src/state/zoom.ts`.
 - Pagina de istorie: capitolele, cifrele, imaginile și sursele stau în `src/content/history.ts`, iar ce arată
   macheta la fiecare capitol, în `src/history/stage/states.ts`. Imaginile vechi stau în `public/media/history/`.
 
