@@ -74,7 +74,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'Pe un pinten al dealului, numit Dealul Mihai Vodă, se afla mănăstirea ridicată în 1594 de Mihai ' +
+          'Pe un pinten al dealului, numit Dealul Mihai Vodă, unde e azi Parcul Izvor, se afla mănăstirea ridicată în 1594 de Mihai ' +
           'Viteazul, pe când era ban al Olteniei. Pe frontispiciul bisericii scrie: „La 1594 s-a zidit această ' +
           'biserică”. Documente din 1696 spun că înainte, pe același loc, ar fi stat o bisericuță din secolul al ' +
           'XV-lea, probabil de lemn, ridicată de Vlad Dracul.',
@@ -162,7 +162,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
       },
       {
         text:
-          'În 1985, biserica a fost mutată întreagă: 289 de metri mai departe și 6,2 metri mai jos, până în strada ' +
+          'În 1985, biserica a fost mutată întreagă: 289 de metri spre est și 6,2 metri mai jos, până în strada ' +
           'Sapienței. Lucrarea a fost coordonată de inginerul Eugeniu Iordăchescu.',
         figure: { kind: 'drawing', id: 'mihai-voda' },
       },
@@ -382,6 +382,11 @@ export const HISTORY_SOURCES = [
     title: '„Catedrala Mântuirii Neamului”',
     url: 'https://ro.wikipedia.org/wiki/Catedrala_M%C3%A2ntuirii_Neamului',
     edited: '30 octombrie 2026',
+  },
+  {
+    title: '„Parcul Izvor”',
+    url: 'https://ro.wikipedia.org/wiki/Parcul_Izvor',
+    edited: '15 octombrie 2025',
   },
 ]
 

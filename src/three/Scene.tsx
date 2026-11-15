@@ -2,7 +2,6 @@ import { Suspense, lazy } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useTour } from '../state/tour'
 import { CameraRig } from './CameraRig'
-import { ArcgisLayer } from './city/ArcgisLayer'
 import { City } from './city/City'
 import { AO_ENABLED, Ground, LIGHT_DEVICE, Lights, PAPER } from './Lights'
 import { Palace } from './palace/Palace'
@@ -36,7 +35,6 @@ export function Scene() {
       <Holograms />
       <MapMarkers />
       <CameraRig />
-      <ArcgisLayer />
       {AO_ENABLED && (
         <Suspense fallback={null}>
           <Effects />

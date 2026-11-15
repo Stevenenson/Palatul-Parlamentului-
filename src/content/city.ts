@@ -26,17 +26,3 @@ export const CITY_LABELS: CityLabel[] = [
 
 /** Axa compoziției: de la treptele fațadei, prin Piața Constituției, pe Bulevardul Unirii spre est. */
 export const UNIRII_AXIS = { from: [0, 132] as const, to: [-5, 1420] as const }
-
-/**
- * Locul machetei pe glob, pentru scena ArcGIS din prima oprire: originea (centrul palatului),
- * unghiul axei +Z față de est și altitudinea la care stă baza clădirii (y = 0). Primele trei
- * le tipărește `scripts/fetch-city.mjs`; altitudinea e cea a terenului ArcGIS sub palat.
- */
-export const CITY_GEO = {
-  latitude: 44.427496,
-  longitude: 26.087404,
-  eastDegrees: -3.559,
-  metersPerLatitude: 111120.6,
-  metersPerLongitude: 79627.5,
-  altitude: 86,
-}

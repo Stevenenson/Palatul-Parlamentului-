@@ -4,17 +4,6 @@
   box-sizing: border-box;
 }
 
-/*
- * Foaia de stil a bibliotecii ArcGIS, încărcată pentru scena orașului, pune pe `:root` literele
- * și netezirea ei. Selectorul de aici e mai specific, deci pagina își păstrează literele.
- */
-html:root {
-  font-family: var(--font-text);
-  -webkit-font-smoothing: auto;
-  -moz-osx-font-smoothing: auto;
-  text-rendering: auto;
-}
-
 html {
   background: var(--paper);
   color: var(--ink);
@@ -213,42 +202,6 @@ a {
 
 .stage canvas[data-dragging] {
   cursor: grabbing;
-}
-
-/*
- * Scena ArcGIS a orașului: peste canvas-ul machetei, sub text. Nu primește gesturi (le ia
- * canvas-ul de dedesubt, prin camera turului); doar atribuirea Esri rămâne de apăsat.
- */
-/*
- * Scena e cu 12% mai înaltă decât ecranul, sus și jos (`STRETCH` din `ArcgisLayer.tsx`): camera
- * turului ține subiectul decalat față de centru, iar scena se mută odată cu el (`--shift`) fără
- * să rămână o fâșie goală la margine.
- */
-.arcgis {
-  position: absolute;
-  inset: -12% 0;
-  pointer-events: none;
-  transform: translate3d(0, var(--shift, 0px), 0);
-  will-change: opacity, transform;
-}
-
-/* Atribuirea Esri rămâne la baza ecranului, nu la baza scenei mai înalte: 9,677% din 124% fac 12%. */
-.arcgis .esri-ui {
-  transform: translateY(calc(-9.677% - var(--shift, 0px)));
-}
-
-.arcgis .esri-attribution {
-  pointer-events: auto;
-}
-
-/* Cu scena ArcGIS pornită, rândul nostru de sursă o numește și pe ea. */
-:root[data-arcgis] .osm::after {
-  content: '\00a0· Powered by Esri';
-}
-
-/* Orașul ArcGIS merge până la orizont: vălul de sub titlu e mai plin, ca textul să rămână curat. */
-:root[data-arcgis] .hero--city::before {
-  background: linear-gradient(var(--paper) 52%, rgb(242 240 235 / 0.86) 72%, rgb(242 240 235 / 0));
 }
 
 /* ——— Apropierea machetei: două butoane rotunde, sub punctele opririlor ——— */
@@ -775,7 +728,7 @@ h1 {
   position: absolute;
   inset: 0 0 auto 0;
   height: min(46svh, 420px);
-  background: linear-gradient(var(--paper) 30%, rgb(242 240 235 / 0.72) 62%, rgb(242 240 235 / 0));
+  background: linear-gradient(var(--paper) 42%, rgb(242 240 235 / 0.84) 70%, rgb(242 240 235 / 0));
   pointer-events: none;
 }
 

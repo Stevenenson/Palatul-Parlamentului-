@@ -20,23 +20,28 @@ import { FOOTPRINT } from './rise'
 
 /**
  * Locul de dinainte de palat, ca machetă topografică, cu curbe de nivel: Dealul Arsenalului,
- * pe care stă azi palatul, și pintenul lui dinspre nord-est, Dealul Mihai Vodă, cu biserica
- * mănăstirii în incinta ei. Dealul mare coboară în terase când începe șantierul; biserica se
- * mută în 1985 cu aproape 290 m mai departe, spre nord-est, iar pintenul dispare după ea.
+ * pe care stă azi palatul, și pintenul lui dinspre nord, Dealul Mihai Vodă, unde e azi Parcul
+ * Izvor, cu biserica mănăstirii în incinta ei. Dealul mare coboară în terase când începe
+ * șantierul; biserica se mută în 1985 cu 289 m spre est și 6,2 m mai jos, până în strada
+ * Sapienței, iar pintenul dispare după ea.
  *
- * Axele: fațada principală privește spre est (+Z), deci +X e nordul. Totul e schematic: forma
- * dealurilor și locurile bisericii sunt aproximate din coordonatele de pe Wikipedia, nu măsurate.
+ * Axele: fațada principală privește spre est (+Z), deci +X e nordul. Locul de azi al bisericii
+ * vine din OpenStreetMap (biserica „Sfântul Ierarh Nicolae” – Mihai Vodă), iar locul vechi e la
+ * 289 m spre vest de el, cum spun sursele. Forma dealurilor e schematică, nu măsurată.
  */
 
 const GROUND = PALACE.ground
 const HEIGHT = 18
 
 const MAIN = { x: 10, z: 0, sx: 95, sz: 85, peak: 1 }
-/** Unde stătea biserica și unde a ajuns: 289 m spre nord-est. */
-const FROM = new Vector3(215, 0, 245)
-const DIRECTION = new Vector3(0.661, 0, 0.751)
-const TO = FROM.clone().addScaledVector(DIRECTION, 289).setY(GROUND)
-const SPUR = { x: FROM.x, z: FROM.z, sx: 62, sz: 56, peak: 0.8 }
+/** Unde a ajuns biserica (strada Sapienței, din OpenStreetMap) și unde stătea: 289 m mai la vest. */
+const TO = new Vector3(483, GROUND, 434)
+/** Estul geografic, în axele machetei: fațada palatului e rotită cu 3,6° față de est. */
+const EAST = new Vector3(0.062, 0, 0.998)
+const FROM = TO.clone().addScaledVector(EAST, -289).setY(0)
+const SPUR = { x: FROM.x, z: FROM.z, sx: 70, sz: 62, peak: 0.8 }
+/** Șaua dintre cele două dealuri: face din Dealul Mihai Vodă un pinten al Dealului Arsenalului. */
+const SADDLE = { x: 250, z: 80, sx: 130, sz: 70, peak: 0.42 }
 
 const gauss = (b: typeof MAIN, x: number, z: number) =>
   b.peak * Math.exp(-(((x - b.x) / b.sx) ** 2 + ((z - b.z) / b.sz) ** 2) / 2)
@@ -46,10 +51,15 @@ const amounts = { main: 1, spur: 1 }
 
 /** Înălțimea terenului deasupra solului într-un punct, în metri. */
 const heightAt = (x: number, z: number) =>
-  HEIGHT * Math.max(gauss(MAIN, x, z) * amounts.main, gauss(SPUR, x, z) * amounts.spur)
+  HEIGHT *
+  Math.max(
+    gauss(MAIN, x, z) * amounts.main,
+    gauss(SPUR, x, z) * amounts.spur,
+    gauss(SADDLE, x, z) * Math.min(amounts.main, amounts.spur),
+  )
 
 /** Zona în care calculăm curbele de nivel. */
-const AREA = { x0: -260, x1: 420, z0: -260, z1: 460, n: 136 }
+const AREA = { x0: -260, x1: 640, z0: -260, z1: 560, n: 160 }
 
 /**
  * Curbele de nivel, din 3 în 3 metri, prin „marching squares” pe o grilă: în fiecare celulă,

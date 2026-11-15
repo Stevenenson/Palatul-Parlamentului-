@@ -139,16 +139,19 @@ Site-ul devine suportul unei prezentări de arhitectură: juriul îl deschide pe
   registre, marcate pe colțul clădirii) și materialele (macheta tăiată prin registrul median). „Palatul azi” are un
   paragraf despre Catedrala Națională, cu articolul ei ca a patra sursă. Pagina are acum unsprezece capitole.
 
-- [x] **Pas 16 — Orașul din ArcGIS și apropierea.** La cererea utilizatorului, prima oprire arată scena ArcGIS
-  (`topo-3d`: clădiri 3D detaliate, copaci, străzi), așezată lin peste macheta noastră după ce se încarcă. Scena nu
-  primește gesturi: camera ei urmează cadru cu cadru camera turului, deci etichetele, rotirea și coborârea spre palat
-  rămân aceleași. Macheta se poate apropia și depărta pe opririle în care se rotește (oraș, palat, hartă): butoane,
-  ciupire pe telefon, Ctrl + rotiță, tastele + și −.
-
-Abateri la Pasul 16: biblioteca Esri vine de pe serverul ei (nu din pachetul site-ului) și merge fără cheie; dacă
-Esri va cere una, e nevoie de un cont gratuit ArcGIS. Numele de locuri ale Esri sunt ascunse. În scena ArcGIS palatul
-e un bloc simplu; macheta noastră detaliată apare la coborâre. Pe telefon, scena ArcGIS se închide după ce turul
-intră în săli, ca să elibereze memoria. Testele și capturile rulează fără ArcGIS (`?debug`), ca să nu depindă de rețea.
+- [x] **Pas 16 — Orașul mai detaliat și apropierea.** Utilizatorul a încercat scena ArcGIS în prima oprire, dar
+  i s-a părut greoaie și greu de manevrat, așa că am scos-o. În schimb, macheta noastră a orașului a primit detaliile
+  care îi plăceau acolo, tot din OpenStreetMap:
+  - aproape 8.000 de copaci (instanțiați, un singur apel de desen);
+  - aleile și piețele pietonale din parcuri, Parcul Izvor fiind cel mai bogat;
+  - străzile mici dintre blocuri, parcările, terenurile de sport și gardurile vii;
+  - părțile de clădiri cu înălțimi diferite.
+  `oras.json` are acum 227 kB comprimat. Macheta se poate apropia și depărta pe opririle în care se rotește (oraș,
+  palat, hartă): butoane, ciupire pe telefon, Ctrl + rotiță, tastele + și −.
+- [x] **Pagina de istorie, capitolele I și IV.** Biserica Mihai Vodă stătea tăiată în marginea din dreapta a
+  cadrului și era pusă greșit. Locul de azi vine acum din OpenStreetMap, iar cel vechi e la 289 m spre vest de el,
+  pe Dealul Mihai Vodă, unde e azi Parcul Izvor (articolul de pe Wikipedia despre parc, adăugat la surse). Camera
+  capitolului I se uită la biserică, cu Dealul Arsenalului în stânga; capitolul IV arată tot drumul ei, spre est.
 
 Abateri față de planul Pasului 14: n-am folosit ArcGIS, ci aceleași date OpenStreetMap, desenate în scena
 noastră, ca trecerea de la oraș la palat să fie o singură mișcare de cameră și ca pagina să nu depindă de un

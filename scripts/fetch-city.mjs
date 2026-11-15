@@ -1,6 +1,6 @@
 // Macheta orașului din jurul palatului, din date OpenStreetMap (© colaboratorii OpenStreetMap, ODbL).
 //   node scripts/fetch-city.mjs               → cere datele de la Overpass și scrie public/data/oras.json
-//   node scripts/fetch-city.mjs --raw f.json  → pornește de la un răspuns Overpass salvat
+//   node scripts/fetch-city.mjs --raw f.json  → pornește de la un răspuns Overpass salvat (se pot da mai multe fișiere)
 //
 // Scriptul se rulează rar, de mână: rezultatul stă în repo, deci site-ul nu depinde de Overpass.
 // Coordonatele ies în sistemul machetei: metri, cu originea în centrul palatului, fațada
@@ -9,26 +9,55 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 
 /** sud, vest, nord, est: de la Casa Academiei și catedrală până la Piața Unirii și Dâmbovița. */
 const BBOX = [44.4185, 26.073, 44.4375, 26.106]
+/** Zona, ceva mai strânsă, în care aducem și detaliile: copaci, alei, părți de clădiri, terenuri. */
+const DETAIL = [44.4195, 26.0745, 44.4365, 26.104]
 const PALACE_RELATION = 2230391
 const CATHEDRAL_WAY = 232332568
 
-const QUERY = `[out:json][timeout:120][bbox:${BBOX.join(',')}];
+const all = `(${BBOX.join(',')})`
+const near = `(${DETAIL.join(',')})`
+const QUERY = `[out:json][timeout:180];
 (
-  way[building];
-  relation[building];
-  way[leisure~"^(park|garden)$"];
-  relation[leisure~"^(park|garden)$"];
-  way[landuse~"^(grass|forest)$"];
-  way[natural=water];
-  relation[natural=water];
-  way[waterway~"^(river|canal)$"];
-  way[highway~"^(trunk|primary|secondary|tertiary)$"];
+  way[building]${all};
+  relation[building]${all};
+  way[leisure~"^(park|garden)$"]${all};
+  relation[leisure~"^(park|garden)$"]${all};
+  way[landuse~"^(grass|forest)$"]${all};
+  way[natural=water]${all};
+  relation[natural=water]${all};
+  way[waterway~"^(river|canal)$"]${all};
+  way[highway~"^(trunk|primary|secondary|tertiary)$"]${all};
+  node[natural=tree]${near};
+  way[natural=tree_row]${near};
+  way["building:part"]${near};
+  relation["building:part"]${near};
+  way[highway~"^(footway|path|pedestrian|residential|living_street|unclassified|service|cycleway|steps)$"]${near};
+  way[amenity~"^(parking|fountain)$"]${near};
+  way[leisure~"^(pitch|playground)$"]${near};
+  way[natural~"^(scrub|wood)$"]${near};
+  way[landuse~"^(meadow|flowerbed|village_green)$"]${near};
+  way[barrier=hedge]${near};
 );
 out geom;`
 
 async function load() {
   const i = process.argv.indexOf('--raw')
-  if (i > 0) return JSON.parse(await readFile(process.argv[i + 1], 'utf8'))
+  if (i > 0) {
+    // Mai multe răspunsuri salvate se pun cap la cap, fără dubluri.
+    const seen = new Set()
+    const merged = { elements: [] }
+    for (const file of process.argv.slice(i + 1)) {
+      const part = JSON.parse(await readFile(file, 'utf8'))
+      merged.osm3s ??= part.osm3s
+      for (const element of part.elements) {
+        const key = `${element.type}/${element.id}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        merged.elements.push(element)
+      }
+    }
+    return merged
+  }
   const response = await fetch('https://overpass-api.de/api/interpreter', {
     method: 'POST',
     headers: { 'User-Agent': 'city-model-script/1.0' },
@@ -261,16 +290,94 @@ const modelRing = (ring, tolerance) => simplifyRing(ring.map(toModel), tolerance
 /** Curtea palatului, cu terasele: aici desenăm noi, nu OSM. */
 const inPalace = ([x, z]) => Math.abs(x) < 150 && z > -140 && z < 150
 
+/** Zona strictă a detaliilor, în coordonatele machetei: ce cade în afara ei nu intră în date. */
+const inDetail = (p) => {
+  const e = p[0] * cx[0] + p[1] * cz[0] + origin[0]
+  const n = p[0] * cx[1] + p[1] * cz[1] + origin[1]
+  const lon = LON0 + e / M_LON
+  const lat = LAT0 + n / M_LAT
+  return lat > DETAIL[0] && lat < DETAIL[2] && lon > DETAIL[1] && lon < DETAIL[3]
+}
+
+/** Un număr între 0 și 1, mereu același pentru același punct: macheta iese la fel la fiecare rulare. */
+const noise = (x, z, salt = 0) => {
+  const v = Math.sin(x * 12.9898 + z * 78.233 + salt * 37.719) * 43758.5453
+  return v - Math.floor(v)
+}
+
 const buildings = []
+/** Contururile clădirilor, păstrate ca să le potrivim cu părțile lor. */
+const outlines = []
+const partsFound = []
 const parks = []
 const water = []
 const rivers = []
 const streets = []
+const trees = []
+const paths = []
+const plazas = []
+const lots = []
+const courts = []
+const hedges = []
 const marks = {}
 let cathedral = null
+let cathedralRing = null
+
+/** Terasele machetei palatului (`TERRACES` din `src/three/palace/massing.ts`), cu o margine de 4 m. */
+const onTerraces = ([x, z]) => Math.abs(x) < 174 && z > -156 && z < 190
+
+const addTree = (p) => {
+  if (!onTerraces(p) && inDetail(p)) trees.push(dm(p[0]), dm(p[1]))
+}
+
+/** Lățimea unei alei sau a unei străzi mici, în metri. */
+const PATH_WIDTH = { footway: 2.4, path: 2, steps: 2.6, cycleway: 2, pedestrian: 5 }
+const LANE_WIDTH = { residential: 6.5, living_street: 5.5, unclassified: 6.5, service: 3.6 }
 
 for (const element of elements) {
   const tags = element.tags ?? {}
+
+  if (element.type === 'node') {
+    if (tags.natural === 'tree') addTree(toModel(toEN(element)))
+    continue
+  }
+
+  // Un șir de copaci: câte unul la 8 m de-a lungul liniei.
+  if (tags.natural === 'tree_row' && element.geometry) {
+    const line = element.geometry.map(toEN).map(toModel)
+    let carry = 0
+    for (let i = 1; i < line.length; i++) {
+      const a = line[i - 1]
+      const b = line[i]
+      const length = Math.hypot(b[0] - a[0], b[1] - a[1])
+      for (let d = carry; d < length; d += 8) {
+        addTree([a[0] + ((b[0] - a[0]) * d) / length, a[1] + ((b[1] - a[1]) * d) / length])
+      }
+      carry = (carry + 8 - (length % 8)) % 8
+    }
+    continue
+  }
+
+  // O parte de clădire: volum propriu, cu înălțimea și, uneori, cu nivelul de la care pornește.
+  if (tags['building:part'] && !tags.building) {
+    const tall = Number.parseFloat(tags.height)
+    const levels = Number.parseFloat(tags['building:levels'])
+    const top = Number.isFinite(tall) && tall > 1 ? tall : Number.isFinite(levels) && levels > 0 ? levels * 3.1 + 1.5 : null
+    if (top === null) continue
+    const from = Number.parseFloat(tags.min_height)
+    const fromLevel = Number.parseFloat(tags['building:min_level'])
+    const base = Number.isFinite(from) ? from : Number.isFinite(fromLevel) ? fromLevel * 3.1 : 0
+    if (top - base < 1) continue
+    for (const polygon of polygons(element)) {
+      const outer = modelRing(polygon.outer, 0.6)
+      const footprint = Math.abs(area(outer))
+      if (outer.length < 3 || footprint < 12) continue
+      const center = centroid(outer)
+      if (inPalace(center)) continue
+      partsFound.push({ top: Math.min(top, 110), base, outer, footprint, center })
+    }
+    continue
+  }
 
   if (tags.building) {
     if (element.type === 'relation' && element.id === PALACE_RELATION) continue
@@ -281,6 +388,7 @@ for (const element of elements) {
       const center = centroid(outer)
       if (inPalace(center)) continue
       if (element.type === 'way' && element.id === CATHEDRAL_WAY) {
+        cathedralRing = outer
         const box = boundingRect(outer)
         cathedral = {
           x: +box.center[0].toFixed(1),
@@ -295,24 +403,58 @@ for (const element of elements) {
       const holes = polygon.holes
         .map((hole) => modelRing(hole, 0.7))
         .filter((hole) => hole.length >= 3 && Math.abs(area(hole)) > 40)
-      buildings.push([dm(heightOf(tags, footprint)), flat(outer), ...holes.map(flat)])
+      outlines.push({ entry: [dm(heightOf(tags, footprint)), flat(outer), ...holes.map(flat)], outer, footprint })
       if (tags.name === 'Casa Academiei') marks.academie = center.map((c) => Math.round(c))
     }
     continue
   }
 
-  if (tags.leisure === 'park' || tags.leisure === 'garden' || tags.landuse === 'grass' || tags.landuse === 'forest') {
+  // Parcările, terenurile de sport și locurile de joacă: suprafețe plate, fiecare cu tonul ei.
+  if (tags.amenity === 'parking' || tags.leisure === 'pitch' || tags.leisure === 'playground') {
     for (const polygon of polygons(element)) {
-      const outer = modelRing(polygon.outer, 1.5)
-      if (outer.length < 3 || Math.abs(area(outer)) < 500) continue
+      const outer = modelRing(polygon.outer, 0.8)
+      if (outer.length < 3 || Math.abs(area(outer)) < 60) continue
+      ;(tags.amenity === 'parking' ? lots : courts).push(flat(outer))
+    }
+    continue
+  }
+
+  if (tags.barrier === 'hedge' && element.geometry) {
+    const line = simplifyLine(element.geometry.map(toEN).map(toModel), 0.8)
+    if (line.length > 1) hedges.push([dm(1.6), ...flat(line)])
+    continue
+  }
+
+  const green =
+    tags.leisure === 'park' ||
+    tags.leisure === 'garden' ||
+    ['grass', 'forest', 'meadow', 'flowerbed', 'village_green'].includes(tags.landuse) ||
+    tags.natural === 'wood' ||
+    tags.natural === 'scrub'
+  if (green) {
+    const small = tags.landuse === 'flowerbed' || tags.natural === 'scrub' || tags.natural === 'wood'
+    for (const polygon of polygons(element)) {
+      const outer = modelRing(polygon.outer, small ? 0.8 : 1.5)
+      if (outer.length < 3 || Math.abs(area(outer)) < (small ? 40 : 500)) continue
       parks.push(flat(outer))
+      // Un pâlc de pădure nu are copacii desenați unul câte unul: îi presărăm noi, la circa 11 m.
+      if (tags.natural === 'wood' || tags.landuse === 'forest') {
+        const xs = outer.map((p) => p[0])
+        const zs = outer.map((p) => p[1])
+        for (let x = Math.min(...xs); x < Math.max(...xs); x += 11) {
+          for (let z = Math.min(...zs); z < Math.max(...zs); z += 11) {
+            const p = [x + noise(x, z) * 8, z + noise(x, z, 1) * 8]
+            if (inside(p, outer)) addTree(p)
+          }
+        }
+      }
       if (tags.name === 'Parcul Izvor') marks.izvor = centroid(outer).map((c) => Math.round(c))
       if (tags.name === 'Parcul Unirii') marks.unirii = centroid(outer).map((c) => Math.round(c))
     }
     continue
   }
 
-  if (tags.natural === 'water') {
+  if (tags.natural === 'water' || tags.amenity === 'fountain') {
     for (const polygon of polygons(element)) {
       const outer = modelRing(polygon.outer, 1)
       if (outer.length >= 3 && Math.abs(area(outer)) > 150) water.push(flat(outer))
@@ -323,6 +465,27 @@ for (const element of elements) {
   if (tags.waterway && element.geometry) {
     const line = simplifyLine(element.geometry.map(toEN).map(toModel), 1.5)
     rivers.push([dm(26), ...flat(line)])
+    continue
+  }
+
+  // Aleile și piețele pietonale.
+  if (tags.highway in PATH_WIDTH && element.geometry) {
+    if (tags.area === 'yes') {
+      for (const polygon of polygons(element)) {
+        const outer = modelRing(polygon.outer, 0.8)
+        if (outer.length >= 3 && Math.abs(area(outer)) > 60) plazas.push(flat(outer))
+      }
+      continue
+    }
+    const line = simplifyLine(element.geometry.map(toEN).map(toModel), 0.8)
+    if (line.length > 1) paths.push([dm(PATH_WIDTH[tags.highway]), ...flat(line)])
+    continue
+  }
+
+  // Străzile mici, dintre blocuri.
+  if (tags.highway in LANE_WIDTH && element.geometry) {
+    const line = simplifyLine(element.geometry.map(toEN).map(toModel), 1)
+    if (line.length > 1) streets.push([dm(LANE_WIDTH[tags.highway]), ...flat(line)])
     continue
   }
 
@@ -342,6 +505,27 @@ for (const element of elements) {
   }
 }
 
+// Părțile unei clădiri îi înlocuiesc conturul doar dacă îl acoperă aproape tot; altfel rămâne
+// conturul, iar părțile lui se lasă deoparte, ca aceeași clădire să nu fie desenată de două ori.
+const parts = []
+const taken = new Set()
+for (const outline of outlines) {
+  const mine = partsFound.filter((part, i) => !taken.has(i) && inside(part.center, outline.outer))
+  const covered = mine.filter((part) => part.base < 1).reduce((sum, part) => sum + part.footprint, 0)
+  const replace = covered >= outline.footprint * 0.7
+  for (const part of mine) taken.add(partsFound.indexOf(part))
+  if (!replace) {
+    buildings.push(outline.entry)
+    continue
+  }
+  for (const part of mine) parts.push([dm(part.top), dm(part.base), flat(part.outer)])
+}
+// Părțile fără contur de clădire (în afara catedralei, pe care o desenăm noi) rămân ca volume de sine stătătoare.
+partsFound.forEach((part, i) => {
+  if (taken.has(i) || (cathedralRing && inside(part.center, cathedralRing))) return
+  parts.push([dm(part.top), dm(part.base), flat(part.outer)])
+})
+
 if (marks.bulevard) {
   const xs = marks.bulevard.x
   marks.bulevard.x = +(xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1)
@@ -352,10 +536,17 @@ const out = {
   osmBase: data.osm3s?.timestamp_osm_base ?? null,
   cathedral,
   buildings,
+  parts,
   parks,
+  lots,
+  courts,
+  plazas,
   water,
   rivers,
   streets,
+  paths,
+  hedges,
+  trees,
 }
 
 const folder = new URL('../public/data/', import.meta.url)
@@ -365,10 +556,9 @@ await writeFile(new URL('oras.json', folder), json)
 
 console.log(`palat: ${Math.max(rect.u, rect.v).toFixed(0)} × ${Math.min(rect.u, rect.v).toFixed(0)} m în OSM`)
 console.log(`axa fațadei: ${((east * 180) / Math.PI).toFixed(3)}° față de est`)
-// Originea machetei pe glob: de aici vine `CITY_GEO` din `src/content/city.ts`.
 console.log(`centrul palatului: ${(LAT0 + origin[1] / M_LAT).toFixed(6)}, ${(LON0 + origin[0] / M_LON).toFixed(6)}`)
-console.log(`metri pe grad: ${M_LAT.toFixed(1)} (latitudine), ${M_LON.toFixed(1)} (longitudine)`)
-console.log(`clădiri ${buildings.length}, parcuri ${parks.length}, ape ${water.length + rivers.length}, străzi ${streets.length}`)
+console.log(`clădiri ${buildings.length} + ${parts.length} părți, parcuri ${parks.length}, ape ${water.length + rivers.length}, străzi ${streets.length}`)
+console.log(`copaci ${trees.length / 2}, alei ${paths.length}, piețe ${plazas.length}, parcări ${lots.length}, terenuri ${courts.length}, garduri vii ${hedges.length}`)
 console.log('catedrala', cathedral)
 console.log('repere', marks)
 console.log(`public/data/oras.json: ${(json.length / 1024).toFixed(0)} kB`)

@@ -23,14 +23,14 @@ export const CLIP_TERRACES = 0.06
 export const POSES: Pose[] = [
   // Începutul paginii: palatul întreg, ca în tur.
   pose(v(-400, 150, 640), v(0, 24, 4)),
-  // I. Dealul de dinainte: dealul și pintenul cu mănăstirea, dinspre sud-est.
-  pose(v(-300, 300, 700), v(100, 0, 125)),
+  // I. Dealul de dinainte: Dealul Arsenalului și, spre nord, pintenul cu mănăstirea, dinspre sud-est.
+  pose(v(60, 290, 650), v(445, 6, 140)),
   // II. Cutremurul și concursul: conturul viitoarei clădiri, aproape de plan.
   pose(v(-150, 470, 330), v(0, -9, 10)),
   // III. Piatra de temelie: terasele, mai de jos.
   pose(v(-420, 200, 560), v(0, -6, 40)),
-  // IV. Demolările: ca un plan, de sus, cu terasele și drumul bisericii spre nord-est.
-  pose(v(120, 1300, 520), v(120, -6, 160)),
+  // IV. Demolările: ca un plan, de sus, cu terasele și drumul bisericii spre est.
+  pose(v(230, 1420, 600), v(245, -6, 215)),
   // V. Șantierul: trei sferturi, cât să se vadă clădirea crescând.
   pose(v(-430, 190, 600), v(0, 26, 0)),
   // VI. După revoluție: fațada, de jos, din axul bulevardului.

@@ -22,8 +22,6 @@ export const live = {
   cityReady: false,
   /** Datele orașului nu au putut fi descărcate: prima oprire arată doar palatul. */
   cityFailed: false,
-  /** Cât acoperă scena ArcGIS macheta noastră a orașului: 0 = deloc (nu s-a încărcat), 1 = cu totul. */
-  arcgis: 0,
   /** Utilizatorul trage cu mouse-ul sau cu degetul pe scenă. */
   dragging: false,
   /** Poziția cursorului, normalizată la -1..1, pentru privitul în jur din săli. */
