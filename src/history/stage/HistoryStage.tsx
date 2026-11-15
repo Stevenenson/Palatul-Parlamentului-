@@ -5,15 +5,28 @@ import { AO_ENABLED, Ground, LIGHT_DEVICE, Lights, PAPER } from '../../three/Lig
 import { fovForAspect, makePose } from '../../three/poses'
 import { onReading, reading } from '../progress'
 import { buildOldSite } from './oldSite'
-import { buildDimensions, buildRisingPalace } from './rise'
-import { makeState, stateAt } from './states'
+import { buildDimensions, buildGuides, buildRisingPalace } from './rise'
+import { type StageState, makeState, stateAt } from './states'
 
 const Effects = lazy(() => import('../../three/Effects'))
 
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-/** Etichetele cotelor (capitolul despre dimensiuni), ca text HTML peste scenă. */
-const LABELS = ['270 m', '240 m']
+/**
+ * Etichetele de pe machetă, ca text HTML peste scenă: cotele (capitolul despre dimensiuni), axa
+ * (compoziția) și registrele (fațada). Fiecare apare odată cu stratul ei din `StageState`.
+ */
+const LABELS: { text: string; layer: 'dimensions' | 'axis' | 'registers'; side?: 'left' }[] = [
+  { text: '270 m', layer: 'dimensions' },
+  { text: '240 m', layer: 'dimensions' },
+  { text: 'axa bulevardului', layer: 'axis' },
+  // Registrele se citesc în stânga liniei lor, cu marginea din dreapta lipită de ea.
+  { text: 'corp de bază', layer: 'registers', side: 'left' },
+  { text: 'registru median', layer: 'registers', side: 'left' },
+  { text: 'turn central', layer: 'registers', side: 'left' },
+]
+
+const amountOf = (state: StageState, layer: (typeof LABELS)[number]['layer']) => MathUtils.clamp(state[layer], 0, 1)
 
 type Props = { labels: RefObject<(HTMLSpanElement | null)[]> }
 
@@ -24,6 +37,8 @@ type Props = { labels: RefObject<(HTMLSpanElement | null)[]> }
 function Story({ labels }: Props) {
   const rising = useMemo(() => buildRisingPalace(), [])
   const dimensions = useMemo(() => buildDimensions(), [])
+  const guides = useMemo(() => buildGuides(), [])
+  const anchors = useMemo(() => [...dimensions.labels, ...guides.labels], [dimensions, guides])
   const oldSite = useMemo(() => buildOldSite(), [])
   const state = useMemo(() => makeState(makePose()), [])
   const { gl, invalidate, size } = useThree()
@@ -37,9 +52,10 @@ function Story({ labels }: Props) {
     return () => {
       rising.dispose()
       dimensions.dispose()
+      guides.dispose()
       oldSite.dispose()
     }
-  }, [gl, rising, dimensions, oldSite])
+  }, [gl, rising, dimensions, guides, oldSite])
 
   useEffect(() => onReading(() => invalidate()), [invalidate])
 
@@ -65,6 +81,7 @@ function Story({ labels }: Props) {
     if (rising.setClip(state.clip)) gl.shadowMap.needsUpdate = true
     rising.setSite(state.site > 0.5)
     dimensions.set(state.dimensions)
+    guides.set(state.axis, state.registers)
     const moved = oldSite.set({
       main: state.hill,
       spur: state.spur,
@@ -74,14 +91,15 @@ function Story({ labels }: Props) {
     })
     if (moved) gl.shadowMap.needsUpdate = true
 
-    // Etichetele cotelor urmează capetele liniilor pe ecran.
+    // Etichetele urmează pe ecran punctele lor de pe machetă.
     labels.current?.forEach((label, i) => {
       if (!label) return
-      projected.copy(dimensions.labels[i]).project(camera)
+      projected.copy(anchors[i]).project(camera)
       const x = (projected.x * 0.5 + 0.5) * size.width
       const y = (-projected.y * 0.5 + 0.5) * size.height
-      label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`
-      label.style.opacity = MathUtils.clamp(state.dimensions, 0, 1).toFixed(3)
+      const shift = LABELS[i].side === 'left' ? '-100%' : '-50%'
+      label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(${shift}, -50%)`
+      label.style.opacity = amountOf(state, LABELS[i].layer).toFixed(3)
     })
 
     // Primele cadre: luminile își fac harta de umbre, efectele își încarcă shaderele.
@@ -93,6 +111,7 @@ function Story({ labels }: Props) {
     <>
       <primitive object={rising.group} />
       <primitive object={dimensions.lines} />
+      <primitive object={guides.group} />
       <primitive object={oldSite.group} />
     </>
   )
@@ -135,7 +154,7 @@ export default function HistoryStage({ onReady }: { onReady: () => void }) {
           </Suspense>
         )}
       </Canvas>
-      {LABELS.map((text, i) => (
+      {LABELS.map(({ text }, i) => (
         <span
           key={text}
           className="dimension"

@@ -485,7 +485,7 @@ try {
   await check('istorie: macheta desenează și capitolele au toate ancora lor', async () => {
     await hp.waitForSelector('main[data-scene="ready"]', { timeout: 20000 })
     const ids = await hp.$$eval('.chapter', (els) => els.map((el) => el.id))
-    expect(ids.length === 8 && new Set(ids).size === 8, `capitole: ${ids.join(', ')}`)
+    expect(ids.length === 11 && new Set(ids).size === 11, `capitole: ${ids.join(', ')}`)
     const toc = await hp.$$eval('.toc a', (els) => els.map((el) => el.getAttribute('href')))
     expect(toc.join() === ids.map((id) => `#${id}`).join(), 'cuprinsul nu duce la capitole')
   })
@@ -513,7 +513,18 @@ try {
     expect(images.length >= 2 && images.every((alt) => alt.length > 20), 'o imagine nu are text alternativ')
     const sources = await hp.$$eval('.figure--photo figcaption a', (els) => els.map((el) => el.href))
     expect(sources.length === images.length && sources.every((s) => s.startsWith('https://commons.wikimedia.org/')), 'o fotografie nu are sursa')
-    const loaded = await hp.$$eval('.history img', (els) => els.every((el) => el.complete && el.naturalWidth > 0))
+    // Imaginile se încarcă abia când se apropie de fereastră: le aducem pe rând în ea și așteptăm.
+    for (const image of await hp.$$('.history img')) await image.scrollIntoViewIfNeeded()
+    const loaded = await hp
+      .waitForFunction(
+        () => [...document.querySelectorAll('.history img')].every((el) => el.complete && el.naturalWidth > 0),
+        null,
+        { timeout: 8000 },
+      )
+      .then(
+        () => true,
+        () => false,
+      )
     expect(loaded, 'o fotografie nu s-a încărcat')
   })
 
@@ -527,7 +538,7 @@ try {
     )
     await hp.click('.topbar__nav a:has-text("Istorie")')
     await hp.waitForURL(/\/istorie\/$/, { timeout: 8000 })
-    expect((await hp.$eval('.topbar__nav a[aria-current="page"]', (el) => el.textContent)) === 'Istorie', 'pagina curentă nu e marcată')
+    expect((await hp.$eval('.topbar__nav a[aria-current="page"]', (el) => el.textContent)) === 'Istorie și arhitectură', 'pagina curentă nu e marcată')
   })
 
   await check('istorie: fără erori în consolă', async () => {
@@ -579,7 +590,7 @@ try {
   await check('istorie: fără WebGL, textul rămâne întreg, fără machetă', async () => {
     await hbare.waitForSelector('main[data-scene="failed"]', { timeout: 8000 })
     expect((await hbare.locator('canvas').count()) === 0, 'scena a fost totuși montată')
-    expect((await hbare.locator('.chapter').count()) === 8, 'lipsesc capitole')
+    expect((await hbare.locator('.chapter').count()) === 11, 'lipsesc capitole')
     expect(hbareErrors.length === 0, hbareErrors.join(' | '))
   })
   await histPlain.close()

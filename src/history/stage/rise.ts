@@ -6,13 +6,14 @@ import {
   LineSegments,
   type Material,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   Plane,
   PlaneGeometry,
   Vector3,
 } from 'three'
 import { buildPalace } from '../../three/palace/buildPalace'
-import { TERRACES, VOLUMES } from '../../three/palace/massing'
+import { PALACE, TERRACES, VOLUMES } from '../../three/palace/massing'
 import { CLIP_TOP } from './states'
 
 /** Culoarea tăieturii: piatră mai închisă decât pereții, ca secțiunea unei machete. */
@@ -131,6 +132,69 @@ export function buildDimensions() {
     dispose: () => {
       geometry.dispose()
       material.dispose()
+    },
+  }
+}
+
+const ACCENT = '#c8452b'
+
+/**
+ * Liniile capitolelor de arhitectură. Axa de simetrie e o fâșie roșie pe teren, din spatele
+ * clădirii până la capătul bulevardului; se desenează peste clădire, ca pe o planșă, iar din
+ * axul ei (de unde o privește camera) cade exact pe mijlocul fațadei. Registrele sunt o linie
+ * verticală pe colțul din stânga al fațadei, cu câte o crestătură la fiecare treaptă.
+ */
+export function buildGuides() {
+  const axisGeometry = new PlaneGeometry(2.4, 968)
+  axisGeometry.rotateX(-Math.PI / 2)
+  axisGeometry.translate(0, PALACE.ground + 0.3, 334)
+  const axisMaterial = new MeshBasicMaterial({
+    color: ACCENT,
+    transparent: true,
+    opacity: 0,
+    depthTest: false,
+    depthWrite: false,
+  })
+  const axis = new Mesh(axisGeometry, axisMaterial)
+  axis.visible = false
+  axis.renderOrder = 3
+
+  // Treptele vin din volumele machetei: corpul de bază, registrul median, turnul.
+  const top = (id: string) => VOLUMES.find((volume) => volume.id === id)?.y1 ?? 0
+  const levels = [0, top('base'), top('mid-front'), top('tower')]
+  const x = FOOTPRINT.x0 - 17
+  const z = FOOTPRINT.z1 + 7
+  const tick = 5
+  const positions = [x, levels[0], z, x, levels[3], z]
+  for (const y of levels) positions.push(x - tick, y, z, x + tick, y, z)
+  const registerGeometry = new BufferGeometry()
+  registerGeometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
+  const registerMaterial = new LineBasicMaterial({ color: INK, transparent: true, opacity: 0, depthWrite: false })
+  const registers = new LineSegments(registerGeometry, registerMaterial)
+  registers.visible = false
+  registers.renderOrder = 2
+
+  const group = new Group()
+  group.add(axis, registers)
+
+  return {
+    group,
+    /** Eticheta axei, pe bulevard, și câte una la mijlocul fiecărui registru, în stânga liniei. */
+    labels: [
+      new Vector3(0, PALACE.ground + 0.3, 285),
+      ...[0, 1, 2].map((i) => new Vector3(x - 9, (levels[i] + levels[i + 1]) / 2, z)),
+    ],
+    set: (axisAmount: number, registerAmount: number) => {
+      axisMaterial.opacity = 0.9 * axisAmount
+      axis.visible = axisAmount > 0.005
+      registerMaterial.opacity = 0.85 * registerAmount
+      registers.visible = registerAmount > 0.005
+    },
+    dispose: () => {
+      axisGeometry.dispose()
+      axisMaterial.dispose()
+      registerGeometry.dispose()
+      registerMaterial.dispose()
     },
   }
 }

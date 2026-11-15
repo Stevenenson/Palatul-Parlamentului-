@@ -17,7 +17,7 @@ export type CityLabel = {
 }
 
 export const CITY_LABELS: CityLabel[] = [
-  { id: 'catedrala', name: 'Catedrala Națională', at: [-199, 122, -395], phone: true },
+  { id: 'catedrala', name: 'Catedrala Națională', at: [-199, 124, -395], phone: true },
   { id: 'unirii', name: 'Bulevardul Unirii', at: [-4, 0, 800], phone: true, phoneAt: [-2, 0, 400] },
   { id: 'izvor', name: 'Parcul Izvor', at: [468, 0, -22], phone: true },
   { id: 'academie', name: 'Casa Academiei', at: [-563, 44, -5] },

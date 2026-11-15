@@ -4,7 +4,8 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 /**
  * Catedrala Națională, din spatele palatului, ca volum schematic: nava, absidele, turla mare de
  * deasupra naosului, clopotnița dinspre vest și patru turle mici. Locul și orientarea vin din
- * OpenStreetMap; proporțiile sunt aproximate din fotografii, nu măsurate.
+ * OpenStreetMap; proporțiile sunt aproximate din fotografii, nu măsurate. Crucea turlei mari
+ * stă la circa 130 m, cât dă articolul de pe Wikipedia.
  *
  * Local, altarul e spre +Z (est), iar baza stă la y = 0.
  */
@@ -59,7 +60,7 @@ export function buildCathedral(spot: CathedralSpot): BufferGeometry {
     drum(0, 36, 19, 0, 37),
     dome(0, 36, 19, 37, 11),
     // Turla mare, de deasupra naosului.
-    ...tower(0, 9, 14, 42, 94, 127),
+    ...tower(0, 9, 14, 42, 94, 130),
     // Clopotnița, deasupra intrării.
     box(-10, 10, 0, 62, -60, -40),
     ...tower(0, -50, 8, 62, 80, 98),

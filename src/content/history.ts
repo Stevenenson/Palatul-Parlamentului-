@@ -255,6 +255,81 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     ],
   },
   {
+    id: 'capitol-compozitia',
+    mark: 'axa',
+    years: 'compoziția',
+    title: 'O axă și o simetrie',
+    blocks: [
+      {
+        text:
+          'Palatul a fost gândit ca parte a unui ansamblu. Proiectul de reconstruire a Bucureștiului mai cuprindea ' +
+          'Ministerul Apărării Naționale, Casa Radio, casa de oaspeți care e azi Hotelul Marriott, Casa Academiei, ' +
+          'Parcul Izvor și un bulevard nou, Victoria Socialismului, numit azi Bulevardul Unirii.',
+      },
+      {
+        text:
+          'Bulevardul duce drept spre fațada principală. Pe machetă, linia roșie e axa lui: volumele din stânga și ' +
+          'din dreapta ei sunt aceleași, în oglindă, și urcă în trepte spre turnul din mijloc.',
+      },
+      {
+        text:
+          'Axul e mai vechi decât palatul. Demolările anunțate în 1938, pentru sediul Camerei Deputaților, trebuiau ' +
+          'să deschidă tocmai acest ax spre deal.',
+      },
+    ],
+  },
+  {
+    id: 'capitol-fatada',
+    mark: '3',
+    years: 'fațada',
+    title: 'Fațada, pe trei registre',
+    blocks: [
+      {
+        text:
+          'Potrivit articolului de pe Wikipedia, palatul a fost realizat în spiritul arhitecturii realist-socialiste, ' +
+          'pe care regimul o voia pentru capitala refăcută după cutremur.',
+      },
+      {
+        text:
+          'Pe verticală se disting trei registre, care corespund și unor zone funcționale diferite. Pe machetă ' +
+          'le-am marcat ca trei trepte: corpul de bază, registrul median, retras, și turnul central. Împărțirea ' +
+          'aceasta e a noastră, făcută după fotografii.',
+      },
+      {
+        text:
+          'Fațada repetă aceeași travee pe toată lungimea: ferestre dreptunghiulare jos, apoi ferestre în arc, ' +
+          'între pilaștri. În ax, intrarea oficială are un portic cu coloane. Și aici macheta e schematică: ' +
+          'arată ritmul fațadei, nu detaliul ei.',
+      },
+    ],
+  },
+  {
+    id: 'capitol-materialele',
+    mark: '1.000.000',
+    years: 'materialele',
+    title: 'Marmură, lemn, sticlă',
+    blocks: [
+      {
+        text:
+          'Lista de materiale din articol începe cu marmura: un milion de metri cubi. Urmează 900.000 m³ de esențe ' +
+          'de lemn și 200.000 m³ de sticlă. Cristalul, oțelul, covoarele și candelabrele sunt în capitolul despre ' +
+          'șantier.',
+      },
+      {
+        text:
+          'Clădirea are nouă niveluri la suprafață și tot atâtea sub pământ, unde coboară 92 m. Macheta e tăiată ' +
+          'aici prin registrul median, ca o machetă secționată. Tăietura arată volumele, nu încăperile.',
+      },
+    ],
+    facts: [
+      { value: '1.000.000 m³', label: 'de marmură' },
+      { value: '900.000 m³', label: 'de esențe de lemn' },
+      { value: '200.000 m³', label: 'de sticlă' },
+      { value: '2.000.000 t', label: 'de nisip' },
+      { value: '1.000 t', label: 'de bazalt' },
+    ],
+  },
+  {
     id: 'capitol-azi',
     mark: 'azi',
     years: 'azi',
@@ -270,6 +345,13 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
         text:
           'Din vechiul deal a rămas o colină închisă în curtea palatului. La marginea ei, pe locul fostului Stadion ' +
           'al Republicii, e azi parcarea Parlamentului.',
+      },
+      {
+        text:
+          'În spatele palatului, tot pe Dealul Arsenalului, s-a ridicat Catedrala Mântuirii Neamului, numită și ' +
+          'Catedrala Națională. Piatra de temelie a fost pusă în februarie 2011, iar sfințirea a avut loc la ' +
+          '26 octombrie 2025. Crucea turlei celei mai înalte stă la circa 130 m deasupra solului, mai sus decât ' +
+          'turnul palatului.',
       },
       {
         text:
@@ -295,6 +377,11 @@ export const HISTORY_SOURCES = [
     title: '„Dealul Arsenalului”',
     url: 'https://ro.wikipedia.org/wiki/Dealul_Arsenalului',
     edited: '1 iulie 2026',
+  },
+  {
+    title: '„Catedrala Mântuirii Neamului”',
+    url: 'https://ro.wikipedia.org/wiki/Catedrala_M%C3%A2ntuirii_Neamului',
+    edited: '30 octombrie 2026',
   },
 ]
 

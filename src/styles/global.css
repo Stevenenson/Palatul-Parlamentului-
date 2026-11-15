@@ -1590,6 +1590,11 @@ h2 {
     padding-inline: 10px;
   }
 
+  /* Pe telefon linkul rămâne „Istorie”, ca bara să încapă. */
+  .topbar__more {
+    display: none;
+  }
+
   .hero__head {
     padding-top: 2px;
   }

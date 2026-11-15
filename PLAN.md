@@ -134,12 +134,19 @@ Site-ul devine suportul unei prezentări de arhitectură: juriul îl deschide pe
   comprimat). Cinci repere etichetate, axa Bulevardului Unirii trasă cu roșu și Catedrala Națională ca volum
   schematic. La scroll, camera coboară la macheta mare, iar clădirile orașului se retrag în hârtie. Pe telefon
   cadrul e altul: din axul bulevardului, mai de aproape, cu trei etichete.
-- [ ] **Pas 15 — Arhitectura.** Capitole despre compoziție, fațadă, materiale și structură în pagina de istorie.
+- [x] **Pas 15 — Arhitectura.** Pagina de istorie devine „Istorie și arhitectură”, cu trei capitole noi înainte de
+  „Palatul azi”: compoziția (axa bulevardului, trasă cu roșu peste machetă, văzută exact din ax), fațada (cele trei
+  registre, marcate pe colțul clădirii) și materialele (macheta tăiată prin registrul median). „Palatul azi” are un
+  paragraf despre Catedrala Națională, cu articolul ei ca a patra sursă. Pagina are acum unsprezece capitole.
 
 Abateri față de planul Pasului 14: n-am folosit ArcGIS, ci aceleași date OpenStreetMap, desenate în scena
 noastră, ca trecerea de la oraș la palat să fie o singură mișcare de cameră și ca pagina să nu depindă de un
 serviciu extern. Orașul nu aruncă umbre. Textul primului ecran s-a împărțit în două secțiuni: titlul în oraș,
 cifrele și butonul „Începe turul” la machetă.
+
+Abateri față de planul Pasului 15: capitolele spun doar ce are sursă. Înălțimile registrelor, traveea și detaliile
+fațadei vin din fotografii, nu dintr-o sursă scrisă, deci apar fără cifre și cu mențiunea că împărțirea e a noastră.
+Secțiunea arată volumele, nu încăperile.
 
 ## După test
 

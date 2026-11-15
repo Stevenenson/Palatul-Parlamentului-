@@ -118,12 +118,12 @@ export function HistoryPage() {
 
         <div className="history__text">
           <header className="history__intro" ref={intro}>
-            <p className="overline">Istorie · 1594 – azi</p>
+            <p className="overline">Istorie și arhitectură · 1594 – azi</p>
             <h1 id="titlu">Povestea palatului</h1>
             <Meander units={9} />
             <p className="lead">
-              De la o mănăstire pe un deal la una dintre cele mai mari clădiri din lume. Macheta urmează
-              povestea pe măsură ce citești.
+              De la o mănăstire pe un deal la una dintre cele mai mari clădiri din lume, apoi clădirea ca
+              arhitectură: compoziția, fațada, materialele. Macheta urmează povestea pe măsură ce citești.
             </p>
             <nav className="toc" aria-label="Capitole">
               <ol>

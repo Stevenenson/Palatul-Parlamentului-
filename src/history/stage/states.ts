@@ -37,9 +37,18 @@ export const POSES: Pose[] = [
   pose(v(0, 28, 600), v(0, 34, 0), 32),
   // VII. Cât de mare e: de sus, cu cotele pe teren.
   pose(v(-140, 600, 360), v(0, 0, 14)),
-  // VIII. Azi: vederea din tur.
+  // VIII. Compoziția: de sus, exact din axul bulevardului, ca simetria să se vadă ca pe o planșă.
+  pose(v(0, 560, 800), v(0, 10, 40)),
+  // IX. Fațada: trei sferturi, din stânga, cu registrele citite pe colțul clădirii.
+  pose(v(-325, 76, 735), v(-50, 34, 30)),
+  // X. Materialele: de sus, peste clădirea tăiată prin registrul median.
+  pose(v(-380, 300, 520), v(0, 16, 0)),
+  // XI. Azi: vederea din tur.
   pose(v(-380, 123, 627), v(0, 27, 8)),
 ]
+
+/** Prin registrul median: baza rămâne întreagă, turnul lipsește. */
+const CLIP_SECTION = 38
 
 /** Puncte-cheie [poziție de citire, valoare]; între ele, interpolare liniară. */
 type Keys = [number, number][]
@@ -66,6 +75,13 @@ const CLIP: Keys = [
   // Șantierul: clădirea crește odată cu lectura capitolului, până la vârful turnului.
   [5.86, 90],
   [5.9, CLIP_TOP],
+  // Materialele: clădirea se taie din nou, ca o machetă secționată, apoi se întregește pentru „azi”.
+  [9.6, CLIP_TOP],
+  [9.62, 90],
+  [10.0, CLIP_SECTION],
+  [10.55, CLIP_SECTION],
+  [10.9, 90],
+  [10.92, CLIP_TOP],
 ]
 
 /** Dealul Arsenalului: apare când palatul coboară în teren și se topește în terase. */
@@ -110,14 +126,45 @@ const DIMENSIONS: Keys = [
   [7.95, 0],
 ]
 
+/** Axa de simetrie, în capitolul despre compoziție. */
+const AXIS: Keys = [
+  [7.6, 0],
+  [8.0, 1],
+  [8.6, 1],
+  [8.95, 0],
+]
+
+/** Cele trei registre, marcate pe colțul fațadei. */
+const REGISTERS: Keys = [
+  [8.6, 0],
+  [9.0, 1],
+  [9.55, 1],
+  [9.9, 0],
+]
+
 /** Cu mișcare redusă: o singură stare pe capitol, fără animația dintre ele. */
-const STILL_CLIP = [CLIP_TOP, CLIP_NONE, CLIP_NONE, CLIP_TERRACES, CLIP_TERRACES, CLIP_TOP, CLIP_TOP, CLIP_TOP, CLIP_TOP]
+const STILL_CLIP = [
+  CLIP_TOP,
+  CLIP_NONE,
+  CLIP_NONE,
+  CLIP_TERRACES,
+  CLIP_TERRACES,
+  CLIP_TOP,
+  CLIP_TOP,
+  CLIP_TOP,
+  CLIP_TOP,
+  CLIP_TOP,
+  CLIP_SECTION,
+  CLIP_TOP,
+]
 
 export type StageState = {
   pose: Pose
   clip: number
   outline: number
   dimensions: number
+  axis: number
+  registers: number
   hill: number
   spur: number
   move: number
@@ -131,6 +178,8 @@ export const makeState = (pose: Pose): StageState => ({
   clip: CLIP_TOP,
   outline: 0,
   dimensions: 0,
+  axis: 0,
+  registers: 0,
   hill: 0,
   spur: 0,
   move: 1,
@@ -150,6 +199,8 @@ export function stateAt(t: number, still: boolean, out: StageState) {
     out.clip = STILL_CLIP[i]
     out.outline = i === 2 ? 1 : 0
     out.dimensions = i === 7 ? 1 : 0
+    out.axis = i === 8 ? 1 : 0
+    out.registers = i === 9 ? 1 : 0
     out.hill = i >= 1 && i <= 2 ? 1 : 0
     out.spur = i >= 1 && i <= 3 ? 1 : 0
     out.move = i >= 4 || i === 0 ? 1 : 0
@@ -164,6 +215,8 @@ export function stateAt(t: number, still: boolean, out: StageState) {
   out.clip = at(CLIP, tc)
   out.outline = at(OUTLINE, tc)
   out.dimensions = at(DIMENSIONS, tc)
+  out.axis = at(AXIS, tc)
+  out.registers = at(REGISTERS, tc)
   out.hill = at(HILL, tc)
   out.spur = at(SPUR, tc)
   // Azi biserica e la locul nou: la începutul paginii o arătăm acolo.

@@ -5,7 +5,7 @@ import { HISTORY_URL, tourUrl } from './pages'
 type Page = 'tur' | 'istorie'
 
 /**
- * Bara de sus, comună celor două pagini. „Istorie” stă lângă siglă, „Săli” și „Hartă” în dreapta.
+ * Bara de sus, comună celor două pagini. „Istorie și arhitectură” (pe telefon, doar „Istorie”) stă lângă siglă, „Săli” și „Hartă” în dreapta.
  * Pe tur, linkurile spre săli și hartă zboară cu
  * camera; pe pagina de istorie, duc la tur, deschis direct la oprirea respectivă.
  */
@@ -24,7 +24,9 @@ export function TopBar({ page = 'tur' }: { page?: Page }) {
         </a>
         <nav className="topbar__nav" aria-label="Principal">
           <a className="topbar__history" href={HISTORY_URL} aria-current={onTour ? undefined : 'page'}>
-            Istorie
+            <span>
+              Istorie<span className="topbar__more"> și arhitectură</span>
+            </span>
           </a>
           <a {...toStop(ROOMS[0].id)}>Săli</a>
           <a {...toStop('harta')}>Hartă</a>
