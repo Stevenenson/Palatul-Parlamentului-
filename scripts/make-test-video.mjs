@@ -50,7 +50,7 @@ const result = await page.evaluate(async () => {
     ctx.fillStyle = '#17191d'
     ctx.fillRect(60, 486, 840 * Math.min(1, t / seconds), 6)
     ctx.font = '600 30px system-ui, sans-serif'
-    ctx.fillText('Filmare de test', 60, 70)
+    ctx.fillText('Test video', 60, 70)
     ctx.font = '500 24px ui-monospace, monospace'
     ctx.fillText(`0:0${Math.min(seconds, Math.floor(t))}`, 840, 70)
     if (t < seconds + 0.2) requestAnimationFrame(draw)

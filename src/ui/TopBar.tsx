@@ -20,16 +20,16 @@ export function TopBar({ page = 'tur' }: { page?: Page }) {
           <svg className="brand__mark" viewBox="0 0 28 20" aria-hidden="true">
             <path d="M1 19h26v-6h-4V8h-5V3h-8v5H5v5H1z" />
           </svg>
-          <span className="brand__text">Palatul Parlamentului</span>
+          <span className="brand__text">Palace of the Parliament</span>
         </a>
-        <nav className="topbar__nav" aria-label="Principal">
+        <nav className="topbar__nav" aria-label="Main">
           <a className="topbar__history" href={HISTORY_URL} aria-current={onTour ? undefined : 'page'}>
             <span>
-              Istorie<span className="topbar__more"> și arhitectură</span>
+              History<span className="topbar__more"> &amp; architecture</span>
             </span>
           </a>
-          <a {...toStop(ROOMS[0].id)}>Săli</a>
-          <a {...toStop('harta')}>Hartă</a>
+          <a {...toStop(ROOMS[0].id)}>Halls</a>
+          <a {...toStop('harta')}>Map</a>
         </nav>
       </div>
     </header>

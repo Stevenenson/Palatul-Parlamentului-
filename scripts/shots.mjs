@@ -102,7 +102,7 @@ try {
     const hp = await hist.newPage()
     hp.on('pageerror', (error) => problems.push(`${viewport.name} istorie: ${error}`))
     hp.on('console', (m) => m.type() === 'error' && problems.push(`${viewport.name} istorie: ${m.text()}`))
-    await hp.goto(new URL('istorie/', site.url).href, { waitUntil: 'load' })
+    await hp.goto(new URL('history/', site.url).href, { waitUntil: 'load' })
     await hp.waitForSelector('main[data-scene="ready"]', { timeout: 30000 })
     const chapters = await hp.$$eval('.chapter', (els) => els.map((el) => el.id))
     const spots = [['inceput', null, 0], ...chapters.map((id) => [id, id, 0.3]), ['santierul-jumatate', 'capitol-santierul', 0.42]]

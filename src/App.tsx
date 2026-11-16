@@ -34,7 +34,7 @@ export function App() {
   return (
     <>
       <a className="skip" href="#continut">
-        Sari la conținut
+        Skip to content
       </a>
       <TopBar />
       <div className="stage" aria-hidden="true">
@@ -48,7 +48,7 @@ export function App() {
         {scene === 'loading' && (
           <p className="stage__status">
             <Meander units={5} draw />
-            Se încarcă macheta
+            Loading the model
           </p>
         )}
       </div>

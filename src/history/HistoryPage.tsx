@@ -29,7 +29,7 @@ function Figure({ figure }: { figure: HistoryFigure }) {
     return (
       <figure className="figure figure--drawing" data-draw>
         <MihaiVodaDrawing />
-        <figcaption>Mutarea bisericii, în 1985. Desen schematic, fără scară.</figcaption>
+        <figcaption>The church move, in 1985. Schematic drawing, not to scale.</figcaption>
       </figure>
     )
   }
@@ -44,7 +44,7 @@ function Figure({ figure }: { figure: HistoryFigure }) {
       <figcaption>
         {figure.caption}{' '}
         <a className="link" href={figure.source}>
-          Sursa
+          Source
         </a>
       </figcaption>
     </figure>
@@ -96,7 +96,7 @@ export function HistoryPage() {
   return (
     <>
       <a className="skip" href="#continut">
-        Sari la conținut
+        Skip to content
       </a>
       <TopBar page="istorie" />
       <main id="continut" className="history" data-chapter={chapter} data-scene={scene}>
@@ -111,21 +111,21 @@ export function HistoryPage() {
           {scene === 'loading' && (
             <p className="stage__status">
               <Meander units={5} draw />
-              Se încarcă macheta
+              Loading the model
             </p>
           )}
         </div>
 
         <div className="history__text">
           <header className="history__intro" ref={intro}>
-            <p className="overline">Istorie și arhitectură · 1594 – azi</p>
-            <h1 id="titlu">Povestea palatului</h1>
+            <p className="overline">History and architecture · 1594 – today</p>
+            <h1 id="titlu">The story of the palace</h1>
             <Meander units={9} />
             <p className="lead">
-              De la o mănăstire pe un deal la una dintre cele mai mari clădiri din lume, apoi clădirea ca
-              arhitectură: compoziția, fațada, materialele. Macheta urmează povestea pe măsură ce citești.
+              From a monastery on a hill to one of the largest buildings in the world, then the building as
+              architecture: composition, facade, materials. The model follows the story as you read.
             </p>
-            <nav className="toc" aria-label="Capitole">
+            <nav className="toc" aria-label="Chapters">
               <ol>
                 {CHAPTERS.map((c, i) => (
                   <li key={c.id}>
@@ -160,8 +160,8 @@ export function HistoryPage() {
                     {/* Nodul firului duce la începutul capitolului; din tastatură, același drum e în cuprins. */}
                     <a className="chapter__node" href={`#${c.id}`} aria-hidden="true" tabIndex={-1} />
                     <p className="overline">
-                      <span aria-hidden="true">Capitolul {toRoman(index)}</span>
-                      <span className="sr-only">Capitolul {index}</span> · {c.years}
+                      <span aria-hidden="true">Chapter {toRoman(index)}</span>
+                      <span className="sr-only">Chapter {index}</span> · {c.years}
                     </p>
                     <p className="chapter__mark" aria-hidden="true">
                       {c.mark}
@@ -186,10 +186,10 @@ export function HistoryPage() {
                     {index === CHAPTERS.length && (
                       <div className="actions chapter__actions">
                         <a className="btn btn--primary" href={tourUrl()}>
-                          Intră în tur
+                          Start the tour
                         </a>
                         <a className="link" href={tourUrl('harta')}>
-                          Harta sălilor
+                          Map of the halls
                         </a>
                       </div>
                     )}
@@ -200,36 +200,36 @@ export function HistoryPage() {
           </ol>
 
           <section className="sources" aria-labelledby="surse">
-            <h2 id="surse">Surse și imagini</h2>
-            <p>Textul e scris după aceste articole de pe Wikipedia în limba română, citite în noiembrie 2026:</p>
+            <h2 id="surse">Sources and images</h2>
+            <p>The text is based on these Romanian-language Wikipedia articles, read in November 2026:</p>
             <ul>
               {HISTORY_SOURCES.map((source) => (
                 <li key={source.url}>
                   <a className="link" href={source.url}>
                     {source.title}
                   </a>
-                  , ultima modificare pe {source.edited}
+                  , last edited on {source.edited}
                 </li>
               ))}
             </ul>
-            <p>Unde sursele dau valori diferite:</p>
+            <p>Where the sources give different values:</p>
             <ul>
               {HISTORY_NOTES.map((note) => (
                 <li key={note}>{note}</li>
               ))}
             </ul>
-            <p>Imagini:</p>
+            <p>Images:</p>
             <ul>
               {HISTORY_PHOTOS.map((photo) => (
                 <li key={photo.src}>
                   {photo.author}, {photo.year}, {photo.license}
                   {photo.edit ? `; ${photo.edit}` : ''}.{' '}
                   <a className="link" href={photo.source}>
-                    Pagina imaginii pe Wikimedia Commons
+                    The image’s page on Wikimedia Commons
                   </a>
                 </li>
               ))}
-              <li>Macheta 3D și desenul mutării bisericii sunt făcute pentru acest site.</li>
+              <li>The 3D model and the drawing of the church move were made for this site.</li>
             </ul>
           </section>
         </div>

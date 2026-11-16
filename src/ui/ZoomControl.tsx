@@ -13,7 +13,7 @@ export function ZoomControl() {
 
   return (
     <div className="zoom" data-hidden={hidden || undefined} role="group" aria-label="Apropierea machetei">
-      <button type="button" className="zoom__btn" aria-label="Apropie" disabled={hidden} onClick={() => zoomBy(ZOOM_STEP)}>
+      <button type="button" className="zoom__btn" aria-label="Zoom in" disabled={hidden} onClick={() => zoomBy(ZOOM_STEP)}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 5v14M5 12h14" />
         </svg>
@@ -21,7 +21,7 @@ export function ZoomControl() {
       <button
         type="button"
         className="zoom__btn"
-        aria-label="Depărtează"
+        aria-label="Zoom out"
         disabled={hidden}
         onClick={() => zoomBy(1 / ZOOM_STEP)}
       >

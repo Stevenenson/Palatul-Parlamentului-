@@ -75,7 +75,7 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
   return (
     <section
       className="recording"
-      aria-label={`Filmări din ${room.name}`}
+      aria-label={`Videos from ${room.name}`}
       onPointerDown={onPointerDown}
       onPointerMove={(event) => swipeMove(event.clientX)}
       onPointerUp={swipeEnd}
@@ -83,9 +83,9 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
     >
       <div className="recording__top">
         <p className="recording__count">
-          Filmarea {current + 1} din {count}
+          Video {current + 1} of {count}
         </p>
-        {recording.demo && <p className="tag">Conținut de test</p>}
+        {recording.demo && <p className="tag">Test content</p>}
       </div>
       {/* Fără scenă 3D nu există hologramă: filmarea se vede direct în card. */}
       {failed &&
@@ -112,7 +112,7 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
         <button
           type="button"
           className="icon-btn round"
-          aria-label="Filmarea anterioară"
+          aria-label="Previous video"
           onClick={() => stepRecording(index, -1)}
         >
           <Icon d={ICONS.previous} />
@@ -123,7 +123,7 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
               <button
                 type="button"
                 className="dot"
-                aria-label={`Filmarea ${i + 1}: ${item.title}`}
+                aria-label={`Video ${i + 1}: ${item.title}`}
                 aria-current={i === current ? 'true' : undefined}
                 onClick={() => showRecording(index, i)}
               />
@@ -133,7 +133,7 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
         <button
           type="button"
           className="icon-btn round"
-          aria-label="Filmarea următoare"
+          aria-label="Next video"
           onClick={() => stepRecording(index, 1)}
         >
           <Icon d={ICONS.next} />
@@ -144,7 +144,7 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
               <button
                 type="button"
                 className="icon-btn"
-                aria-label={paused ? 'Pornește filmarea' : 'Pune pauză'}
+                aria-label={paused ? 'Play the video' : 'Pause'}
                 onClick={togglePause}
               >
                 <Icon d={paused ? ICONS.play : ICONS.pause} />
@@ -155,13 +155,13 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
               <button
                 type="button"
                 className="icon-btn"
-                aria-label={muted ? 'Pornește sunetul' : 'Oprește sunetul'}
+                aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
                 onClick={toggleSound}
               >
                 <Icon d={muted ? ICONS.soundOff : ICONS.soundOn} />
               </button>
             )}
-            <button type="button" className="icon-btn" aria-label="Deschide filmarea mare" onClick={openLarge}>
+            <button type="button" className="icon-btn" aria-label="Open the video full size" onClick={openLarge}>
               <Icon d={ICONS.expand} />
             </button>
           </span>
@@ -181,7 +181,7 @@ export function RecordingCard({ room, index }: { room: RoomSpec; index: number }
             <img src={recording.media.src} alt={recording.title} />
           ))}
         <form method="dialog" className="lightbox__bar">
-          <button className="btn btn--primary">Închide filmarea</button>
+          <button className="btn btn--primary">Close the video</button>
         </form>
       </dialog>
     </section>

@@ -7,7 +7,7 @@ export function StopNav() {
   const current = useTour((s) => s.stop)
 
   return (
-    <nav className="stopnav" aria-label="Opririle turului">
+    <nav className="stopnav" aria-label="Tour stops">
       <ol>
         {STOPS.map((stop, i) => (
           <li key={stop.id}>

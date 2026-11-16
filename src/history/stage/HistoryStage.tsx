@@ -19,11 +19,11 @@ const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)')
 const LABELS: { text: string; layer: 'dimensions' | 'axis' | 'registers'; side?: 'left' }[] = [
   { text: '270 m', layer: 'dimensions' },
   { text: '240 m', layer: 'dimensions' },
-  { text: 'axa bulevardului', layer: 'axis' },
+  { text: 'boulevard axis', layer: 'axis' },
   // Registrele se citesc în stânga liniei lor, cu marginea din dreapta lipită de ea.
-  { text: 'corp de bază', layer: 'registers', side: 'left' },
-  { text: 'registru median', layer: 'registers', side: 'left' },
-  { text: 'turn central', layer: 'registers', side: 'left' },
+  { text: 'base', layer: 'registers', side: 'left' },
+  { text: 'middle register', layer: 'registers', side: 'left' },
+  { text: 'central tower', layer: 'registers', side: 'left' },
 ]
 
 const amountOf = (state: StageState, layer: (typeof LABELS)[number]['layer']) => MathUtils.clamp(state[layer], 0, 1)

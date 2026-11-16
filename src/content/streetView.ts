@@ -49,12 +49,12 @@ export function fromArtsLink(url: string): StreetView {
   try {
     params = new URL(url).searchParams
   } catch {
-    throw new Error(`Linkul nu e o adresă întreagă (trebuie să înceapă cu https://): ${url}`)
+    throw new Error(`The link is not a full address (it must start with https://): ${url}`)
   }
   const id = params.get('sv_pid')
-  if (!id) throw new Error(`Linkul nu are parametrul sv_pid: ${url}`)
+  if (!id) throw new Error(`The link has no sv_pid parameter: ${url}`)
   const pano = unwrapPano(id)
-  if (!PANO.test(pano)) throw new Error(`Parametrul sv_pid nu e un identificator de panoramă: ${id}`)
+  if (!PANO.test(pano)) throw new Error(`The sv_pid parameter is not a panorama id: ${id}`)
   return {
     pano,
     heading: number(params.get('sv_h')),
@@ -81,7 +81,7 @@ export function embedUrl(view: StreetView): string {
       heading: String(round(view.heading)),
       pitch: String(round(view.pitch)),
       fov: '90',
-      language: 'ro',
+      language: 'en',
     })
     return `https://www.google.com/maps/embed/v1/streetview?${query}`
   }

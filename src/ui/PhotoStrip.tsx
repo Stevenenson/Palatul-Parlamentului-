@@ -19,7 +19,7 @@ export function PhotoStrip({ room }: { room: RoomSpec }) {
 
   return (
     <div className="photos">
-      <h3 className="photos__title">Fotografii din sală</h3>
+      <h3 className="photos__title">Photos of the hall</h3>
       <ul className="photos__list">
         {room.photos.map((item, i) => (
           <li key={item.src}>
@@ -29,7 +29,7 @@ export function PhotoStrip({ room }: { room: RoomSpec }) {
           </li>
         ))}
       </ul>
-      <dialog ref={dialog} className="lightbox" aria-label={`Fotografie din ${room.name}`}>
+      <dialog ref={dialog} className="lightbox" aria-label={`Photo of ${room.name}`}>
         <img src={photo.src} alt={photo.alt} />
         <form method="dialog" className="lightbox__bar">
           {room.photos.length > 1 && (
@@ -38,10 +38,10 @@ export function PhotoStrip({ room }: { room: RoomSpec }) {
               className="btn"
               onClick={() => setOpen((open + 1) % room.photos.length)}
             >
-              Vezi fotografia următoare
+              Next photo
             </button>
           )}
-          <button className="btn btn--primary">Închide fotografia</button>
+          <button className="btn btn--primary">Close the photo</button>
         </form>
       </dialog>
     </div>

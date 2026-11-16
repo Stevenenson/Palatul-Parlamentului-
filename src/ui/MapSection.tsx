@@ -20,9 +20,9 @@ export function MapSection() {
       <div className="wrap room__grid">
         <div className="panel">
           <h2 id="harta-titlu" tabIndex={-1}>
-            Harta sălilor
+            Map of the halls
           </h2>
-          <p>Alege o sală din listă sau un pin de pe machetă ca să ajungi direct în ea.</p>
+          <p>Pick a hall from the list or a pin on the model to go straight to it.</p>
           <ol className="legend">
             {ROOMS.map((room, i) => (
               <li key={room.id}>
@@ -42,7 +42,7 @@ export function MapSection() {
                   <span className="legend__name">
                     {room.name}
                     {room.streetView && (
-                      <span className="badge" title="Are vedere reală în 360°">
+                      <span className="badge" title="Has a real 360° view">
                         360°
                       </span>
                     )}

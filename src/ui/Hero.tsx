@@ -16,23 +16,23 @@ export function Hero() {
     <section id="oras" className="stop hero hero--city" aria-labelledby="titlu">
       <div className="wrap hero__grid">
         <div className="hero__head">
-          <p className="overline">București · tur 3D</p>
+          <p className="overline">Bucharest · 3D tour</p>
           <h1 id="titlu" tabIndex={-1}>
-            Palatul Parlamentului
-            <span className="sr-only"> din București, în 3D</span>
+            Palace of the Parliament
+            <span className="sr-only"> in Bucharest, in 3D</span>
           </h1>
           <Meander units={9} />
-          <p className="lead">Întâi în oraș, la capătul Bulevardului Unirii. Apoi de aproape, sală cu sală.</p>
+          <p className="lead">First in the city, at the end of Unirii Boulevard. Then up close, hall by hall.</p>
           {failed && (
             <p className="notice">
-              Browserul acesta nu poate desena macheta 3D. Textele despre săli și lista lor rămân mai jos.
+              This browser can’t draw the 3D model. The texts about the halls and their list are below.
             </p>
           )}
         </div>
 
         <div className="hero__foot">
           <a className="descend" {...stopLink('palat')}>
-            Coboară spre palat
+            Down to the palace
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 4v15M6 13l6 6 6-6" />
             </svg>
@@ -71,20 +71,20 @@ export function PalaceSection() {
     <section id="palat" className="stop hero hero--palace" aria-labelledby="palat-titlu">
       <div className="wrap hero__grid">
         <div className="hero__head">
-          <p className="overline">Macheta</p>
+          <p className="overline">The model</p>
           <h2 id="palat-titlu" className="hero__title" tabIndex={-1}>
-            Palatul, de aproape
+            The palace, up close
           </h2>
-          <p className="lead">Rotește macheta, apoi coboară prin patru săli și vezi filmările din fiecare.</p>
+          <p className="lead">Turn the model, then go down through four halls and watch the videos in each.</p>
         </div>
 
         <div className="hero__foot">
           <div className="actions">
             <a className="btn btn--primary" {...stopLink(ROOMS[0].id)}>
-              Începe turul
+              Start the tour
             </a>
             <a className="link" {...stopLink('harta')}>
-              Harta sălilor
+              Map of the halls
             </a>
           </div>
           <dl className="facts hero__facts">
@@ -101,7 +101,7 @@ export function PalaceSection() {
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 12a8 4 0 0 0 16 0M4 12a8 4 0 0 1 16 0M17 15.5l3-3.5-4-1.5" />
           </svg>
-          Trage ca să rotești macheta
+          Drag to turn the model
         </p>
       </div>
     </section>

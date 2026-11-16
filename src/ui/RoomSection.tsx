@@ -19,9 +19,9 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
       <div className="wrap room__grid">
         {room.streetView && (
           <div className="view">
-            <div className="segmented glass" role="group" aria-label={`Vederea sălii: ${room.name}`}>
+            <div className="segmented glass" role="group" aria-label={`View of the hall: ${room.name}`}>
               <button type="button" aria-pressed="true">
-                Machetă
+                Model
               </button>
               <button
                 type="button"
@@ -29,19 +29,19 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
                 aria-pressed="false"
                 onClick={() => useTour.getState().set({ real: index })}
               >
-                Sala reală 360°
+                Real hall 360°
               </button>
             </div>
-            <p className="view__note">Imaginile reale se încarcă de la Google Street View.</p>
+            <p className="view__note">The real images load from Google Street View.</p>
           </div>
         )}
         <article className="panel">
           <p className="panel__index">
             <span aria-hidden="true">
-              Sala {toRoman(index + 1)} din {toRoman(ROOMS.length)}
+              Hall {toRoman(index + 1)} of {toRoman(ROOMS.length)}
             </span>
             <span className="sr-only">
-              Sala {index + 1} din {ROOMS.length}
+              Hall {index + 1} of {ROOMS.length}
             </span>
           </p>
           <h2 id={titleId} tabIndex={-1}>
@@ -58,7 +58,7 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
           </dl>
           {/* Restul stă pliat, ca panoul să lase sala la vedere. */}
           <details className="about">
-            <summary>Despre sală</summary>
+            <summary>About the hall</summary>
             <p>{room.text}</p>
             {room.facts.length > 2 && (
               <dl className="facts facts--panel">
@@ -73,7 +73,7 @@ export function RoomSection({ room, index }: { room: RoomSpec; index: number }) 
             <PhotoStrip room={room} />
           </details>
           <a className="link" {...stopLink('harta')}>
-            Vezi sala pe hartă
+            See the hall on the map
           </a>
         </article>
         <RecordingCard room={room} index={index} />

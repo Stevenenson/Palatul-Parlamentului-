@@ -78,11 +78,11 @@ function testRecordings(
   topics: [string, string, string],
   firstIsVideo = false,
 ): Recording[] {
-  const slots = ['un elev sau un student', 'un adult', 'o persoană în vârstă']
+  const slots = ['a pupil or a student', 'an adult', 'an older person']
   return topics.map((topic, i) => ({
     id: `${roomId}-test-${i + 1}`,
-    title: `Filmare de test ${i + 1}`,
-    who: `Loc rezervat pentru ${slots[i]}`,
+    title: `Test video ${i + 1}`,
+    who: `Reserved for ${slots[i]}`,
     text: topic,
     media:
       firstIsVideo && i === 0
@@ -95,14 +95,14 @@ function testRecordings(
 export const ROOMS: RoomSpec[] = [
   {
     id: 'galeria-de-onoare',
-    name: 'Galeria de Onoare',
-    note: 'Latura de est a palatului',
-    text: 'Un culoar lung de 150 m și lat de 18 m, cu 34 de coloane octogonale și 67 de lustre de cristal. Aici se află cele două scări monumentale care urcă la etajul 1.',
+    name: 'Gallery of Honour',
+    note: 'The east side of the palace',
+    text: 'A corridor 150 m long and 18 m wide, with 34 octagonal columns and 67 crystal chandeliers. The two monumental staircases up to the first floor start here.',
     facts: [
-      { value: '150 m', label: 'lungime' },
-      { value: '18 m', label: 'lățime' },
-      { value: '34', label: 'coloane octogonale' },
-      { value: '67', label: 'lustre de cristal' },
+      { value: '150 m', label: 'length' },
+      { value: '18 m', label: 'width' },
+      { value: '34', label: 'octagonal columns' },
+      { value: '67', label: 'crystal chandeliers' },
     ],
     accent: '#c8452b',
     floor: [0, 2, 100],
@@ -111,9 +111,9 @@ export const ROOMS: RoomSpec[] = [
     camera: { eye: [-11.5, 3.5, 1.3], look: [0, 3.2, 0], fov: 46 },
     hologram: { kind: 'table', at: [0, 0, 0], yaw: -Math.PI / 2, width: 5 },
     recordings: testRecordings('galeria', [
-      'Aici intră prima filmare: ce simte cineva care vede galeria pentru prima oară.',
-      'Aici intră a doua filmare: cum a fost construită galeria și din ce materiale.',
-      'Aici intră a treia filmare: la ce folosește galeria astăzi.',
+      'The first video goes here: what someone feels seeing the gallery for the first time.',
+      'The second video goes here: how the gallery was built and from what materials.',
+      'The third video goes here: what the gallery is used for today.',
     ]),
     photos: [],
     // De confirmat de utilizator că panorama e din Galeria de Onoare (coloane de marmură albă, covor roșu).
@@ -123,13 +123,13 @@ export const ROOMS: RoomSpec[] = [
   },
   {
     id: 'sala-unirii',
-    name: 'Sala Unirii',
-    note: 'Cu ieșire directă spre parc',
-    text: 'Gândită pentru marile recepții, sala are o navă centrală de 18 × 54 m sub un tavan de sticlă. Astăzi găzduiește mai ales târguri și expoziții.',
+    name: 'Union Hall',
+    note: 'With a direct exit to the park',
+    text: 'Designed for grand receptions, the hall has an 18 × 54 m central nave under a glass ceiling. Today it mostly hosts fairs and exhibitions.',
     facts: [
-      { value: '18 × 54 m', label: 'nava centrală' },
-      { value: '15 m', label: 'înălțimea medie a navei' },
-      { value: '1.100 m²', label: 'covorul, de circa 3 tone' },
+      { value: '18 × 54 m', label: 'central nave' },
+      { value: '15 m', label: 'average height of the nave' },
+      { value: '1,100 m²', label: 'the carpet, about 3 tonnes' },
     ],
     accent: '#1f5fbf',
     floor: [0, 6, 20],
@@ -138,21 +138,21 @@ export const ROOMS: RoomSpec[] = [
     camera: { eye: [4, 4.8, 0], look: [-26, 5.8, 0], fov: 46 },
     hologram: { kind: 'wall', at: [-26.92, 2, 0], yaw: Math.PI / 2, width: 16 },
     recordings: testRecordings('unirii', [
-      'Aici intră prima filmare: o părere despre dimensiunile sălii.',
-      'Aici intră a doua filmare: povestea covorului și a tavanului de sticlă.',
-      'Aici intră a treia filmare: ce evenimente au loc aici.',
+      'The first video goes here: a view on the size of the hall.',
+      'The second video goes here: the story of the carpet and the glass ceiling.',
+      'The third video goes here: what events take place here.',
     ], true),
     photos: [],
   },
   {
     id: 'sala-drepturilor-omului',
-    name: 'Sala Drepturilor Omului',
-    note: 'Lambrisată complet în stejar',
-    text: 'În mijloc stă o masă rotundă din stejar cu 60 de scaune. Deasupra ei atârnă un candelabru din cristal de Mediaș de circa 2 tone, al doilea ca mărime din clădire.',
+    name: 'Human Rights Hall',
+    note: 'Panelled entirely in oak',
+    text: 'In the middle stands a round oak table with 60 chairs. Above it hangs a chandelier of Mediaș crystal weighing about 2 tonnes, the second largest in the building.',
     facts: [
-      { value: '625 m²', label: 'suprafață' },
-      { value: '60', label: 'scaune la masa rotundă' },
-      { value: '2 t', label: 'candelabrul, aproximativ' },
+      { value: '625 m²', label: 'floor area' },
+      { value: '60', label: 'chairs at the round table' },
+      { value: '2 t', label: 'the chandelier, roughly' },
     ],
     accent: '#0f8a74',
     floor: [-110, 12, 30],
@@ -161,9 +161,9 @@ export const ROOMS: RoomSpec[] = [
     camera: { eye: [0, 5.6, 11.7], look: [0, 1.9, 0], fov: 54 },
     hologram: { kind: 'table', at: [0, 0, 0], yaw: 0, width: 4.6 },
     recordings: testRecordings('drepturi', [
-      'Aici intră prima filmare: prima impresie despre masa rotundă.',
-      'Aici intră a doua filmare: pentru cine a fost gândită sala la început.',
-      'Aici intră a treia filmare: ce ședințe se țin aici acum.',
+      'The first video goes here: a first impression of the round table.',
+      'The second video goes here: who the hall was first designed for.',
+      'The third video goes here: what meetings are held here now.',
     ]),
     photos: [],
     // De confirmat de utilizator că panorama e din Sala Drepturilor Omului (sală lambrisată în stejar).
@@ -173,13 +173,13 @@ export const ROOMS: RoomSpec[] = [
   },
   {
     id: 'sala-alexandru-ioan-cuza',
-    name: 'Sala Alexandru Ioan Cuza',
-    note: 'Etajul 1, în axul palatului',
-    text: 'Sala cu cea mai mare înălțime din palat și a doua ca suprafață. Se deschide printr-o logie amplă spre Piața Constituției și Bulevardul Unirii.',
+    name: 'Alexandru Ioan Cuza Hall',
+    note: 'First floor, on the palace axis',
+    text: 'The tallest hall in the palace and the second largest by area. A wide loggia opens it towards Constitution Square and Unirii Boulevard.',
     facts: [
-      { value: '20 m', label: 'înălțime, aproximativ' },
-      { value: '2.040 m²', label: 'suprafață' },
-      { value: '7', label: 'luminatoare în plafon' },
+      { value: '20 m', label: 'height, roughly' },
+      { value: '2,040 m²', label: 'floor area' },
+      { value: '7', label: 'skylights in the ceiling' },
     ],
     accent: '#b7791a',
     floor: [0, 28.2, 81],
@@ -188,9 +188,9 @@ export const ROOMS: RoomSpec[] = [
     camera: { eye: [-11, 4.4, -7.5], look: [29.4, 9.8, 2.5], fov: 60 },
     hologram: { kind: 'wall', at: [29.92, 2.6, 0], yaw: -Math.PI / 2, width: 21 },
     recordings: testRecordings('cuza', [
-      'Aici intră prima filmare: cum se vede orașul din logie.',
-      'Aici intră a doua filmare: istoria sălii și a balconului pentru orchestră.',
-      'Aici intră a treia filmare: ce se întâmplă în sală la evenimente.',
+      'The first video goes here: how the city looks from the loggia.',
+      'The second video goes here: the history of the hall and its orchestra balcony.',
+      'The third video goes here: what happens in the hall during events.',
     ]),
     photos: [],
   },
@@ -198,7 +198,7 @@ export const ROOMS: RoomSpec[] = [
 
 /** Din introducerea aceluiași articol; unde articolul dă două valori, e folosită cea din introducere. */
 export const PALACE_FACTS = [
-  { value: '270 × 240 m', label: 'amprenta la sol' },
-  { value: '84 m', label: 'înălțime deasupra solului' },
-  { value: '25 iunie 1984', label: 'piatra de temelie' },
+  { value: '270 × 240 m', label: 'footprint' },
+  { value: '84 m', label: 'height above ground' },
+  { value: '25 June 1984', label: 'foundation stone' },
 ]

@@ -34,11 +34,11 @@ jobs:
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
         run: |
-          for file in index.html istorie/index.html data/oras.json qr.svg media/videos/filmare-test.mp4; do
+          for file in index.html history/index.html istorie/index.html data/oras.json qr.svg media/videos/filmare-test.mp4; do
             test -s "dist/$file" || { echo "Lipsește dist/$file"; exit 1; }
           done
           grep -q "src=\"${BASE_PATH}assets/" dist/index.html || { echo "index.html nu pornește din ${BASE_PATH}"; exit 1; }
-          grep -q "src=\"${BASE_PATH}assets/" dist/istorie/index.html || { echo "istorie/ nu pornește din ${BASE_PATH}"; exit 1; }
+          grep -q "src=\"${BASE_PATH}assets/" dist/history/index.html || { echo "history/ does not start from ${BASE_PATH}"; exit 1; }
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

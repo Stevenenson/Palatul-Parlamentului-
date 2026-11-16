@@ -16,7 +16,7 @@ export function MihaiVodaDrawing() {
       className="drawing"
       viewBox="0 0 640 380"
       role="img"
-      aria-label="Desen schematic: biserica pleacă de pe vârful dealului, merge pe șine 289 de metri și coboară 6,2 metri până în strada Sapienței."
+      aria-label="Schematic drawing: the church leaves the top of the hill, travels 289 metres on rails and drops 6.2 metres to Sapienței Street."
     >
       <g className="drawing__contours">
         <path d="M150 58C222 54 262 98 252 136C242 178 186 196 130 188C70 180 46 144 58 108C68 78 98 60 150 58Z" />
@@ -40,10 +40,10 @@ export function MihaiVodaDrawing() {
 
       <g className="drawing__labels">
         <text x="150" y="166" textAnchor="middle">
-          locul inițial, pe deal
+          original site, on the hill
         </text>
         <text x="500" y="298" textAnchor="middle">
-          strada Sapienței
+          Sapienței Street
         </text>
         <text className="drawing__value" x="318" y="160" transform="rotate(26 318 160)">
           289 m
@@ -54,10 +54,10 @@ export function MihaiVodaDrawing() {
         <path className="drawing__ground" d="M24 334H200C268 334 300 360 372 360H616" pathLength={1} />
         <path className="drawing__dim" d="M600 334V360M592 334H608M592 360H608" />
         <text className="drawing__value" x="590" y="351" textAnchor="end">
-          6,2 m
+          6.2 m
         </text>
         <text x="24" y="322">
-          profil, înălțimi exagerate
+          profile, heights exaggerated
         </text>
       </g>
     </svg>

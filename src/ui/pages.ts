@@ -4,7 +4,7 @@
  */
 const BASE = import.meta.env.BASE_URL
 
-export const HISTORY_URL = `${BASE}istorie/`
+export const HISTORY_URL = `${BASE}history/`
 
 /** Turul, opțional deschis direct la o oprire (directorul citește ancora la pornire). */
 export const tourUrl = (stop?: string) => (stop ? `${BASE}#${stop}` : BASE)

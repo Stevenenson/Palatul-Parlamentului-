@@ -10,10 +10,10 @@ export type StopKind = 'city' | 'exterior' | 'room' | 'map'
 export type StopInfo = { id: string; kind: StopKind; label: string; room?: RoomSpec }
 
 export const STOP_LIST: StopInfo[] = [
-  { id: 'oras', kind: 'city', label: 'Orașul' },
-  { id: 'palat', kind: 'exterior', label: 'Palatul' },
+  { id: 'oras', kind: 'city', label: 'The city' },
+  { id: 'palat', kind: 'exterior', label: 'The palace' },
   ...ROOMS.map<StopInfo>((room) => ({ id: room.id, kind: 'room', label: room.name, room })),
-  { id: 'harta', kind: 'map', label: 'Harta sălilor' },
+  { id: 'harta', kind: 'map', label: 'Map of the halls' },
 ]
 
 export const LAST_STOP = STOP_LIST.length - 1

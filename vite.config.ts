@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Două pagini: turul 3D (`index.html`) și istoria palatului (`istorie/index.html`).
-// `BASE_PATH` e subfolderul în care e publicat site-ul (pe GitHub Pages, numele repo-ului).
+// Two pages: the 3D tour (`index.html`) and the palace history (`history/index.html`).
+// `BASE_PATH` is the subfolder the site is published in (on GitHub Pages, the repo name).
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
   plugins: [react()],
@@ -12,7 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
-        istorie: 'istorie/index.html',
+        history: 'history/index.html',
       },
     },
   },

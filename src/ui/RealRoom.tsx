@@ -70,23 +70,23 @@ export function RealRoom() {
           <header className="real__bar">
             <div className="real__name">
               <p className="overline" aria-hidden="true">
-                Sala {toRoman(real + 1)}
+                Hall {toRoman(real + 1)}
               </p>
               <h2 id="real-titlu">{room.name}</h2>
             </div>
-            <div className="segmented real__switch" role="group" aria-label="Vederea sălii">
+            <div className="segmented real__switch" role="group" aria-label="View of the hall">
               <button type="button" aria-pressed="false" onClick={() => set({ real: null })}>
-                Machetă
+                Model
               </button>
               <button type="button" aria-pressed="true">
-                Sala reală 360°
+                Real hall 360°
               </button>
             </div>
             <button
               type="button"
               className="icon-btn real__close"
               autoFocus
-              aria-label="Închide vederea 360° și revino la machetă"
+              aria-label="Close the 360° view and go back to the model"
               onClick={() => set({ real: null })}
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -99,19 +99,19 @@ export function RealRoom() {
             <iframe
               className="real__frame"
               src={embedUrl(view)}
-              title={`Vedere 360° din ${room.name}, Google Street View`}
+              title={`360° view of ${room.name}, Google Street View`}
               allowFullScreen
             />
 
-            <section className="real__side" aria-label={`Filmări din ${room.name}`}>
+            <section className="real__side" aria-label={`Videos from ${room.name}`}>
               <div className="real__top">
                 <p className="real__count">
-                  Filmarea {current + 1} din {count}
+                  Video {current + 1} of {count}
                 </p>
                 <button
                   type="button"
                   className="icon-btn"
-                  aria-label="Filmarea anterioară"
+                  aria-label="Previous video"
                   onClick={() => stepRecording(real, -1)}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -121,7 +121,7 @@ export function RealRoom() {
                 <button
                   type="button"
                   className="icon-btn"
-                  aria-label="Filmarea următoare"
+                  aria-label="Next video"
                   onClick={() => stepRecording(real, 1)}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -144,7 +144,7 @@ export function RealRoom() {
                   <img className="real__media" src={recording.media.src} alt="" />
                 )}
                 <div aria-live="polite">
-                  {recording.demo && <p className="tag">Conținut de test</p>}
+                  {recording.demo && <p className="tag">Test content</p>}
                   <h3>{recording.title}</h3>
                   <p className="real__who">{recording.who}</p>
                   <p className="real__text">{recording.text}</p>
@@ -154,9 +154,9 @@ export function RealRoom() {
           </div>
 
           <p className="real__credit">
-            Imagini: Google Street View.{' '}
+            Images: Google Street View.{' '}
             <a href={view.source} target="_blank" rel="noreferrer">
-              Deschide sala în Google Arts &amp; Culture
+              Open the hall in Google Arts &amp; Culture
             </a>
           </p>
         </>
